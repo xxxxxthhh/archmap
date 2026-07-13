@@ -1,0 +1,533 @@
+[
+  {
+    "claims": [],
+    "id": "node_2086a307b87831cc",
+    "kind": "external",
+    "relations": [],
+    "slug": "importlib",
+    "title": "importlib"
+  },
+  {
+    "claims": [],
+    "id": "node_26b663078a172c33",
+    "kind": "external",
+    "relations": [],
+    "slug": "requests",
+    "title": "requests"
+  },
+  {
+    "claims": [],
+    "id": "node_435162ca94b6c885",
+    "kind": "external",
+    "relations": [],
+    "slug": "mystery",
+    "title": "mystery"
+  },
+  {
+    "claims": [],
+    "id": "node_466e4aa42ceb0c57",
+    "kind": "external",
+    "relations": [],
+    "slug": "bs4",
+    "title": "bs4"
+  },
+  {
+    "claims": [],
+    "id": "node_6fcb32305d4bec25",
+    "kind": "external",
+    "relations": [],
+    "slug": "dupe",
+    "title": "dupe"
+  },
+  {
+    "claims": [],
+    "id": "node_771e156e3fb21590",
+    "kind": "module",
+    "relations": [],
+    "scope": {
+      "files": [
+        "pkg/helper.py"
+      ],
+      "symbols": [
+        "Helper"
+      ]
+    },
+    "slug": "pkg-helper-py",
+    "title": "pkg/helper.py"
+  },
+  {
+    "claims": [],
+    "id": "node_77c31c20c10235bf",
+    "kind": "module",
+    "relations": [],
+    "scope": {
+      "files": [
+        "pkg/util.py"
+      ]
+    },
+    "slug": "pkg-util-py",
+    "title": "pkg/util.py"
+  },
+  {
+    "claims": [],
+    "id": "node_9149b72cf6e98468",
+    "kind": "module",
+    "relations": [],
+    "scope": {
+      "files": [
+        "pkg/__init__.py"
+      ],
+      "symbols": [
+        "public_api"
+      ]
+    },
+    "slug": "pkg-init-py",
+    "title": "pkg/__init__.py"
+  },
+  {
+    "claims": [],
+    "id": "node_9615c4f1ce9c9e71",
+    "kind": "external",
+    "relations": [],
+    "slug": "cli-serve",
+    "title": "cli:serve"
+  },
+  {
+    "claims": [],
+    "id": "node_a3b0e4c692e2fe42",
+    "kind": "module",
+    "relations": [],
+    "scope": {
+      "files": [
+        "pkg/dynamic.py"
+      ]
+    },
+    "slug": "pkg-dynamic-py",
+    "title": "pkg/dynamic.py"
+  },
+  {
+    "claims": [],
+    "id": "node_a867c27f590fcdea",
+    "kind": "external",
+    "relations": [],
+    "slug": "os",
+    "title": "os"
+  },
+  {
+    "claims": [],
+    "id": "node_ab120647a5c8da17",
+    "kind": "external",
+    "relations": [],
+    "slug": "route-get-health",
+    "title": "route:GET /health"
+  },
+  {
+    "claims": [
+      {
+        "confidence": 1,
+        "evidence": [
+          {
+            "analyzer": "python",
+            "analyzer_version": "0.1.0+python-fixture",
+            "blob_hash": "sha256:ae60174161dae2c22e283fd277763e7dff4010ef56261c483e5909c18d05c2f9",
+            "commit": "working-tree",
+            "extract_hash": "sha256:1022daac59d7b498b6c717aee682f639ef42b75f5d718f12a7b4e081d6901f62",
+            "path": "tests/test_service.py",
+            "repository": "local"
+          }
+        ],
+        "id": "claim_f08cc94d7bb5df39",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "status": "active",
+        "text": "Pytest test module (path convention).",
+        "type": "fact"
+      }
+    ],
+    "id": "node_bc205871ecf68561",
+    "kind": "module",
+    "relations": [
+      {
+        "certainty": "known",
+        "evidence": [
+          {
+            "analyzer": "python",
+            "analyzer_version": "0.1.0+python-fixture",
+            "blob_hash": "sha256:ae60174161dae2c22e283fd277763e7dff4010ef56261c483e5909c18d05c2f9",
+            "commit": "working-tree",
+            "extract_hash": "sha256:47f15801b6ebc8561e9ed33c805b49f1bbb26a417223543ec56557c4fa934599",
+            "path": "tests/test_service.py",
+            "repository": "local",
+            "symbol": "pkg.service"
+          }
+        ],
+        "id": "rel_757970c914589d7e",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_bfbc55d4d73c9eee",
+        "type": "imports"
+      }
+    ],
+    "scope": {
+      "files": [
+        "tests/test_service.py"
+      ],
+      "symbols": [
+        "test_service"
+      ]
+    },
+    "slug": "tests-test-service-py",
+    "title": "tests/test_service.py"
+  },
+  {
+    "claims": [
+      {
+        "confidence": 1,
+        "evidence": [
+          {
+            "analyzer": "python",
+            "analyzer_version": "0.1.0+python-fixture",
+            "blob_hash": "sha256:3691d8eb4afa1c80536202936f58dbe3ef90d0b656df116bac6b01118192d564",
+            "commit": "working-tree",
+            "extract_hash": "sha256:f140ebe5863195ab8fd926b97a24c8263bed402c17f4bd44f5ee501945cfac12",
+            "path": "pkg/service.py",
+            "repository": "local"
+          }
+        ],
+        "id": "claim_b8fe0027459498a8",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "status": "active",
+        "text": "Entry point (__main__ guard).",
+        "type": "fact"
+      }
+    ],
+    "id": "node_bfbc55d4d73c9eee",
+    "kind": "module",
+    "relations": [
+      {
+        "certainty": "partial",
+        "evidence": [
+          {
+            "analyzer": "python",
+            "analyzer_version": "0.1.0+python-fixture",
+            "blob_hash": "sha256:3691d8eb4afa1c80536202936f58dbe3ef90d0b656df116bac6b01118192d564",
+            "commit": "working-tree",
+            "extract_hash": "sha256:c626f83d9459cd383f0bb2b2ed748142a848c81dc067f51fffdda1f0f3b1069e",
+            "path": "pkg/service.py",
+            "repository": "local",
+            "symbol": "pkg.dynamic"
+          }
+        ],
+        "id": "rel_08d91f18f7143421",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_a3b0e4c692e2fe42",
+        "type": "imports"
+      },
+      {
+        "certainty": "partial",
+        "evidence": [
+          {
+            "analyzer": "python",
+            "analyzer_version": "0.1.0+python-fixture",
+            "blob_hash": "sha256:3691d8eb4afa1c80536202936f58dbe3ef90d0b656df116bac6b01118192d564",
+            "commit": "working-tree",
+            "extract_hash": "sha256:163f9815206662a2373adab0d7e4710e29f561c1b8969135bed5c17152c204f2",
+            "path": "pkg/service.py",
+            "repository": "local",
+            "symbol": "bs4"
+          }
+        ],
+        "id": "rel_3dd7f9e78ff085f2",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_466e4aa42ceb0c57",
+        "type": "imports"
+      },
+      {
+        "certainty": "known",
+        "evidence": [
+          {
+            "analyzer": "python",
+            "analyzer_version": "0.1.0+python-fixture",
+            "blob_hash": "sha256:3691d8eb4afa1c80536202936f58dbe3ef90d0b656df116bac6b01118192d564",
+            "commit": "working-tree",
+            "extract_hash": "sha256:dd38a405df2befbf2b4510d73c904394c3b718e7616ed07993831438035b191f",
+            "path": "pkg/service.py",
+            "repository": "local",
+            "symbol": "pkg.helper"
+          }
+        ],
+        "id": "rel_4470fa11367678c7",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_771e156e3fb21590",
+        "type": "imports"
+      },
+      {
+        "certainty": "known",
+        "evidence": [
+          {
+            "analyzer": "python",
+            "analyzer_version": "0.1.0+python-fixture",
+            "blob_hash": "sha256:3691d8eb4afa1c80536202936f58dbe3ef90d0b656df116bac6b01118192d564",
+            "commit": "working-tree",
+            "extract_hash": "sha256:06185522e4085460db5f973d6987f2c5f42519fccd56836e5e5ed9842962de8d",
+            "path": "pkg/service.py",
+            "repository": "local",
+            "symbol": "requests"
+          }
+        ],
+        "id": "rel_6d466e785631c2ff",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_26b663078a172c33",
+        "type": "imports"
+      },
+      {
+        "certainty": "known",
+        "evidence": [
+          {
+            "analyzer": "python",
+            "analyzer_version": "0.1.0+python-fixture",
+            "blob_hash": "sha256:3691d8eb4afa1c80536202936f58dbe3ef90d0b656df116bac6b01118192d564",
+            "commit": "working-tree",
+            "extract_hash": "sha256:378f255cb444a58be48cec864ba58ea8314a4c4be83802348528691c89192541",
+            "path": "pkg/service.py",
+            "repository": "local",
+            "symbol": "pkg.util"
+          }
+        ],
+        "id": "rel_9b1781e25c03a690",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_77c31c20c10235bf",
+        "type": "imports"
+      },
+      {
+        "certainty": "known",
+        "evidence": [
+          {
+            "analyzer": "python",
+            "analyzer_version": "0.1.0+python-fixture",
+            "blob_hash": "sha256:3691d8eb4afa1c80536202936f58dbe3ef90d0b656df116bac6b01118192d564",
+            "commit": "working-tree",
+            "extract_hash": "sha256:0babfcf23da116246def14f12f21b3dba9c23b1dc56767b6d052a23299d5a66a",
+            "path": "pkg/service.py",
+            "repository": "local",
+            "symbol": "email"
+          }
+        ],
+        "id": "rel_cdb51a500a1f41eb",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_c77c64ee8c4a4b0a",
+        "type": "imports"
+      },
+      {
+        "certainty": "partial",
+        "evidence": [
+          {
+            "analyzer": "python",
+            "analyzer_version": "0.1.0+python-fixture",
+            "blob_hash": "sha256:3691d8eb4afa1c80536202936f58dbe3ef90d0b656df116bac6b01118192d564",
+            "commit": "working-tree",
+            "extract_hash": "sha256:cbeb15f3bef9d4b31551f00469b3c69e6ba3de373ef9cbc153bcda5b0d6784fc",
+            "path": "pkg/service.py",
+            "repository": "local"
+          }
+        ],
+        "id": "rel_cfb26e1736f87fc9",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_9615c4f1ce9c9e71",
+        "type": "publishes"
+      },
+      {
+        "certainty": "known",
+        "evidence": [
+          {
+            "analyzer": "python",
+            "analyzer_version": "0.1.0+python-fixture",
+            "blob_hash": "sha256:3691d8eb4afa1c80536202936f58dbe3ef90d0b656df116bac6b01118192d564",
+            "commit": "working-tree",
+            "extract_hash": "sha256:de2abade832c8e350a1bdc98cfcdb1e202ac4749c5fc51a4a970d41736b6df5c",
+            "path": "pkg/service.py",
+            "repository": "local",
+            "symbol": "os"
+          }
+        ],
+        "id": "rel_d99d99e8d632ad25",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_a867c27f590fcdea",
+        "type": "imports"
+      },
+      {
+        "certainty": "partial",
+        "evidence": [
+          {
+            "analyzer": "python",
+            "analyzer_version": "0.1.0+python-fixture",
+            "blob_hash": "sha256:3691d8eb4afa1c80536202936f58dbe3ef90d0b656df116bac6b01118192d564",
+            "commit": "working-tree",
+            "extract_hash": "sha256:778ded3ccc0cfc749e145429322041f55cd5fa8f36e4ac715c459aa1690a00fd",
+            "path": "pkg/service.py",
+            "repository": "local",
+            "symbol": "dupe"
+          }
+        ],
+        "id": "rel_dbcd315ab4b89867",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_6fcb32305d4bec25",
+        "type": "imports"
+      },
+      {
+        "certainty": "partial",
+        "evidence": [
+          {
+            "analyzer": "python",
+            "analyzer_version": "0.1.0+python-fixture",
+            "blob_hash": "sha256:3691d8eb4afa1c80536202936f58dbe3ef90d0b656df116bac6b01118192d564",
+            "commit": "working-tree",
+            "extract_hash": "sha256:232f0483145f0783a160ad11100ac3d41ef8f60c02c9d59fd0dc529f44c0e6f0",
+            "path": "pkg/service.py",
+            "repository": "local"
+          }
+        ],
+        "id": "rel_f0da674d729778c5",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_ab120647a5c8da17",
+        "type": "publishes"
+      },
+      {
+        "certainty": "partial",
+        "evidence": [
+          {
+            "analyzer": "python",
+            "analyzer_version": "0.1.0+python-fixture",
+            "blob_hash": "sha256:3691d8eb4afa1c80536202936f58dbe3ef90d0b656df116bac6b01118192d564",
+            "commit": "working-tree",
+            "extract_hash": "sha256:8d5b616bca2a703d3f82c300d51340542ec19084c775d20c6a14a78d765772b4",
+            "path": "pkg/service.py",
+            "repository": "local",
+            "symbol": "mystery"
+          }
+        ],
+        "id": "rel_fca18c65877fe38c",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_435162ca94b6c885",
+        "type": "imports"
+      },
+      {
+        "certainty": "known",
+        "evidence": [
+          {
+            "analyzer": "python",
+            "analyzer_version": "0.1.0+python-fixture",
+            "blob_hash": "sha256:3691d8eb4afa1c80536202936f58dbe3ef90d0b656df116bac6b01118192d564",
+            "commit": "working-tree",
+            "extract_hash": "sha256:856a29a936ceb53098a8d45c076bcb67d3b911d9303db4f7bca5b423ded40744",
+            "path": "pkg/service.py",
+            "repository": "local",
+            "symbol": "importlib"
+          }
+        ],
+        "id": "rel_fe923cfe557ca4ab",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_2086a307b87831cc",
+        "type": "imports"
+      }
+    ],
+    "scope": {
+      "files": [
+        "pkg/service.py"
+      ],
+      "symbols": [
+        "Service",
+        "build",
+        "health",
+        "serve"
+      ]
+    },
+    "slug": "pkg-service-py",
+    "title": "pkg/service.py"
+  },
+  {
+    "claims": [],
+    "id": "node_c2eefed3545cc671",
+    "kind": "module",
+    "relations": [],
+    "scope": {
+      "files": [
+        "dupe.py"
+      ]
+    },
+    "slug": "dupe-py",
+    "title": "dupe.py"
+  },
+  {
+    "claims": [],
+    "id": "node_c77c64ee8c4a4b0a",
+    "kind": "module",
+    "relations": [],
+    "scope": {
+      "files": [
+        "email.py"
+      ],
+      "symbols": [
+        "LocalEmail"
+      ]
+    },
+    "slug": "email-py",
+    "title": "email.py"
+  },
+  {
+    "claims": [],
+    "id": "node_d8d1215879794da2",
+    "kind": "module",
+    "relations": [],
+    "scope": {
+      "files": [
+        "dupe/__init__.py"
+      ]
+    },
+    "slug": "dupe-init-py",
+    "title": "dupe/__init__.py"
+  }
+]

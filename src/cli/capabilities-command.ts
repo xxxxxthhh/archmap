@@ -5,7 +5,7 @@
  * listed explicitly so gaps are visible rather than silent (PLAN 3.5, M1 exit criteria).
  */
 
-import { ADAPTER_REGISTRY } from '../capabilities.js';
+import { getAdapterRegistry } from '../capabilities.js';
 import { isGitRepo } from '../scan/git.js';
 import { parseOptions, usageError } from './options.js';
 import type { CommandContext, CommandOutput } from './types.js';
@@ -19,13 +19,14 @@ export function runCapabilitiesCommand(args: string[], ctx: CommandContext): Com
   }
 
   const environment = { git: isGitRepo(ctx.cwd) };
+  const adapters = getAdapterRegistry();
 
   if (json) {
     const report = {
       schema_version: 1 as const,
       command: 'capabilities' as const,
       environment,
-      adapters: ADAPTER_REGISTRY,
+      adapters,
     };
     return { exitCode: 0, stdout: `${JSON.stringify(report, null, 2)}\n`, stderr: '' };
   }
@@ -33,7 +34,7 @@ export function runCapabilitiesCommand(args: string[], ctx: CommandContext): Com
   const lines = [
     `environment: git ${environment.git ? 'available' : 'unavailable'}`,
     'adapters:',
-    ...ADAPTER_REGISTRY.map(
+    ...adapters.map(
       (c) => `  ${c.id}@${c.version}  ${c.status}${c.provides ? `  (${c.provides.join(', ')})` : ''}`,
     ),
   ];

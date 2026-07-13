@@ -1,6 +1,7 @@
 /** Snapshot construction and diffing — the basis of stale detection (PLAN 12, M1). */
 
-import { TYPESCRIPT_CAPABILITY, UNIVERSAL_CAPABILITY } from '../capabilities.js';
+import { getAdapterRegistry } from '../capabilities.js';
+import type { Capability } from '../model/types.js';
 import type { Discovery, FileRecord, Snapshot, SnapshotDiff } from './types.js';
 
 /**
@@ -8,15 +9,18 @@ import type { Discovery, FileRecord, Snapshot, SnapshotDiff } from './types.js';
  * (id + version) lets M0 validation confirm that analyzer facts/relations cite a supported
  * capability. Order is fixed for determinism.
  */
-export const DECLARED_CAPABILITIES = [UNIVERSAL_CAPABILITY, TYPESCRIPT_CAPABILITY];
+export const DECLARED_CAPABILITIES = getAdapterRegistry();
 
 /** Assemble the deterministic snapshot written by `scan`. */
-export function buildSnapshot(discovery: Discovery): Snapshot {
+export function buildSnapshot(
+  discovery: Discovery,
+  capabilities: readonly Capability[] = getAdapterRegistry(),
+): Snapshot {
   return {
     schema_version: 1,
     base_commit: discovery.base_commit,
     dirty: discovery.dirty,
-    capabilities: DECLARED_CAPABILITIES,
+    capabilities: [...capabilities],
     files: discovery.files,
     excluded_counts: discovery.excluded_counts,
   };

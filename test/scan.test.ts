@@ -12,6 +12,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
+import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 
 import { runInit } from '../src/cli/init-command.js';
 import { runScanCommand } from '../src/cli/scan-command.js';
@@ -162,14 +163,31 @@ describe('status', () => {
 });
 
 describe('capabilities', () => {
-  it('reports universal + typescript supported and remaining adapters unsupported', () => {
+  it('reports universal, typescript, and the available packaged Python adapter truthfully', () => {
     const out = runCapabilitiesCommand(['--json'], ctx());
     const report = JSON.parse(out.stdout);
     const byId = Object.fromEntries(report.adapters.map((a: { id: string; status: string }) => [a.id, a.status]));
     expect(byId.universal).toBe('supported');
     expect(byId.typescript).toBe('supported');
-    expect(byId.python).toBe('unsupported');
+    expect(byId.python).toBe('supported');
     expect(report.environment.git).toBe(true);
+  });
+});
+
+describe('stored M2 capability compatibility', () => {
+  it('keeps a valid pre-Python snapshot readable against its stored capability set', () => {
+    runInit([], ctx());
+    runScanCommand([], ctx());
+    const snapshotPath = paths.snapshot(repo);
+    const snapshot = parseYaml(readFileSync(snapshotPath, 'utf8'));
+    snapshot.capabilities = snapshot.capabilities.filter((capability: { id: string }) => capability.id !== 'python');
+    writeFileSync(snapshotPath, stringifyYaml(snapshot));
+
+    const out = runStatusCommand(['--json'], ctx());
+    expect(out.exitCode).toBe(1); // readable but stale because this build now declares Python
+    const report = JSON.parse(out.stdout);
+    expect(report.scanned).toBe(true);
+    expect(report.drift).toContain('snapshot-metadata');
   });
 });
 

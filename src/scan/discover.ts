@@ -19,7 +19,7 @@ import {
   type ExclusionRules,
 } from './exclude.js';
 import { collectGitState, isGitRepo } from './git.js';
-import { isTsJs } from '../analyze/languages.js';
+import { isPython, isTsJs } from '../analyze/languages.js';
 import { ARCHMAP_DIR } from '../store.js';
 import { ScanInputError } from '../store-errors.js';
 import type { Discovery, ExclusionReason, FileRecord, ProjectConfig } from './types.js';
@@ -167,9 +167,17 @@ export function discover(root: string, config: ProjectConfig['scan']): Discovery
       size: result.size,
       category: classify(relPath),
     });
-    // Retain analyzed bytes (and the root manifest/tsconfig used for import resolution) so the
-    // language adapter sees exactly what was hashed.
-    if (isTsJs(relPath) || relPath === 'package.json' || relPath === 'tsconfig.json') {
+    // Retain analyzed bytes (and root language manifests used for import resolution) so each
+    // adapter sees exactly what was hashed. Python packaging metadata is only dependency
+    // declaration input; this does not enable the later YAML/JSON data-I/O adapter scope.
+    if (
+      isTsJs(relPath) ||
+      isPython(relPath) ||
+      relPath === 'package.json' ||
+      relPath === 'tsconfig.json' ||
+      relPath === 'pyproject.toml' ||
+      relPath === 'requirements.txt'
+    ) {
       contents.set(relPath, result.content);
     }
   }
