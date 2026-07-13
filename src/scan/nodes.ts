@@ -33,7 +33,7 @@ export function rootNodeId(): string {
 }
 
 /** Human-readable slug matching the schema slug pattern; falls back to `repository` for root. */
-function slugFor(dirKey: string): string {
+export function slugFor(dirKey: string): string {
   if (dirKey === '.') return 'repository';
   const slug = dirKey
     .toLowerCase()

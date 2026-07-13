@@ -56,6 +56,12 @@ export interface Discovery {
   git_available: boolean;
   files: FileRecord[];
   excluded_counts: Record<ExclusionReason, number>;
+  /**
+   * Byte content of included files a language adapter can analyze (by extension), keyed by
+   * path. Retained from the discovery read so analysis uses exactly the bytes that were
+   * hashed into the snapshot. Not part of the snapshot.
+   */
+  contents: Map<string, Buffer>;
 }
 
 /** A rename detected by identical content appearing at a new path. */

@@ -20,3 +20,12 @@ export { computeStatus } from './scan/status.js';
 export type { StatusResult } from './scan/status.js';
 export { ADAPTER_REGISTRY, UNIVERSAL_CAPABILITY } from './capabilities.js';
 export * as store from './store.js';
+
+// M2: TypeScript/JavaScript adapter + queries
+export { TYPESCRIPT_CAPABILITY } from './capabilities.js';
+export { analyzeSource } from './analyze/typescript.js';
+export type { ModuleAnalysis } from './analyze/typescript.js';
+export { analyzeModules } from './analyze/model.js';
+export { isTsJs } from './analyze/languages.js';
+export { contextFor, impactFor, evidenceFor, DEFAULT_CONTEXT_BUDGET } from './query/queries.js';
+export type { ContextResult, ImpactResult, EvidenceResult } from './query/queries.js';

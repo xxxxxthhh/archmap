@@ -111,6 +111,13 @@ export interface Relation {
   /** Node id this relation points at. */
   target: string;
   certainty: RelationCertainty;
+  /**
+   * Who authored this relation. `actor: analyzer` marks a scanner-owned relation that is
+   * rebuilt each scan; any other actor (or an absent provenance, as on legacy relations) is
+   * human/agent enrichment that scans must preserve. This makes relation ownership an
+   * explicit part of the contract rather than an id-naming convention.
+   */
+  provenance?: Provenance;
   evidence?: Evidence[];
 }
 

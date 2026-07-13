@@ -45,6 +45,17 @@ function nodeFileFor(sub: string): string {
   throw new Error(`no node file scopes ${sub}`);
 }
 
+/** The structural (directory) node file with the given title — the node that owns forward
+ * coverage for files directly in that directory (module nodes also scope TS/JS files). */
+function dirNodeFile(title: string): string {
+  const dir = paths.nodesDir(repo);
+  for (const e of readdirSync(dir)) {
+    const p = join(dir, e);
+    if (parseYaml(readFileSync(p, 'utf8')).title === title) return p;
+  }
+  throw new Error(`no node with title ${title}`);
+}
+
 function humanClaim(path: string) {
   return {
     id: 'claim_human',
@@ -324,7 +335,7 @@ describe('M1 tracked-model consistency', () => {
   }
 
   it('rejects a node whose scope no longer covers a snapshot file', () => {
-    const f = nodeFileContaining('src/a.ts');
+    const f = dirNodeFile('src'); // the structural node responsible for forward coverage
     const doc = parseYaml(readFileSync(f, 'utf8'));
     delete doc.scope;
     writeFileSync(f, stringifyYaml(doc));
@@ -510,7 +521,7 @@ describe('scan fails closed on unsafe or invalid tracked model', () => {
     {
       name: 'scope inconsistency',
       corrupt: () => {
-        const f = nodeFileFor('src/a.ts');
+        const f = dirNodeFile('src');
         const doc = parseYaml(readFileSync(f, 'utf8'));
         delete doc.scope;
         writeFileSync(f, stringifyYaml(doc));
@@ -698,25 +709,27 @@ describe('capability identity uniqueness', () => {
 
 describe('scan --json on a generated-model validation failure', () => {
   it('emits a stable JSON report, not prose', () => {
-    // Declare an extra capability in the snapshot and cite it from a human fact; the scanner's
-    // self-check (which emits only the universal capability) then rejects the merged model.
+    // The snapshot declares an extra capability and a preserved human claim cites it; the
+    // regenerated model (which declares only the shipped capabilities) then rejects that
+    // claim — a valid baseline that produces an invalid prospective model.
     const sp = paths.snapshot(repo);
     const snap = parseYaml(readFileSync(sp, 'utf8'));
-    snap.capabilities.push({ id: 'typescript', version: '0.1.0', status: 'supported' });
+    snap.capabilities.push({ id: 'legacy', version: '1.0.0', status: 'supported' });
     writeFileSync(sp, stringifyYaml(snap));
 
     const f = nodeFileFor('src/a.ts');
     const doc = parseYaml(readFileSync(f, 'utf8'));
     doc.claims = [
+      ...(doc.claims ?? []),
       {
-        id: 'claim_ts',
-        type: 'fact',
-        text: 'ts fact',
+        id: 'claim_legacy',
+        type: 'inference',
+        text: 'legacy human note',
         status: 'active',
-        confidence: 1,
-        provenance: { actor: 'analyzer', created_at: '2026-07-13T00:00:00Z' },
+        confidence: 0.5,
+        provenance: { actor: 'human', created_at: '2026-07-13T00:00:00Z' },
         evidence: [
-          { repository: 'local', commit: 'a', path: 'src/a.ts', analyzer: 'typescript', analyzer_version: '0.1.0', blob_hash: 'sha256:x', extract_hash: 'sha256:y' },
+          { repository: 'local', commit: 'a', path: 'src/a.ts', analyzer: 'legacy', analyzer_version: '1.0.0', blob_hash: 'sha256:x', extract_hash: 'sha256:y' },
         ],
       },
     ];

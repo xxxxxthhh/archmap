@@ -10,6 +10,7 @@
  * `scan --changed` changed.
  */
 
+import { analyzeModules } from '../analyze/model.js';
 import { toCanonicalYaml } from '../model/canonical.js';
 import type { Node } from '../model/types.js';
 import { StoreFormatError } from '../store-errors.js';
@@ -22,51 +23,76 @@ export interface ProspectiveModel {
   nodes: Node[];
 }
 
+/** A claim the scanner owns and rebuilds each scan (a deterministic analyzer fact). */
+const isAnalyzerClaim = (claim: Node['claims'][number]): boolean => claim.provenance.actor === 'analyzer';
+
 /**
- * Carry non-scanner-owned enrichment (claims/relations) from the tracked node of the same
- * stable id onto the freshly computed structural node, so rebuilding structure never deletes
- * human interpretations.
+ * A relation the scanner owns, decided by explicit, schema-backed provenance: only a relation
+ * authored by the analyzer (`provenance.actor === 'analyzer'`) is rebuilt/replaced each scan.
+ * A manual/agent relation (any other actor) — and a legacy M1 relation with no provenance at
+ * all — is preserved. This is a contract field, not an id-naming convention, so a manual
+ * relation cannot be misclassified by how it happens to be named.
+ */
+const isAnalyzerRelation = (rel: Node['relations'][number]): boolean => rel.provenance?.actor === 'analyzer';
+
+const hasManualEnrichment = (node: Node): boolean =>
+  node.claims.some((c) => !isAnalyzerClaim(c)) || node.relations.some((r) => !isAnalyzerRelation(r));
+
+/**
+ * Carry non-scanner-owned enrichment onto the freshly computed node by stable id. The scanner
+ * owns node structure, analyzer (`fact`) claims, and analyzer relations; it rebuilds those
+ * each scan. Human/agent claims (any non-`analyzer` actor) and manually authored relations
+ * (attributed to a non-scanner analyzer) are interpretation — preserved so rescanning never
+ * silently deletes them.
  */
 export function mergeEnrichment(structural: Node[], tracked: Node[]): Node[] {
   const priorById = new Map(tracked.map((n) => [n.id, n]));
   return structural.map((node) => {
     const prior = priorById.get(node.id);
-    if (prior && (prior.claims.length > 0 || prior.relations.length > 0)) {
-      return { ...node, claims: prior.claims, relations: prior.relations };
-    }
-    return node;
+    if (!prior) return node;
+    const enrichmentClaims = prior.claims.filter((c) => !isAnalyzerClaim(c));
+    const manualRelations = prior.relations.filter((r) => !isAnalyzerRelation(r));
+    if (enrichmentClaims.length === 0 && manualRelations.length === 0) return node;
+    return {
+      ...node,
+      claims: [...node.claims, ...enrichmentClaims],
+      relations: [...node.relations, ...manualRelations],
+    };
   });
 }
 
 /**
- * Fail closed if scanning would drop human/agent enrichment: a tracked node that carries
- * claims/relations but whose structural id is absent from the prospective set (e.g. its
- * directory was removed or renamed). The scanner must not auto-migrate or silently delete
- * human interpretations — the user reconciles these node files manually first.
+ * Fail closed if scanning would drop human/agent enrichment: a tracked node carrying manual
+ * claims or relations whose stable id is absent from the prospective set (e.g. a removed or
+ * renamed directory/file). The scanner must not auto-migrate or silently delete human
+ * interpretations — the user reconciles those node files manually first.
  */
 export function assertNoEnrichmentLoss(tracked: Node[], prospective: Node[]): void {
   const kept = new Set(prospective.map((n) => n.id));
-  const dropped = tracked.filter(
-    (n) => !kept.has(n.id) && (n.claims.length > 0 || n.relations.length > 0),
-  );
+  const dropped = tracked.filter((n) => !kept.has(n.id) && hasManualEnrichment(n));
   if (dropped.length > 0) {
     throw new StoreFormatError(
       `refusing to scan: it would drop human-authored claims/relations on node(s) ` +
         `${dropped.map((n) => n.id).join(', ')} whose structure no longer exists ` +
-        `(e.g. a removed or renamed directory). Reconcile or remove those node files manually first.`,
+        `(e.g. a removed or renamed directory/file). Reconcile or remove those node files manually first.`,
     );
   }
 }
 
-/** The model a scan of `discovery` would produce, preserving enrichment on stable ids. */
+/**
+ * The model a scan of `discovery` would produce: universal structural nodes plus language
+ * adapter (module/external) nodes, with human enrichment preserved on stable ids.
+ */
 export function prospectiveModel(
   discovery: Discovery,
   projectName: string,
   tracked: Node[],
 ): ProspectiveModel {
+  const structural = buildNodes(discovery.files, projectName);
+  const analyzed = analyzeModules(discovery);
   return {
     snapshot: buildSnapshot(discovery),
-    nodes: mergeEnrichment(buildNodes(discovery.files, projectName), tracked),
+    nodes: mergeEnrichment([...structural, ...analyzed], tracked),
   };
 }
 

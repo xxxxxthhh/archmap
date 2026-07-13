@@ -6,7 +6,6 @@
  * the snapshot, nodes, and cache untouched.
  */
 
-import { UNIVERSAL_CAPABILITY } from '../capabilities.js';
 import type { Manifest } from '../model/types.js';
 import { validateManifest, type ValidationError } from '../validate/validate.js';
 import { buildIndex, publishModel, readProject, writeIndex } from '../store.js';
@@ -42,7 +41,7 @@ export function runScan(root: string, options: { changed?: boolean } = {}): Scan
 
   const manifest: Manifest = {
     schema_version: 1,
-    capabilities: [UNIVERSAL_CAPABILITY],
+    capabilities: model.snapshot.capabilities,
     nodes: model.nodes,
   };
   const validation = validateManifest(manifest);

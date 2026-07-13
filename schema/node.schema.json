@@ -59,6 +59,16 @@
         },
         "target": { "type": "string", "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$" },
         "certainty": { "type": "string", "enum": ["known", "partial", "unknown"] },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["actor", "created_at"],
+          "properties": {
+            "actor": { "type": "string", "enum": ["analyzer", "agent", "human"] },
+            "model": { "type": "string", "minLength": 1 },
+            "created_at": { "type": "string", "format": "date-time" }
+          }
+        },
         "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/evidence" } }
       }
     },

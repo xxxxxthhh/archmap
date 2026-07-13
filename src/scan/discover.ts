@@ -19,6 +19,7 @@ import {
   type ExclusionRules,
 } from './exclude.js';
 import { collectGitState, isGitRepo } from './git.js';
+import { isTsJs } from '../analyze/languages.js';
 import { ARCHMAP_DIR } from '../store.js';
 import { ScanInputError } from '../store-errors.js';
 import type { Discovery, ExclusionReason, FileRecord, ProjectConfig } from './types.js';
@@ -135,6 +136,7 @@ export function discover(root: string, config: ProjectConfig['scan']): Discovery
 
   const excludedCounts = emptyCounts();
   const files: FileRecord[] = [];
+  const contents = new Map<string, Buffer>();
 
   for (const relPath of candidates) {
     if (isArchmapOwnPath(relPath)) continue;
@@ -165,6 +167,11 @@ export function discover(root: string, config: ProjectConfig['scan']): Discovery
       size: result.size,
       category: classify(relPath),
     });
+    // Retain analyzed bytes (and the root manifest/tsconfig used for import resolution) so the
+    // language adapter sees exactly what was hashed.
+    if (isTsJs(relPath) || relPath === 'package.json' || relPath === 'tsconfig.json') {
+      contents.set(relPath, result.content);
+    }
   }
 
   files.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
@@ -176,5 +183,6 @@ export function discover(root: string, config: ProjectConfig['scan']): Discovery
     git_available: gitAvailable,
     files,
     excluded_counts: excludedCounts,
+    contents,
   };
 }
