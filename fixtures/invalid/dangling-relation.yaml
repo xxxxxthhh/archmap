@@ -1,0 +1,14 @@
+# A relation whose target does not reference a known node must be rejected.
+schema_version: 1
+capabilities: []
+nodes:
+  - id: node_a
+    slug: node-a
+    kind: component
+    title: Node A
+    claims: []
+    relations:
+      - id: rel_dangling
+        type: calls
+        target: node_does_not_exist
+        certainty: partial

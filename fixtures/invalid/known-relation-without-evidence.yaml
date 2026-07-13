@@ -1,0 +1,20 @@
+# A relation asserted with certainty "known" must carry evidence.
+schema_version: 1
+capabilities: []
+nodes:
+  - id: node_a
+    slug: node-a
+    kind: component
+    title: Node A
+    claims: []
+    relations:
+      - id: rel_known_no_evidence
+        type: calls
+        target: node_b
+        certainty: known
+  - id: node_b
+    slug: node-b
+    kind: component
+    title: Node B
+    claims: []
+    relations: []

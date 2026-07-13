@@ -1,0 +1,29 @@
+# A partial/unsupported capability must never back a deterministic fact (PLAN 10, 13.3).
+schema_version: 1
+capabilities:
+  - id: dynamic-imports
+    version: 0.1.0
+    status: partial
+nodes:
+  - id: node_a
+    slug: node-a
+    kind: component
+    title: Node A
+    claims:
+      - id: claim_a
+        type: fact
+        text: Asserted as a fact but only a partial capability supports it.
+        status: active
+        confidence: 1
+        provenance:
+          actor: analyzer
+          created_at: 2026-07-13T00:00:00Z
+        evidence:
+          - repository: local
+            commit: 38ccdb6
+            path: src/a.ts
+            analyzer: dynamic-imports
+            analyzer_version: 0.1.0
+            blob_hash: sha256:a-blob
+            extract_hash: sha256:a-extract
+    relations: []

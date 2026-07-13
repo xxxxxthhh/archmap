@@ -1,0 +1,616 @@
+# archmap 实施计划
+
+状态：`Draft v0.1`
+
+日期：`2026-07-13`
+
+当前阶段：项目初始化，尚未开始运行时实现
+
+## 1. 产品定义
+
+`archmap` 是一个面向编码 Agent 和开发者的本地优先代码库地图。它将源码、配置、
+文档和 Git 历史转化为可查询、可验证、可增量维护的架构知识模型。
+
+它要解决的不是“如何快速生成一张漂亮的架构图”，而是以下问题：
+
+1. 一个架构结论由哪些源码事实支撑？
+2. 当前代码变化影响哪些组件、流程、规则和文档？
+3. 哪些架构信息仍然可信，哪些已经过期？
+4. Agent 完成当前任务最少需要读取哪些上下文？
+5. 人工确认的架构决策是否被新代码违反？
+
+可视化是核心体验之一，但它是知识模型的动态投影，不是独立事实来源。
+
+## 2. 第一版完成标准
+
+首个可用版本应当能够在一个本地 Git 仓库中完成下面的闭环：
+
+```text
+初始化项目
+  -> 扫描确定性事实
+  -> 构建本地索引
+  -> 查看架构与证据
+  -> 修改代码
+  -> 识别受影响和过期节点
+  -> 为 Agent 提供最小上下文
+  -> 校验并应用架构更新
+  -> 在 CI 中检查架构状态
+```
+
+首版必须满足：
+
+- 相同输入和相同分析器版本产生相同事实结果；
+- 所有 `fact` 都带可重新验证的证据；
+- AI 推理与确定性事实在数据层和 UI 中明确区分；
+- 人工决策默认不可被 AI 覆盖；
+- 代码变化后可以立即标记受影响节点，无需自动调用模型；
+- 不支持或无法确定的关系必须显示为 `partial` 或 `unknown`；
+- Viewer、CLI 和 MCP 读取同一个模型；
+- 整个核心工作流离线可用，不依赖云服务。
+
+## 3. 设计原则
+
+### 3.1 Facts、Interpretations、Decisions 分层
+
+| 层 | 来源 | 更新方式 | AI 权限 |
+| --- | --- | --- | --- |
+| Facts | 静态分析、配置解析、Git | 扫描器重建 | 只读 |
+| Interpretations | AI 或人工推理 | 证据支持的 proposal | 可提议更新 |
+| Decisions | 人工确认的约束和 ADR | 人工修改或批准 | 不可自动覆盖 |
+
+### 3.2 Evidence first
+
+每条事实、推理和关系都应能回答：
+
+- 来源文件是什么；
+- 对应 symbol 是什么；
+- 基于哪个 commit 和 blob；
+- 使用哪个分析器版本；
+- 当前证据是否仍然有效。
+
+行号只用于展示，不作为长期身份。长期身份优先使用 repository、blob、path、symbol
+和内容 hash。
+
+### 3.3 模型是事实来源，图是投影
+
+AI 不直接写 Mermaid。系统保存结构化节点和关系，再生成：
+
+- 交互式架构图；
+- 请求和数据流；
+- 变更影响图；
+- Mermaid、SVG 和 Markdown 导出；
+- PR/CI 报告。
+
+### 3.4 Local first
+
+- 仓库知识随 Git 版本管理；
+- 派生缓存可随时删除和重建；
+- 首版没有账户、组织、云同步或托管服务；
+- 远程能力以后作为明确启用的独立模块评估。
+
+### 3.5 Graceful degradation
+
+每个适配器公开能力和置信等级。未支持某种语言或框架时，通用 Git、文件、文档和
+变更能力仍然可用；系统不得把 AI 猜测伪装成静态分析结果。
+
+## 4. 目标用户与关键场景
+
+### 4.1 编码 Agent
+
+- 修改代码前请求任务相关的最小上下文；
+- 查询一个文件属于哪些架构节点；
+- 预测修改的上下游影响；
+- 获取约束、风险和已知决策；
+- 修改后提交结构化架构更新提案。
+
+### 4.2 开发者和 Reviewer
+
+- 浏览可展开的架构地图；
+- 点击节点或关系查看源码证据；
+- 比较两个 commit 的架构变化；
+- 查看 PR 引入的新依赖、外部集成和规则违反；
+- 判断文档是否已经落后于代码。
+
+### 4.3 多仓库工作区
+
+- 每个 repo 独立维护自己的 `.archmap/`；
+- workspace 层只聚合可重建索引；
+- 支持跨 repo 的 `uses-skill-from`、`publishes-to`、`consumes` 等显式关系；
+- 不建立必须在线的中央事实数据库。
+
+## 5. 系统架构
+
+```text
+Source / Config / Docs / Git
+            |
+            v
+    Deterministic adapters
+            |
+            v
+        Fact graph ---------> Change and invalidation engine
+            |                              |
+            |                              v
+            |                       Stale work items
+            |                              |
+            v                              v
+      Evidence bundles ------------> Agent synthesis
+                                           |
+                                           v
+                                    Structured proposal
+                                           |
+                                           v
+                              Schema / evidence / policy validation
+                                           |
+                                           v
+                                  Versioned knowledge model
+                                           |
+                       +-------------------+-------------------+
+                       |                   |                   |
+                      CLI                 MCP              Viewer / CI
+```
+
+### 5.1 核心模块
+
+1. **Repository discovery**：识别 Git、workspace、manifest、语言和适配器。
+2. **Adapter runtime**：运行通用、语言、框架和领域适配器。
+3. **Fact graph**：保存节点、关系、证据、能力和不确定性。
+4. **Invalidation engine**：从 Git diff 和 evidence hash 计算失效传播。
+5. **Knowledge model**：保存 AI interpretations、human decisions 和 views。
+6. **Proposal engine**：验证并原子应用 Agent 更新。
+7. **Query engine**：为 CLI、MCP、Viewer 和 CI 提供统一查询。
+8. **Renderer**：从查询结果生成交互图和静态导出。
+
+## 6. 数据与存储
+
+### 6.1 仓库跟踪内容
+
+```text
+.archmap/
+├── project.yaml
+├── snapshot.yaml
+├── nodes/
+│   └── <stable-id>.yaml
+├── views/
+│   └── <view-id>.yaml
+├── decisions/
+│   └── <decision-id>.md
+├── rules/
+│   └── <rule-set>.yaml
+└── migrations/
+```
+
+### 6.2 本地派生内容
+
+```text
+.archmap/cache/
+├── graph.db
+├── adapters.json
+└── evidence-index/
+```
+
+缓存不提交 Git。删除缓存后必须能从仓库内容和源码重新构建。
+
+### 6.3 节点最小模型
+
+节点必须具有稳定内部 ID，显示 slug 可以重命名：
+
+```yaml
+schema_version: 1
+id: node_01JAUTH
+slug: auth-service
+kind: component
+title: Auth Service
+scope:
+  files:
+    - src/auth/**
+  symbols:
+    - AuthService
+claims: []
+relations: []
+```
+
+### 6.4 Claim 与 Evidence
+
+```yaml
+claims:
+  - id: claim_01
+    type: inference
+    text: This component is the primary authentication boundary.
+    status: active
+    confidence: 0.88
+    provenance:
+      actor: agent
+      model: optional-model-id
+      created_at: 2026-07-13T00:00:00Z
+    evidence:
+      - repository: local
+        commit: 38ccdb6
+        path: src/auth/service.ts
+        symbol: verifySession
+        blob_hash: sha256:example
+        extract_hash: sha256:example
+```
+
+`fact` 的 confidence 代表解析完备性，不表示主观概率。`inference` 的 confidence 才表示
+推理置信度。
+
+## 7. 适配器架构
+
+所有适配器遵循统一能力接口：
+
+```ts
+interface ArchmapAdapter {
+  id: string;
+  detect(context: RepoContext): CapabilityReport;
+  discover(context: RepoContext): Promise<Artifact[]>;
+  extractFacts(artifacts: Artifact[]): Promise<FactBatch>;
+  resolveRelations(facts: FactBatch): Promise<RelationBatch>;
+  validateEvidence(evidence: Evidence): Promise<ValidationResult>;
+}
+```
+
+### 7.1 首批适配器
+
+1. **Universal**：Git、目录、manifest、文件类型、文档链接、配置和变更。
+2. **TypeScript/JavaScript**：symbol、import/export、入口、CLI、route、外部请求。
+3. **Python**：module、symbol、import、CLI、route、数据读写和测试映射。
+4. **Markdown/YAML/JSON**：文档、配置、ledger、引用和结构化资产。
+
+### 7.2 后续领域适配器
+
+- Hugo/static site；
+- 数据血缘和 CSV/report pipeline；
+- media pipeline；
+- Codex skills/plugins；
+- CI/CD 和 infrastructure；
+- 其他语言。
+
+## 8. 公共接口
+
+### 8.1 CLI
+
+首版目标接口：
+
+```bash
+archmap init
+archmap scan [--changed]
+archmap status [--json]
+archmap capabilities [--json]
+archmap context <path...> [--budget <tokens>] [--json]
+archmap impact <path...> [--base <ref>] [--json]
+archmap search <query> [--json]
+archmap evidence <node-or-claim> [--json]
+archmap diff <base> [head]
+archmap check [--strict] [--json]
+archmap serve [--port <port>]
+```
+
+所有机器可消费命令必须有稳定的 JSON 输出和显式 schema version。核心库不通过
+`process.exit()` 表达领域错误；CLI 层负责将结构化错误映射为退出码。
+
+### 8.2 MCP
+
+目标工具：
+
+```text
+project_summary
+context_for_files
+impact_analysis
+search_architecture
+get_node
+get_evidence
+list_stale_nodes
+get_update_work_items
+propose_update
+validate_proposal
+apply_proposal
+```
+
+MCP 是 Agent 的一等接口，Skill 只负责编排工作流，不复制领域逻辑。
+
+### 8.3 Proposal 事务
+
+Agent 更新采用：
+
+```text
+build proposal -> validate -> preview diff -> atomic apply
+```
+
+禁止通过一连串独立写命令留下半完成状态。人工 decision 发生冲突时，proposal 必须
+停在待批准状态。
+
+## 9. 可视化计划
+
+第一版 Viewer 包含：
+
+1. 可展开的总体架构图；
+2. 节点和关系的证据侧栏；
+3. 工作区变更影响高亮；
+4. commit-to-commit 架构 diff；
+5. stale、partial、inference 和 violation 状态；
+6. 按关系类型、证据来源和置信度过滤。
+
+视图保存查询和布局偏好，不保存 AI 编写的 Mermaid：
+
+```yaml
+id: overall-architecture
+include:
+  node_kinds: [system, component, external, store]
+  edge_types: [calls, reads, writes, publishes]
+collapse_below: component
+layout: left-to-right
+```
+
+Viewer 的安全基线：
+
+- 只监听 loopback；
+- 静态资源本地打包并固定版本；
+- 不执行仓库中的 HTML 或脚本；
+- CSP 和内容清洗默认启用；
+- 不开放任意跨域读取；
+- Viewer 只读，写入通过经过验证的 proposal API。
+
+## 10. 架构规则
+
+规则作为人工 decision 的可执行表达：
+
+```yaml
+id: ui-must-not-access-db
+severity: error
+from:
+  path: src/ui/**
+disallow:
+  edge_type: imports
+  target:
+    path: src/db/**
+```
+
+`archmap check` 第一版检查：
+
+- schema 与引用完整性；
+- evidence 是否仍然有效；
+- stale 状态；
+- 禁止依赖；
+- 必经节点；
+- 新增外部集成；
+- unsupported/partial 能力是否被错误提升为确定事实。
+
+## 11. 技术方向
+
+当前默认方向，M0 spike 后锁定：
+
+- Core、CLI、MCP：TypeScript；
+- 包管理：npm；
+- TS/JS 分析：TypeScript Compiler API；
+- 多语言语法层：Tree-sitter 或语言原生 worker，由 spike 比较；
+- Git 跟踪格式：YAML、Markdown、JSON Schema；
+- 派生查询：SQLite；
+- Viewer：浏览器端交互图，具体图库在视觉 tracer bullet 中选择；
+- 测试：单元、fixture、golden、CLI 集成和浏览器测试分层。
+
+SQLite 驱动、Python 分析进程边界和 Viewer 图形库仍是可逆决策，不在计划阶段过早锁死。
+
+## 12. 实施里程碑
+
+每个里程碑都是可独立验证的纵向切片。进入下一阶段前必须满足 exit criteria。
+
+### M0：工程与 Schema 契约
+
+交付：
+
+- TypeScript package、CLI 和测试框架；
+- schema versioning 与 migration seam；
+- Node、Relation、Claim、Evidence、Capability 的 schema；
+- 最小 fixture repo 和 golden manifest；
+- `archmap validate <manifest>`；
+- test、typecheck、lint、build CI。
+
+Exit criteria：
+
+- 合法 fixture 可以 round-trip 而不丢字段；
+- 非法引用和无证据 fact 被拒绝；
+- 相同 fixture 产生字节稳定的规范化输出；
+- 新 clone 可以通过一条标准命令完成全部验证。
+
+### M1：Universal Scanner 闭环
+
+交付：
+
+- `init`、`scan`、`status`、`capabilities`；
+- Git、文件、manifest、文档和配置发现；
+- 本地派生图索引；
+- snapshot、blob hash 和基础 stale 检测；
+- 通用 repository structure 输出。
+
+Exit criteria：
+
+- 任意 Git repo 均可运行，不支持的能力明确报告；
+- 连续两次无变化扫描不产生 tracked diff；
+- 修改、重命名和删除文件后 stale 状态正确；
+- vendor、build、secret 和大文件规则有安全默认值。
+
+### M2：TypeScript/JavaScript 纵向切片
+
+交付：
+
+- module、symbol、import/export、entry point；
+- CLI command、常见 route 和外部 HTTP 调用；
+- `context`、`impact` 和 `evidence`；
+- TS/JS fixture 与真实仓库只读试验。
+
+Exit criteria：
+
+- fixture 的模块和 import 关系达到预定义 golden 结果；
+- 每条关系均可导航到证据；
+- 单文件修改只失效相关节点和父级视图；
+- Agent context 有预算上限并能解释选取原因。
+
+### M3：Python 与文档/数据切片
+
+交付：
+
+- Python module、symbol、import、CLI、route、测试映射；
+- Markdown 链接、结构、decision 和 ledger 资产；
+- YAML/JSON 配置与数据输入输出关系；
+- Python、数据和 Markdown-first fixture。
+
+Exit criteria：
+
+- Python 和文档仓库均可生成有意义的非代码节点；
+- 数据来源、转换和报告关系带证据；
+- 解析不确定的动态关系不会被标成确定事实。
+
+### M4：Agent Proposal 与 MCP
+
+交付：
+
+- Evidence bundle 和 stale work item；
+- MCP 查询工具；
+- propose、validate、preview、apply 事务；
+- facts、interpretations、decisions 的权限隔离；
+- 模型无关的 Agent 工作流。
+
+Exit criteria：
+
+- Agent 无法通过 proposal 修改 deterministic fact；
+- 人工 decision 冲突需要显式批准；
+- 中途失败不会留下部分写入；
+- MCP 与 CLI 对同一查询返回语义等价结果。
+
+### M5：交互式 Viewer
+
+交付：
+
+- 架构地图；
+- evidence inspector；
+- impact 和 diff 模式；
+- stale、confidence、source 和 relation filters；
+- SVG、Mermaid 和 Markdown 导出。
+
+Exit criteria：
+
+- 典型视图在合理节点数量下保持可读；
+- 点击节点或边可到达源码证据；
+- 浏览器测试覆盖导航、过滤、diff 和内容安全；
+- Viewer 不需要网络连接且只监听 loopback。
+
+### M6：Rules、CI 与跨仓库试点
+
+交付：
+
+- `check` 和架构规则；
+- PR/CI Markdown 与 JSON 报告；
+- workspace 聚合索引；
+- 在 Web/content、Python/data、Markdown-first、media pipeline 四类 repo 上试点；
+- 性能、准确性和人工修订量报告。
+
+Exit criteria：
+
+- 每类试点仓库都有明确 capability report；
+- CI 可以区分 warning 和 blocking violation；
+- workspace 缓存删除后可完全重建；
+- 试点评测达到第 13 节的初始质量门槛。
+
+## 13. 验证与评测
+
+### 13.1 正确性
+
+- 节点和文件归属 precision/recall；
+- import、route、storage、external call 关系准确率；
+- stale 传播漏报和误报；
+- 多次扫描稳定性；
+- rename 后身份保持率；
+- AI interpretation 的证据覆盖率。
+
+### 13.2 Agent 效率
+
+- 完成相同任务时减少的初始探索文件数；
+- context token 数；
+- 找到正确入口和约束的时间；
+- 因过期或错误架构导致的返工率。
+
+### 13.3 初始质量门槛
+
+- deterministic facts 的 evidence coverage：`100%`；
+- 无变化重复扫描的 tracked diff：`0`；
+- fixture 预期关系 precision：`>= 95%`；
+- stale 关键路径漏报：`0`；
+- 未支持能力被错误标为 deterministic：`0`；
+- Viewer 内容安全回归：`100%` 通过。
+
+性能目标在 M1 获得基线后设定，计划阶段不凭空指定不可信数字。
+
+## 14. 安全与隐私
+
+- 默认排除 `.git`、依赖、build、cache、binary 和超大文件；
+- 采用 allowlist/denylist 与 secret pattern 双层过滤；
+- evidence 默认保存指针和 hash，不复制大段源码；
+- 日志和 JSON 输出不得包含 secret 内容；
+- 插件/适配器声明读取范围和 capability；
+- 外部进程和语言 worker 使用明确 argv，不拼接 shell 命令；
+- 任何未来远程上传必须单独 threat model 和显式 opt-in。
+
+## 15. 非目标
+
+首版不做：
+
+- 云账户、团队空间或托管服务；
+- 自动提交、push 或修改业务源码；
+- 完整运行时调用图；
+- 所有语言和框架；
+- 由 AI 直接维护 Mermaid；
+- 3D 图、复杂动画和通用图形编辑器；
+- 自动覆盖人工 decision；
+- 未经用户请求自动调用付费模型；
+- 把架构地图包装成未经验证的“代码真相”。
+
+## 16. 风险与控制
+
+| 风险 | 控制措施 |
+| --- | --- |
+| 动态语言调用难以静态解析 | partial/unknown 状态，运行时适配器后置 |
+| Schema 早期变化频繁 | version 字段、migration seam、golden fixtures |
+| 图变大后不可读 | query-based views、分层聚合、过滤和语义缩放 |
+| AI 输出不稳定 | evidence bundle、proposal schema、原子验证 |
+| 文件重命名破坏身份 | 稳定 ID、Git rename、symbol/content hash 辅助匹配 |
+| 扫描大型 repo 太慢 | 增量索引、adapter cache、按 capability 调度 |
+| 领域适配器无限膨胀 | 小而稳定的 adapter interface，领域逻辑留在插件 |
+| 架构资料泄露 | local-first、secret filtering、首版无云服务 |
+
+## 17. 已锁定与待验证决策
+
+### 已锁定
+
+- 项目工作名：`archmap`；
+- 独立仓库维护；
+- TypeScript 核心；
+- local-first；
+- facts / interpretations / decisions 三层模型；
+- evidence mandatory；
+- CLI + MCP 为主要接口；
+- Viewer 为模型投影；
+- 首版不做云；
+- `main` 为稳定线，一项功能一个短期分支。
+
+### M0 spike 后锁定
+
+- SQLite 具体驱动；
+- Python 使用 Tree-sitter、语言原生 worker 或混合模式；
+- Viewer 图形库；
+- stable ID 的生成与 rename reconciliation 细节；
+- tracked manifests 的 canonical formatting 策略。
+
+## 18. 下一步：M0 第一切片
+
+下一次实施从一个小的可验证闭环开始：
+
+1. 建立 TypeScript package 和标准验证命令；
+2. 定义 Node、Relation、Claim、Evidence 的 v1 schema；
+3. 创建一个最小 fixture repo；
+4. 实现 `archmap validate`；
+5. 验证合法 round-trip、无证据 fact 拒绝和引用完整性；
+6. 建立 CI；
+7. 独立 review M0 diff 后再进入 scanner。
+
+这一切片不包含真实源码扫描、MCP 或 Viewer，目的是先锁定后续所有模块依赖的数据
+契约和验证边界。

@@ -1,0 +1,108 @@
+schema_version: 1
+capabilities:
+  - id: typescript
+    version: 0.1.0
+    status: supported
+    provides:
+      - symbols
+      - imports
+      - external-calls
+  - id: universal
+    version: 0.1.0
+    status: supported
+    provides:
+      - files
+nodes:
+  - id: node_auth_service
+    slug: auth-service
+    kind: component
+    title: Auth Service
+    scope:
+      files:
+        - src/auth/**
+      symbols:
+        - AuthService
+    claims:
+      - id: claim_auth_boundary
+        type: inference
+        text: This component is the primary authentication boundary.
+        status: active
+        confidence: 0.88
+        provenance:
+          actor: agent
+          model: optional-model-id
+          created_at: 2026-07-13T00:00:00Z
+        evidence:
+          - repository: local
+            commit: 38ccdb6
+            path: src/auth/service.ts
+            symbol: verifySession
+            analyzer: typescript
+            analyzer_version: 0.1.0
+            blob_hash: sha256:example-blob
+            extract_hash: sha256:example-extract
+    relations:
+      - id: rel_auth_reads_users
+        type: reads
+        target: node_user_store
+        certainty: known
+        evidence:
+          - repository: local
+            commit: 38ccdb6
+            path: src/auth/service.ts
+            symbol: loadUser
+            analyzer: typescript
+            analyzer_version: 0.1.0
+            blob_hash: sha256:example-blob
+            extract_hash: sha256:example-extract
+      - id: rel_auth_calls_payments
+        type: calls
+        target: node_payments_api
+        certainty: partial
+  - id: node_user_store
+    slug: user-store
+    kind: store
+    title: User Store
+    scope:
+      files:
+        - src/db/users.ts
+    claims:
+      - id: claim_user_store_kind
+        type: fact
+        text: Declares a users table accessor module.
+        status: active
+        confidence: 1
+        provenance:
+          actor: analyzer
+          created_at: 2026-07-13T00:00:00Z
+        evidence:
+          - repository: local
+            commit: 38ccdb6
+            path: src/db/users.ts
+            analyzer: typescript
+            analyzer_version: 0.1.0
+            blob_hash: sha256:users-blob
+            extract_hash: sha256:users-extract
+    relations: []
+  - id: node_payments_api
+    slug: payments-api
+    kind: external
+    title: Payments API
+    claims:
+      - id: claim_payments_external
+        type: fact
+        text: Referenced as an external HTTP dependency.
+        status: active
+        confidence: 1
+        provenance:
+          actor: analyzer
+          created_at: 2026-07-13T00:00:00Z
+        evidence:
+          - repository: local
+            commit: 38ccdb6
+            path: src/auth/service.ts
+            analyzer: typescript
+            analyzer_version: 0.1.0
+            blob_hash: sha256:example-blob
+            extract_hash: sha256:example-extract
+    relations: []

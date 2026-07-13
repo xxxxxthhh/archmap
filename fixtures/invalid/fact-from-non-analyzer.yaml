@@ -1,0 +1,30 @@
+# A deterministic fact must not be authored by an agent or human (Facts/Interpretations).
+schema_version: 1
+capabilities:
+  - id: typescript
+    version: 0.1.0
+    status: supported
+nodes:
+  - id: node_a
+    slug: node-a
+    kind: component
+    title: Node A
+    claims:
+      - id: claim_fake_fact
+        type: fact
+        text: Claimed as a deterministic fact but authored by an agent.
+        status: active
+        confidence: 1
+        provenance:
+          actor: agent
+          model: some-model
+          created_at: 2026-07-13T00:00:00Z
+        evidence:
+          - repository: local
+            commit: 38ccdb6
+            path: src/a.ts
+            analyzer: typescript
+            analyzer_version: 0.1.0
+            blob_hash: sha256:a-blob
+            extract_hash: sha256:a-extract
+    relations: []

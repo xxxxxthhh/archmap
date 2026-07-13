@@ -1,0 +1,11 @@
+# The same (id, version) capability must not be declared twice; validity must not depend
+# on declaration order.
+schema_version: 1
+capabilities:
+  - id: typescript
+    version: 0.1.0
+    status: partial
+  - id: typescript
+    version: 0.1.0
+    status: supported
+nodes: []

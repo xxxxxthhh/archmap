@@ -1,0 +1,31 @@
+# A known (deterministic) relation must not rest on a partial/unsupported capability.
+schema_version: 1
+capabilities:
+  - id: dynamic-imports
+    version: 0.1.0
+    status: partial
+nodes:
+  - id: node_a
+    slug: node-a
+    kind: component
+    title: Node A
+    claims: []
+    relations:
+      - id: rel_known_partial
+        type: calls
+        target: node_b
+        certainty: known
+        evidence:
+          - repository: local
+            commit: 38ccdb6
+            path: src/a.ts
+            analyzer: dynamic-imports
+            analyzer_version: 0.1.0
+            blob_hash: sha256:a-blob
+            extract_hash: sha256:a-extract
+  - id: node_b
+    slug: node-b
+    kind: component
+    title: Node B
+    claims: []
+    relations: []

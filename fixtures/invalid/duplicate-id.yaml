@@ -1,0 +1,16 @@
+# Ids must be unique across nodes, claims, and relations.
+schema_version: 1
+capabilities: []
+nodes:
+  - id: node_a
+    slug: node-a
+    kind: component
+    title: Node A
+    claims: []
+    relations: []
+  - id: node_a
+    slug: node-a-again
+    kind: component
+    title: Node A Again
+    claims: []
+    relations: []

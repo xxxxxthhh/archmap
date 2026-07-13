@@ -1,0 +1,158 @@
+{
+  "capabilities": [
+    {
+      "id": "typescript",
+      "provides": [
+        "symbols",
+        "imports",
+        "external-calls"
+      ],
+      "status": "supported",
+      "version": "0.1.0"
+    },
+    {
+      "id": "universal",
+      "provides": [
+        "files"
+      ],
+      "status": "supported",
+      "version": "0.1.0"
+    }
+  ],
+  "nodes": [
+    {
+      "claims": [
+        {
+          "confidence": 0.88,
+          "evidence": [
+            {
+              "analyzer": "typescript",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:example-blob",
+              "commit": "38ccdb6",
+              "extract_hash": "sha256:example-extract",
+              "path": "src/auth/service.ts",
+              "repository": "local",
+              "symbol": "verifySession"
+            }
+          ],
+          "id": "claim_auth_boundary",
+          "provenance": {
+            "actor": "agent",
+            "created_at": "2026-07-13T00:00:00Z",
+            "model": "optional-model-id"
+          },
+          "status": "active",
+          "text": "This component is the primary authentication boundary.",
+          "type": "inference"
+        }
+      ],
+      "id": "node_auth_service",
+      "kind": "component",
+      "relations": [
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "typescript",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:example-blob",
+              "commit": "38ccdb6",
+              "extract_hash": "sha256:example-extract",
+              "path": "src/auth/service.ts",
+              "repository": "local",
+              "symbol": "loadUser"
+            }
+          ],
+          "id": "rel_auth_reads_users",
+          "target": "node_user_store",
+          "type": "reads"
+        },
+        {
+          "certainty": "partial",
+          "id": "rel_auth_calls_payments",
+          "target": "node_payments_api",
+          "type": "calls"
+        }
+      ],
+      "scope": {
+        "files": [
+          "src/auth/**"
+        ],
+        "symbols": [
+          "AuthService"
+        ]
+      },
+      "slug": "auth-service",
+      "title": "Auth Service"
+    },
+    {
+      "claims": [
+        {
+          "confidence": 1,
+          "evidence": [
+            {
+              "analyzer": "typescript",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:users-blob",
+              "commit": "38ccdb6",
+              "extract_hash": "sha256:users-extract",
+              "path": "src/db/users.ts",
+              "repository": "local"
+            }
+          ],
+          "id": "claim_user_store_kind",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "2026-07-13T00:00:00Z"
+          },
+          "status": "active",
+          "text": "Declares a users table accessor module.",
+          "type": "fact"
+        }
+      ],
+      "id": "node_user_store",
+      "kind": "store",
+      "relations": [],
+      "scope": {
+        "files": [
+          "src/db/users.ts"
+        ]
+      },
+      "slug": "user-store",
+      "title": "User Store"
+    },
+    {
+      "claims": [
+        {
+          "confidence": 1,
+          "evidence": [
+            {
+              "analyzer": "typescript",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:example-blob",
+              "commit": "38ccdb6",
+              "extract_hash": "sha256:example-extract",
+              "path": "src/auth/service.ts",
+              "repository": "local"
+            }
+          ],
+          "id": "claim_payments_external",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "2026-07-13T00:00:00Z"
+          },
+          "status": "active",
+          "text": "Referenced as an external HTTP dependency.",
+          "type": "fact"
+        }
+      ],
+      "id": "node_payments_api",
+      "kind": "external",
+      "relations": [],
+      "slug": "payments-api",
+      "title": "Payments API"
+    }
+  ],
+  "schema_version": 1
+}

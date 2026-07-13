@@ -1,0 +1,29 @@
+# Evidence must name a declared capability so facts have a re-verification identity.
+schema_version: 1
+capabilities:
+  - id: typescript
+    version: 0.1.0
+    status: supported
+nodes:
+  - id: node_a
+    slug: node-a
+    kind: component
+    title: Node A
+    claims:
+      - id: claim_a
+        type: fact
+        text: Backed by evidence from an undeclared analyzer version.
+        status: active
+        confidence: 1
+        provenance:
+          actor: analyzer
+          created_at: 2026-07-13T00:00:00Z
+        evidence:
+          - repository: local
+            commit: 38ccdb6
+            path: src/a.ts
+            analyzer: typescript
+            analyzer_version: 9.9.9
+            blob_hash: sha256:a-blob
+            extract_hash: sha256:a-extract
+    relations: []
