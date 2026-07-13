@@ -8,12 +8,17 @@
  */
 
 import type { Capability } from './model/types.js';
+import { currentPythonCapability } from './analyze/python-model.js';
+import { PYTHON_ADAPTER_VERSION } from './analyze/python-worker.js';
 
 /** Version of the universal adapter; part of every universal fact's re-verification identity. */
 export const UNIVERSAL_ADAPTER_VERSION = '0.1.0';
 
 /** Version of the TypeScript/JavaScript adapter. */
 export const TYPESCRIPT_ADAPTER_VERSION = '0.1.0';
+
+/** Version of the packaged native-Python AST adapter and worker protocol. */
+export { PYTHON_ADAPTER_VERSION };
 
 /** The universal adapter capability, declared in every scanned manifest. */
 export const UNIVERSAL_CAPABILITY: Capability = {
@@ -35,9 +40,17 @@ export const TYPESCRIPT_CAPABILITY: Capability = {
   provides: ['modules', 'imports', 'exports', 'entry-points'],
 };
 
+/** Python capability resolved for this process environment at module initialization. */
+export const PYTHON_CAPABILITY: Capability = currentPythonCapability();
+
+/** Resolve environment-sensitive adapter availability at the point of use. */
+export function getAdapterRegistry(): readonly Capability[] {
+  return [UNIVERSAL_CAPABILITY, TYPESCRIPT_CAPABILITY, currentPythonCapability()];
+}
+
 /** The full adapter registry as of this build, for `archmap capabilities`. */
 export const ADAPTER_REGISTRY: readonly Capability[] = [
   UNIVERSAL_CAPABILITY,
   TYPESCRIPT_CAPABILITY,
-  { id: 'python', version: '0.0.0', status: 'unsupported', provides: ['modules', 'imports'] },
+  PYTHON_CAPABILITY,
 ];

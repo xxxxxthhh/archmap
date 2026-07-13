@@ -18,7 +18,7 @@ export { StoreError, StoreFormatError, StorePathError, ScanInputError } from './
 export type { ScanResult } from './scan/scanner.js';
 export { computeStatus } from './scan/status.js';
 export type { StatusResult } from './scan/status.js';
-export { ADAPTER_REGISTRY, UNIVERSAL_CAPABILITY } from './capabilities.js';
+export { ADAPTER_REGISTRY, getAdapterRegistry, UNIVERSAL_CAPABILITY } from './capabilities.js';
 export * as store from './store.js';
 
 // M2: TypeScript/JavaScript adapter + queries
@@ -29,3 +29,8 @@ export { analyzeModules } from './analyze/model.js';
 export { isTsJs } from './analyze/languages.js';
 export { contextFor, impactFor, evidenceFor, DEFAULT_CONTEXT_BUDGET } from './query/queries.js';
 export type { ContextResult, ImpactResult, EvidenceResult } from './query/queries.js';
+
+// M3: Python adapter
+export { PYTHON_CAPABILITY } from './capabilities.js';
+export { analyzePythonModules } from './analyze/python-model.js';
+export { isPython } from './analyze/languages.js';
