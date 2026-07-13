@@ -12,6 +12,7 @@
 
 import { analyzeModules } from '../analyze/model.js';
 import { analyzePythonModules } from '../analyze/python-model.js';
+import { analyzeMarkdownDocuments } from '../analyze/markdown.js';
 import { TYPESCRIPT_CAPABILITY, UNIVERSAL_CAPABILITY } from '../capabilities.js';
 import { toCanonicalYaml } from '../model/canonical.js';
 import type { Node } from '../model/types.js';
@@ -93,9 +94,15 @@ export function prospectiveModel(
   const structural = buildNodes(discovery.files, projectName);
   const analyzed = analyzeModules(discovery);
   const python = analyzePythonModules(discovery);
+  const markdown = analyzeMarkdownDocuments(discovery, [...structural, ...analyzed, ...python.nodes]);
   return {
-    snapshot: buildSnapshot(discovery, [UNIVERSAL_CAPABILITY, TYPESCRIPT_CAPABILITY, python.capability]),
-    nodes: mergeEnrichment([...structural, ...analyzed, ...python.nodes], tracked),
+    snapshot: buildSnapshot(discovery, [
+      UNIVERSAL_CAPABILITY,
+      TYPESCRIPT_CAPABILITY,
+      python.capability,
+      markdown.capability,
+    ]),
+    nodes: mergeEnrichment([...structural, ...analyzed, ...python.nodes, ...markdown.nodes], tracked),
   };
 }
 

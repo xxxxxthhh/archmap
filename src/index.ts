@@ -34,3 +34,8 @@ export type { ContextResult, ImpactResult, EvidenceResult } from './query/querie
 export { PYTHON_CAPABILITY } from './capabilities.js';
 export { analyzePythonModules } from './analyze/python-model.js';
 export { isPython } from './analyze/languages.js';
+
+// M3: Markdown docs and knowledge assets
+export { MARKDOWN_CAPABILITY } from './capabilities.js';
+export { analyzeMarkdownDocuments } from './analyze/markdown.js';
+export { isMarkdown } from './analyze/languages.js';
