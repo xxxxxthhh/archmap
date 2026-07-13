@@ -24,7 +24,10 @@ export default [
       // TypeScript resolves globals and undefined names; the core rule only produces
       // false positives (e.g. `process`) on typed source.
       'no-undef': 'off',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', ignoreRestSiblings: true },
+      ],
     },
   },
 ];

@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archmap.dev/schema/node/v1.json",
+  "title": "Archmap Node Document",
+  "description": "A single tracked node file (.archmap/nodes/<id>.yaml). Versioned independently so node files can be validated and migrated on their own (PLAN 6.3).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "slug", "kind", "title", "claims", "relations"],
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$" },
+    "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "kind": { "type": "string", "enum": ["system", "component", "module", "external", "store"] },
+    "title": { "type": "string", "minLength": 1 },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "files": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "symbols": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "claims": { "type": "array", "items": { "$ref": "#/$defs/claim" } },
+    "relations": { "type": "array", "items": { "$ref": "#/$defs/relation" } }
+  },
+  "$defs": {
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "text", "status", "confidence", "provenance", "evidence"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$" },
+        "type": { "type": "string", "enum": ["fact", "inference"] },
+        "text": { "type": "string", "minLength": 1 },
+        "status": { "type": "string", "enum": ["active", "stale", "rejected"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["actor", "created_at"],
+          "properties": {
+            "actor": { "type": "string", "enum": ["analyzer", "agent", "human"] },
+            "model": { "type": "string", "minLength": 1 },
+            "created_at": { "type": "string", "format": "date-time" }
+          }
+        },
+        "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/evidence" } }
+      }
+    },
+    "relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "target", "certainty"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$" },
+        "type": {
+          "type": "string",
+          "enum": ["calls", "reads", "writes", "imports", "publishes", "consumes", "depends-on"]
+        },
+        "target": { "type": "string", "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$" },
+        "certainty": { "type": "string", "enum": ["known", "partial", "unknown"] },
+        "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/evidence" } }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "commit", "path", "analyzer", "analyzer_version", "blob_hash", "extract_hash"],
+      "properties": {
+        "repository": { "type": "string", "minLength": 1 },
+        "commit": { "type": "string", "minLength": 1 },
+        "path": { "type": "string", "minLength": 1 },
+        "symbol": { "type": "string", "minLength": 1 },
+        "analyzer": { "type": "string", "minLength": 1 },
+        "analyzer_version": { "type": "string", "minLength": 1 },
+        "blob_hash": { "type": "string", "minLength": 1 },
+        "extract_hash": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

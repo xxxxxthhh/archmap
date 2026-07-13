@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archmap.dev/schema/project/v1.json",
+  "title": "Archmap Project Config",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project", "scan"],
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 }
+      }
+    },
+    "scan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_file_bytes", "exclude_dirs", "secret_globs"],
+      "properties": {
+        "max_file_bytes": { "type": "integer", "minimum": 0 },
+        "exclude_dirs": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "secret_globs": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    }
+  }
+}
