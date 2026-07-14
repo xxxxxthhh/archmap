@@ -28,6 +28,8 @@ Commands:
   search <query> [--json]              Search slug, title, paths, and claim text
   proposal validate <file> [--json]    Validate an external proposal without writing
   proposal preview <file> [--json]     Preview its canonical tracked-node diff without writing
+  proposal apply <file> [--approve <conflict-id>]... [--json]
+                                       Atomically publish validated node enrichment
   validate <manifest> [--json]         Validate a manifest file (YAML or JSON)
 `;
 

@@ -27,7 +27,7 @@ import { toCanonicalJson, toCanonicalYaml } from './model/canonical.js';
 import type { Capability, Node } from './model/types.js';
 import { hashContent } from './scan/hash.js';
 import type { ProjectConfig, Snapshot } from './scan/types.js';
-import { StoreFormatError, StorePathError } from './store-errors.js';
+import { StoreFormatError, StorePathError, StorePreconditionError } from './store-errors.js';
 import { parseNodeDocument, parseProjectConfig, parseSnapshot } from './validate/store-contracts.js';
 import { validateManifest } from './validate/validate.js';
 
@@ -77,6 +77,15 @@ function checkComponent(path: string, label: string, expect: ComponentType): voi
 function safe(root: string, parts: string[], leafType: ComponentType): string {
   let current = root;
   parts.forEach((part, i) => {
+    if (
+      part.length === 0 ||
+      part === '.' ||
+      part === '..' ||
+      part.includes('/') ||
+      part.includes('\\')
+    ) {
+      throw new StorePathError(`invalid archmap store path component: ${part}`);
+    }
     current = join(current, part);
     const isLeaf = i === parts.length - 1;
     checkComponent(current, parts.slice(0, i + 1).join('/'), isLeaf ? leafType : 'dir');
@@ -239,17 +248,70 @@ function serializeNode(node: Node): string {
   return toCanonicalYaml({ schema_version: 1, ...node });
 }
 
-/** Replace the tracked node set: clear existing node files, then write the current ones. */
-export function writeNodes(root: string, nodes: Node[]): void {
+type TrackedWriteKind = 'snapshot' | 'node-remove' | 'node-write';
+
+export type PublishHookStep =
+  | 'before-first-write'
+  | 'after-first-write'
+  | `before-${TrackedWriteKind}`
+  | `after-${TrackedWriteKind}`
+  | 'before-rollback';
+
+/**
+ * Deterministic transaction observation seam used by focused fault-injection tests. A hook
+ * may throw to model an exception at the named boundary. It is intentionally not a crash or
+ * journaling mechanism: the store guarantee remains exception-safe rollback only.
+ */
+export interface PublishHooks {
+  at(step: PublishHookStep): void;
+}
+
+type MutateTracked = (kind: TrackedWriteKind, mutation: () => void) => void;
+
+function directMutation(_kind: TrackedWriteKind, mutation: () => void): void {
+  mutation();
+}
+
+/** Replace the complete canonical node set through the supplied transaction mutation seam. */
+function replaceNodes(
+  root: string,
+  nodes: Node[],
+  mutate: MutateTracked,
+  beforeMutations?: () => void,
+): void {
   const dir = safeDir(root, [ARCHMAP_DIR, 'nodes']);
   ensureDir(dir);
-  for (const entry of safeReaddir(dir)) {
-    if (!entry.endsWith('.yaml')) continue;
-    safeRm(safeFile(root, [ARCHMAP_DIR, 'nodes', entry])); // safeFile rejects symlink/dir entries
+  // Complete canonical serialization before the first tracked mutation. A serializer or
+  // projection failure therefore cannot leave even a rollback-repaired write behind.
+  const desired = [...nodes]
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map((node) => ({ name: `${node.id}.yaml`, text: serializeNode(node) }));
+  const currentFiles = listNodeFiles(root).sort();
+  // Unlinking a read-only file can succeed when its directory is writable. Refuse that
+  // bypass explicitly so a protected canonical node remains protected at the store seam.
+  for (const name of currentFiles) {
+    const path = safeFile(root, [ARCHMAP_DIR, 'nodes', name]);
+    if ((lstatSync(path).mode & 0o222) === 0) {
+      throw new StorePathError(`cannot write read-only archmap store file ${path}`);
+    }
   }
-  for (const node of nodes) {
-    writeTextNoFollow(safeFile(root, [ARCHMAP_DIR, 'nodes', `${node.id}.yaml`]), serializeNode(node));
+  // This callback is deliberately last: all preparation is complete and the next action is
+  // the first tracked mutation. It is an optimistic precondition, not a cross-process lock.
+  beforeMutations?.();
+  for (const name of currentFiles) {
+    mutate('node-remove', () => safeRm(safeFile(root, [ARCHMAP_DIR, 'nodes', name])));
   }
+  for (const node of desired) {
+    mutate('node-write', () => writeTextNoFollow(
+      safeFile(root, [ARCHMAP_DIR, 'nodes', node.name]),
+      node.text,
+    ));
+  }
+}
+
+/** Replace the tracked node set without transaction wrapping (used only inside shared stores). */
+export function writeNodes(root: string, nodes: Node[]): void {
+  replaceNodes(root, nodes, directMutation);
 }
 
 /**
@@ -286,10 +348,19 @@ function nodeFilesMatch(root: string, expected: Map<string, string>): boolean {
   return true;
 }
 
-function restoreBaseline(root: string, oldSnapshot: string | null, oldNodes: Map<string, string>): void {
-  const snapPath = safeFile(root, [ARCHMAP_DIR, 'snapshot.yaml']);
-  if (oldSnapshot === null) safeRm(snapPath);
-  else writeTextNoFollow(snapPath, oldSnapshot);
+function restoreBaseline(
+  root: string,
+  oldSnapshot: string | null | undefined,
+  oldNodes: Map<string, string>,
+): void {
+  if (oldSnapshot !== undefined) {
+    const currentSnapshot = readSnapshotRaw(root);
+    if (currentSnapshot !== oldSnapshot) {
+      const snapPath = safeFile(root, [ARCHMAP_DIR, 'snapshot.yaml']);
+      if (oldSnapshot === null) safeRm(snapPath);
+      else writeTextNoFollow(snapPath, oldSnapshot);
+    }
+  }
 
   // Only rewrite nodes if they actually changed — avoids touching a (read-only) nodes dir
   // when the failure happened before any node file was modified.
@@ -304,28 +375,120 @@ function restoreBaseline(root: string, oldSnapshot: string | null, oldNodes: Map
 }
 
 /**
- * Publish snapshot + node set as one unit. On any write failure the tracked baseline is
- * rolled back to its byte-identical prior state before the error is re-raised, so a plain
- * exception (e.g. EACCES) can never leave a half-updated, unreadable model. This is
- * exception-safe rollback, not crash-safe: a process kill mid-write is out of scope for M1.
+ * Shared tracked-write transaction. On any exception the selected tracked artifacts are
+ * restored to their byte-identical prior state before the original error is re-raised.
+ * This is exception-safe rollback, not crash-safe journaling: process termination mid-write
+ * remains out of scope.
  */
-export function publishModel(root: string, snapshot: Snapshot, nodes: Node[]): void {
-  const oldSnapshot = readSnapshotRaw(root);
+function publishTracked(
+  root: string,
+  snapshot: Snapshot | undefined,
+  nodes: Node[],
+  hooks?: PublishHooks,
+  expectedModelHash?: string,
+): void {
+  const oldSnapshot = snapshot === undefined ? undefined : readSnapshotRaw(root);
   const oldNodes = readNodeFilesRaw(root);
+  let writeCount = 0;
+  let mutationStarted = false;
+  const mutate: MutateTracked = (kind, mutation) => {
+    if (writeCount === 0) hooks?.at('before-first-write');
+    hooks?.at(`before-${kind}`);
+    mutationStarted = true;
+    mutation();
+    writeCount += 1;
+    if (writeCount === 1) hooks?.at('after-first-write');
+    hooks?.at(`after-${kind}`);
+  };
   try {
-    writeSnapshot(root, snapshot);
-    writeNodes(root, nodes);
+    if (snapshot !== undefined) {
+      const serialized = toCanonicalYaml(snapshot);
+      mutate('snapshot', () => writeTextNoFollow(
+        safeFile(root, [ARCHMAP_DIR, 'snapshot.yaml']),
+        serialized,
+      ));
+    }
+    replaceNodes(
+      root,
+      nodes,
+      mutate,
+      expectedModelHash === undefined ? undefined : () => assertModelHash(root, expectedModelHash),
+    );
   } catch (err) {
+    // Preparation and optimistic-precondition failures occur before any apply-owned write.
+    // Never "restore" in that case: doing so could erase the newer baseline just detected.
+    if (!mutationStarted) throw err;
+    let rollbackHookError: unknown;
+    try {
+      hooks?.at('before-rollback');
+    } catch (hookError) {
+      // Record the injected/observer rollback fault, but still make the best possible
+      // restoration attempt instead of abandoning the baseline in a partial state.
+      rollbackHookError = hookError;
+    }
     try {
       restoreBaseline(root, oldSnapshot, oldNodes);
-    } catch (rollbackErr) {
+    } catch (restoreError) {
+      const rollbackDetail = rollbackHookError === undefined
+        ? (restoreError as Error).message
+        : `${(rollbackHookError as Error).message}; restore also failed: ${(restoreError as Error).message}`;
       throw new StorePathError(
-        `scan write failed and rollback also failed (${(rollbackErr as Error).message}); ` +
+        `tracked write failed and rollback also failed (${rollbackDetail}); ` +
+          `original error: ${(err as Error).message}`,
+      );
+    }
+    if (rollbackHookError !== undefined) {
+      throw new StorePathError(
+        `tracked write failed and rollback also failed (${(rollbackHookError as Error).message}); ` +
           `original error: ${(err as Error).message}`,
       );
     }
     throw err;
   }
+}
+
+/** Publish snapshot + node set as one exception-safe unit for scans. */
+export function publishModel(
+  root: string,
+  snapshot: Snapshot,
+  nodes: Node[],
+  hooks?: PublishHooks,
+): void {
+  publishTracked(root, snapshot, nodes, hooks);
+}
+
+function assertModelHash(root: string, expectedModelHash: string): void {
+  try {
+    const snapshot = readSnapshot(root);
+    if (!snapshot) throw new StorePreconditionError('tracked snapshot disappeared before publication');
+    const nodes = readNodes(root);
+    const currentModelHash = hashContent(Buffer.from(toCanonicalJson({
+      snapshot,
+      nodes: [...nodes].sort((a, b) => a.id.localeCompare(b.id)),
+    })));
+    if (currentModelHash !== expectedModelHash) {
+      throw new StorePreconditionError('tracked baseline changed after validation and before publication');
+    }
+  } catch (error) {
+    if (error instanceof StorePreconditionError) throw error;
+    if (error instanceof StoreFormatError || error instanceof StorePathError) {
+      throw new StorePreconditionError('tracked baseline changed after validation and before publication');
+    }
+    throw error;
+  }
+}
+
+/**
+ * Publish only canonical node enrichment when the current canonical snapshot + full node
+ * set still matches `expectedModelHash`. Snapshot and every other tracked path are untouched.
+ */
+export function publishNodes(
+  root: string,
+  nodes: Node[],
+  expectedModelHash: string,
+  hooks?: PublishHooks,
+): void {
+  publishTracked(root, undefined, nodes, hooks, expectedModelHash);
 }
 
 export function readNodes(root: string): Node[] {

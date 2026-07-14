@@ -78,7 +78,7 @@ describe('archmap bin', () => {
     expect(JSON.parse(search.stdout)).toMatchObject({ schema_version: 1, command: 'search', found: true });
   }, 15_000);
 
-  it('dispatches proposal validate and preview through the real bin', () => {
+  it('dispatches proposal validate, preview, apply, evidence, and rescan through the real bin', () => {
     writeFileSync(join(dir, 'service.ts'), 'export const service = 1;\n');
     spawnSync('git', ['add', '-A'], { cwd: dir });
     spawnSync('git', ['commit', '-m', 'service'], { cwd: dir });
@@ -127,7 +127,22 @@ describe('archmap bin', () => {
     expect(preview.status, `${preview.stdout}\n${preview.stderr}`).toBe(0);
     expect(JSON.parse(preview.stdout)).toMatchObject({ command: 'proposal preview', verdict: 'valid' });
     expect(JSON.parse(preview.stdout).diff).toHaveLength(1);
-  }, 15_000);
+
+    const apply = run(['proposal', 'apply', 'proposal.yaml', '--json'], dir);
+    expect(apply.status, `${apply.stdout}\n${apply.stderr}`).toBe(0);
+    expect(JSON.parse(apply.stdout)).toMatchObject({ command: 'proposal apply', verdict: 'applied' });
+
+    const evidenceResult = run(['evidence', 'claim_proposed', '--json'], dir);
+    expect(evidenceResult.status).toBe(0);
+    expect(JSON.parse(evidenceResult.stdout)).toMatchObject({ found: true, matched: 'claim' });
+    expect(run(['scan', '--changed', '--json'], dir).status).toBe(0);
+
+    const repeated = run(['proposal', 'apply', 'proposal.yaml', '--json'], dir);
+    expect(repeated.status).toBe(1);
+    expect(JSON.parse(repeated.stdout)).toMatchObject({ verdict: 'invalid' });
+    const unknown = run(['proposal', 'apply', 'proposal.yaml', '--approv', 'x', '--json'], dir);
+    expect(unknown.status).toBe(2);
+  }, 30_000);
 
   it('does not print a stack trace for a regex-metacharacter secret glob (--json)', () => {
     writeFileSync(join(dir, 'a.py'), 'x\n');
