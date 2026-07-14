@@ -194,6 +194,16 @@ describe('Python literal YAML/JSON references', () => {
     expect(relationsForSource(source, targetPath)).toEqual([]);
   });
 
+  it.each([
+    ['variable-separator join', 'sep = "/"\nsep.join(["data", "input.yaml"])\n', 'input.yaml'],
+    ['os.sep join', 'import os\nos.sep.join(["data", "input.yaml"])\n', 'input.yaml'],
+    ['str.join descriptor', 'str.join("/", ["data", "input.yaml"])\n', 'input.yaml'],
+    ['literal-receiver format_map', '"data/{name}.yaml".format_map({"name": "x"})\n', 'data/{name}.yaml'],
+    ['augmented concatenation', 'path = "data/"\npath += "input.yaml"\nopen(path)\n', 'input.yaml'],
+  ])('does not treat a literal inside %s as a bare data reference', (_name, source, targetPath) => {
+    expect(relationsForSource(source, targetPath)).toEqual([]);
+  });
+
   it('emits the exact conservative partial edge matrix and no guessed path edges', () => {
     const discovery = fixtureDiscovery();
     const data = analyzeDataAssets(discovery, scanConfig);

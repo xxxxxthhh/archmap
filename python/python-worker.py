@@ -187,14 +187,17 @@ def risky_literal(
     current: ast.AST = node
     while current in parents:
         current = parents[current]
-        if isinstance(current, (ast.BinOp, ast.JoinedStr, ast.FormattedValue)):
+        if isinstance(current, (ast.BinOp, ast.JoinedStr, ast.FormattedValue)) or (
+            isinstance(current, ast.AugAssign) and isinstance(current.op, ast.Add)
+        ):
             return True
         if isinstance(current, ast.Call):
             name = dotted_name(current.func)
             joinpath = isinstance(current.func, ast.Attribute) and current.func.attr == "joinpath"
+            join = isinstance(current.func, ast.Attribute) and current.func.attr == "join"
             literal_string_builder = (
                 isinstance(current.func, ast.Attribute)
-                and current.func.attr in {"format", "join"}
+                and current.func.attr in {"format", "format_map"}
                 and isinstance(current.func.value, ast.Constant)
                 and isinstance(current.func.value.value, str)
             )
@@ -204,8 +207,9 @@ def risky_literal(
             if (
                 name in {"os.getenv", "os.environ.get", "environ.get"}
                 or name in path_joins
-                or (name or "").endswith(".format")
+                or (name or "").endswith((".format", ".format_map"))
                 or joinpath
+                or join
                 or literal_string_builder
                 or multi_component_path
             ):
