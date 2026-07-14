@@ -100,12 +100,17 @@ function computeStaleNodes(
   }
 
   // Added files (and rename destinations) are not yet in any scope. Mark the node that
-  // would contain them (if it exists) plus the repository root, whose structure changed.
+  // would contain them if it exists.
   const newPaths = [...diff.added, ...diff.renamed.map((r) => r.to)];
   for (const path of newPaths) {
     const containing = containingNodeId(path);
     if (known.has(containing)) stale.add(containing);
-    if (known.has(rootNodeId())) stale.add(rootNodeId());
+  }
+
+  // Every source-file change invalidates the repository-wide structural view. This is not
+  // an unrelated module: it is the parent projection that accounts for the whole repository.
+  if ((scopedPaths.length > 0 || newPaths.length > 0) && known.has(rootNodeId())) {
+    stale.add(rootNodeId());
   }
 
   return [...stale].sort();
