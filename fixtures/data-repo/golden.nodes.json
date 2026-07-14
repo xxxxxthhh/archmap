@@ -1,0 +1,123 @@
+[
+  {
+    "claims": [
+      {
+        "confidence": 1,
+        "evidence": [
+          {
+            "analyzer": "data",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:9247e0b7c68d25d1a174f135acc5b4e5c39840051054f923040027ea629f17f8",
+            "commit": "fixture-commit",
+            "extract_hash": "sha256:064d4d40669cac5eb7aa672cae5c3ad22c18d5d164b3473da5e9f3954d3f68ef",
+            "path": "config/settings.json",
+            "repository": "local"
+          }
+        ],
+        "id": "claim_9cf6f40d1bf8cf1c",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "status": "active",
+        "text": "Top-level keys (sorted, max 20): mode, threshold.",
+        "type": "fact"
+      }
+    ],
+    "id": "node_c7b6697fa507e8d3",
+    "kind": "store",
+    "relations": [],
+    "scope": {
+      "files": [
+        "config/settings.json"
+      ]
+    },
+    "slug": "config-settings-json",
+    "title": "config/settings.json"
+  },
+  {
+    "claims": [
+      {
+        "confidence": 1,
+        "evidence": [
+          {
+            "analyzer": "data",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:06a338d3a0fbf57201308bf0891184102ac0cae21d1ea731231ba20bcf3441c5",
+            "commit": "fixture-commit",
+            "extract_hash": "sha256:eef053c14a272b5c10ae662364a854b6aa00b5645af77041da3cfbd56958fb4f",
+            "path": "data/input.yaml",
+            "repository": "local"
+          }
+        ],
+        "id": "claim_bcdea4d6b2373329",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "status": "active",
+        "text": "Top-level keys (sorted, max 20): key01, key02, key03, key04, key05, key06, key07, key08, key09, key10, key11, key12, key13, key14, key15, key16, key17, key18, key19, key20.",
+        "type": "fact"
+      }
+    ],
+    "id": "node_5d3f44684e811aa9",
+    "kind": "store",
+    "relations": [],
+    "scope": {
+      "files": [
+        "data/input.yaml"
+      ]
+    },
+    "slug": "data-input-yaml",
+    "title": "data/input.yaml"
+  },
+  {
+    "claims": [],
+    "id": "node_2f10768e1ab46965",
+    "kind": "store",
+    "relations": [],
+    "scope": {
+      "files": [
+        "data/invalid.yaml"
+      ]
+    },
+    "slug": "data-invalid-yaml",
+    "title": "data/invalid.yaml"
+  },
+  {
+    "claims": [
+      {
+        "confidence": 1,
+        "evidence": [
+          {
+            "analyzer": "data",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:3c026101669c8a0b5263a4c85e61963a0abc2e60d031cbdb92d11d99360f0938",
+            "commit": "fixture-commit",
+            "extract_hash": "sha256:bf58858794e745dced305459b723da49c5963a299cdb74ab949b8809a8972c0f",
+            "path": "data/output.json",
+            "repository": "local"
+          }
+        ],
+        "id": "claim_a6d40cb432528379",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "status": "active",
+        "text": "Top-level keys (sorted, max 20): rows, status.",
+        "type": "fact"
+      }
+    ],
+    "id": "node_7e9a6d43659b4761",
+    "kind": "store",
+    "relations": [],
+    "scope": {
+      "files": [
+        "data/output.json"
+      ]
+    },
+    "slug": "data-output-json",
+    "title": "data/output.json"
+  }
+]

@@ -34,7 +34,7 @@ export function runScan(root: string, options: { changed?: boolean } = {}): Scan
   const tracked = baseline?.nodes ?? [];
 
   const discovery = discover(root, project.scan);
-  const model = prospectiveModel(discovery, project.project.name, tracked);
+  const model = prospectiveModel(discovery, project.project.name, tracked, project.scan);
 
   // Refuse to proceed if the scan would delete human enrichment on a vanished node.
   assertNoEnrichmentLoss(tracked, model.nodes);

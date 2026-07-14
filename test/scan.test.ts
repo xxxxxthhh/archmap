@@ -171,6 +171,7 @@ describe('capabilities', () => {
     expect(byId.typescript).toBe('supported');
     expect(byId.python).toBe('supported');
     expect(byId.markdown).toBe('supported');
+    expect(byId.data).toBe('supported');
     expect(report.environment.git).toBe(true);
   });
 });

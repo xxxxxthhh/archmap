@@ -12,6 +12,7 @@ coverage/
 .env
 .env.*
 !.env.example
+!fixtures/data-repo/config/.env.json
 
 # Editors and operating systems
 .DS_Store

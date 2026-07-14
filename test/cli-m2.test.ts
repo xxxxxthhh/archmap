@@ -129,12 +129,13 @@ describe('evidence command', () => {
 describe('read-only trial on a real repository (archmap itself)', () => {
   it('analyzes the archmap source into a contract-valid model without writing', () => {
     const root = realpathSync(join(dirname(fileURLToPath(import.meta.url)), '..'));
-    const discovery = discover(root, {
+    const scan = {
       max_file_bytes: DEFAULT_MAX_FILE_BYTES,
       exclude_dirs: [...DEFAULT_EXCLUDE_DIRS],
       secret_globs: [...DEFAULT_SECRET_GLOBS],
-    });
-    const model = prospectiveModel(discovery, 'archmap', []);
+    };
+    const discovery = discover(root, scan);
+    const model = prospectiveModel(discovery, 'archmap', [], scan);
     const result = validateManifest({
       schema_version: 1,
       capabilities: model.snapshot.capabilities,

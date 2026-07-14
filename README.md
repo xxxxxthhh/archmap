@@ -12,7 +12,7 @@ of the same model rather than independent sources of truth.
 
 Early implementation. Done: M0 (schema contract + `archmap validate`), M1 (universal
 scanner), M2 (TypeScript/JavaScript analysis + evidence-backed queries), and the M3 Python
-and Markdown docs slices. No MCP or Viewer yet.
+and Markdown/YAML/JSON docs-and-data slices. No MCP or Viewer yet.
 
 The working plan is in [PLAN.md](./PLAN.md).
 

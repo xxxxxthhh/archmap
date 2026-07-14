@@ -10,6 +10,9 @@ export const PYTHON_EXTENSIONS: readonly string[] = ['py'];
 /** Extensions parsed by the bounded Markdown docs adapter (MDX is intentionally excluded). */
 export const MARKDOWN_EXTENSIONS: readonly string[] = ['md', 'markdown'];
 
+/** Extensions parsed by the bounded YAML/JSON data adapter. */
+export const YAML_JSON_EXTENSIONS: readonly string[] = ['yaml', 'yml', 'json'];
+
 /** True when `path` is a TypeScript/JavaScript source file (by extension). */
 export function isTsJs(path: string): boolean {
   const dot = path.lastIndexOf('.');
@@ -31,4 +34,11 @@ export function isMarkdown(path: string): boolean {
   const dot = path.lastIndexOf('.');
   if (dot <= 0 || dot < path.lastIndexOf('/')) return false;
   return MARKDOWN_EXTENSIONS.includes(path.slice(dot + 1).toLowerCase());
+}
+
+/** True when `path` has a YAML/JSON extension; classifier precedence is checked separately. */
+export function isYamlJson(path: string): boolean {
+  const dot = path.lastIndexOf('.');
+  if (dot <= 0 || dot < path.lastIndexOf('/')) return false;
+  return YAML_JSON_EXTENSIONS.includes(path.slice(dot + 1).toLowerCase());
 }

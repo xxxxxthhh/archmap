@@ -62,7 +62,7 @@ export function computeStatus(root: string): StatusResult {
   // Clean means the whole scanner-owned projection for the current inputs is unchanged — not
   // just the file list. Uses the same shared projection/comparison as `scan --changed`, so
   // the two never disagree (and enrichment on a node does not read as drift).
-  const drift = modelDrift(prospectiveModel(discovery, project.project.name, nodes), snapshot, nodes);
+  const drift = modelDrift(prospectiveModel(discovery, project.project.name, nodes, project.scan), snapshot, nodes);
   const clean = !filesChanged && drift.length === 0;
 
   // Build the index from the tracked nodes just read — authoritative and immune to a stale

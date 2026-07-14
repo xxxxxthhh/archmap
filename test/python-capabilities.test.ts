@@ -26,7 +26,7 @@ describe('Python public capability surfaces', () => {
     expect(report.direct).toEqual(report.registry);
     expect(report.direct).toEqual(report.fresh);
     expect(report.direct).toEqual(
-      expect.objectContaining({ id: 'python', version: '0.1.0', status: 'unsupported' }),
+      expect.objectContaining({ id: 'python', version: '0.2.0', status: 'unsupported' }),
     );
   });
 });

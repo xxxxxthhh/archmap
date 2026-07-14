@@ -5,7 +5,7 @@ import type { Capability } from '../model/types.js';
 import type { Discovery, FileRecord, Snapshot, SnapshotDiff } from './types.js';
 
 /**
- * Capabilities declared in every snapshot. Both adapters ship in this build; declaring them
+ * Capabilities declared in every snapshot. The shipped adapters declare their identities here;
  * (id + version) lets M0 validation confirm that analyzer facts/relations cite a supported
  * capability. Order is fixed for determinism.
  */

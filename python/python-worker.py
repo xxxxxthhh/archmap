@@ -3,9 +3,9 @@
 
 The worker is deliberately syntax-only: Python's stdlib ``ast`` module is the authority for
 deterministic symbols, imports, and entry signals. Framework-shaped CLI and route hits and
-literal dynamic imports are returned in separate collections so the TypeScript model layer
-can only publish them as partial relations. Replacing this worker with Tree-sitter later does
-not change the adapter/model contract.
+literal dynamic imports/data paths are returned in separate collections so the TypeScript
+model layer can only publish them as partial relations. Replacing this worker with Tree-sitter
+later does not change the adapter/model contract.
 """
 
 from __future__ import annotations
@@ -108,6 +108,151 @@ def decorator_hits(statement: ast.stmt, routes: set[str], commands: set[str]) ->
             commands.add(command or statement.name)
 
 
+def data_path(value: str | None) -> str | None:
+    if value is None:
+        return None
+    lowered = value.lower().split("#", 1)[0]
+    return value if lowered.endswith((".yaml", ".yml", ".json")) else None
+
+
+def call_keyword(call: ast.Call, name: str) -> ast.AST | None:
+    return next((keyword.value for keyword in call.keywords if keyword.arg == name), None)
+
+
+def literal_argument(call: ast.Call, index: int, keyword: str) -> tuple[str, ast.Constant] | None:
+    node = call.args[index] if len(call.args) > index else call_keyword(call, keyword)
+    value = data_path(literal_string(node))
+    return (value, node) if value is not None and isinstance(node, ast.Constant) else None
+
+
+def open_accesses(call: ast.Call, mode_index: int, default_read: bool = True) -> list[str]:
+    mode_node = call.args[mode_index] if len(call.args) > mode_index else call_keyword(call, "mode")
+    if mode_node is None:
+        return ["read"] if default_read else []
+    mode = literal_string(mode_node)
+    if mode is None:
+        return []
+    accesses: list[str] = []
+    if not any(marker in mode for marker in "wax") or "+" in mode:
+        accesses.append("read")
+    if any(marker in mode for marker in "wax+"):
+        accesses.append("write")
+    return accesses
+
+
+def pathlib_receiver(call: ast.Call) -> tuple[str, ast.Constant] | None:
+    if not isinstance(call.func, ast.Attribute) or not isinstance(call.func.value, ast.Call):
+        return None
+    constructor = call.func.value
+    if dotted_name(constructor.func) not in {"Path", "pathlib.Path"}:
+        return None
+    return literal_argument(constructor, 0, "path")
+
+
+def path_builder_names(tree: ast.AST) -> tuple[set[str], set[str]]:
+    join_modules = {"os.path", "posixpath", "ntpath"}
+    constructor_types = {"Path", "PurePath", "PurePosixPath", "PureWindowsPath"}
+    joins = {f"{module}.join" for module in join_modules}
+    constructors = set(constructor_types) | {f"pathlib.{name}" for name in constructor_types}
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                local = alias.asname or alias.name
+                if alias.name in join_modules:
+                    joins.add(f"{local}.join")
+                elif alias.name == "os":
+                    joins.add(f"{local}.path.join")
+                elif alias.name == "pathlib":
+                    constructors.update(f"{local}.{name}" for name in constructor_types)
+        elif isinstance(node, ast.ImportFrom):
+            module = node.module or ""
+            for alias in node.names:
+                local = alias.asname or alias.name
+                if module in join_modules and alias.name == "join":
+                    joins.add(local)
+                elif module == "os" and alias.name == "path":
+                    joins.add(f"{local}.join")
+                elif module == "pathlib" and alias.name in constructor_types:
+                    constructors.add(local)
+    return joins, constructors
+
+
+def risky_literal(
+    node: ast.Constant,
+    parents: dict[ast.AST, ast.AST],
+    path_joins: set[str],
+    path_constructors: set[str],
+) -> bool:
+    current: ast.AST = node
+    while current in parents:
+        current = parents[current]
+        if isinstance(current, (ast.BinOp, ast.JoinedStr, ast.FormattedValue)):
+            return True
+        if isinstance(current, ast.Call):
+            name = dotted_name(current.func)
+            joinpath = isinstance(current.func, ast.Attribute) and current.func.attr == "joinpath"
+            multi_component_path = name in path_constructors and (
+                len(current.args) > 1 or any(isinstance(arg, ast.Starred) for arg in current.args)
+            )
+            if (
+                name in {"os.getenv", "os.environ.get", "environ.get"}
+                or name in path_joins
+                or (name or "").endswith(".format")
+                or joinpath
+                or multi_component_path
+            ):
+                return True
+        if isinstance(current, ast.stmt):
+            break
+    return False
+
+
+def data_references(tree: ast.AST) -> list[dict[str, str]]:
+    parents = {child: parent for parent in ast.walk(tree) for child in ast.iter_child_nodes(parent)}
+    path_joins, path_constructors = path_builder_names(tree)
+    used_literals: set[int] = set()
+    references: set[tuple[str, str]] = set()
+
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        name = dotted_name(node.func)
+        direct = literal_argument(node, 0, "file") if name in {"open", "io.open"} else None
+        if direct is not None:
+            path, literal = direct
+            used_literals.add(id(literal))
+            for access in open_accesses(node, 1):
+                references.add((path, access))
+            continue
+
+        receiver = pathlib_receiver(node)
+        if receiver is None or not isinstance(node.func, ast.Attribute):
+            continue
+        path, literal = receiver
+        used_literals.add(id(literal))
+        method = node.func.attr
+        if method in {"read_text", "read_bytes"}:
+            references.add((path, "read"))
+        elif method in {"write_text", "write_bytes"}:
+            references.add((path, "write"))
+        elif method == "open":
+            for access in open_accesses(node, 0):
+                references.add((path, access))
+
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Constant) or id(node) in used_literals:
+            continue
+        path = data_path(literal_string(node))
+        if path is not None and not risky_literal(node, parents, path_joins, path_constructors):
+            references.add((path, "bare"))
+
+    return [
+        {"path": path, "access": access}
+        for path, access in sorted(references, key=lambda item: (item[0], item[1]))
+    ]
+
+
 def analyze(path: str, source: bytes) -> dict[str, Any]:
     try:
         tree = ast.parse(source, filename=path, type_comments=True)
@@ -172,6 +317,7 @@ def analyze(path: str, source: bytes) -> dict[str, Any]:
         "entry_signals": sorted(entry_signals),
         "routes": sorted(routes),
         "cli_commands": sorted(commands),
+        "data_references": data_references(tree),
     }
 
 

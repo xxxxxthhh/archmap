@@ -13,13 +13,14 @@
 import { analyzeModules } from '../analyze/model.js';
 import { analyzePythonModules } from '../analyze/python-model.js';
 import { analyzeMarkdownDocuments } from '../analyze/markdown.js';
+import { analyzeDataAssets } from '../analyze/data.js';
 import { TYPESCRIPT_CAPABILITY, UNIVERSAL_CAPABILITY } from '../capabilities.js';
 import { toCanonicalYaml } from '../model/canonical.js';
 import type { Node } from '../model/types.js';
 import { StoreFormatError } from '../store-errors.js';
 import { buildNodes } from './nodes.js';
 import { buildSnapshot } from './snapshot.js';
-import type { Discovery, Snapshot } from './types.js';
+import type { Discovery, ProjectConfig, Snapshot } from './types.js';
 
 export interface ProspectiveModel {
   snapshot: Snapshot;
@@ -90,19 +91,22 @@ export function prospectiveModel(
   discovery: Discovery,
   projectName: string,
   tracked: Node[],
+  scan: ProjectConfig['scan'],
 ): ProspectiveModel {
   const structural = buildNodes(discovery.files, projectName);
   const analyzed = analyzeModules(discovery);
-  const python = analyzePythonModules(discovery);
-  const markdown = analyzeMarkdownDocuments(discovery, [...structural, ...analyzed, ...python.nodes]);
+  const data = analyzeDataAssets(discovery, scan);
+  const python = analyzePythonModules(discovery, undefined, data.nodes);
+  const markdown = analyzeMarkdownDocuments(discovery, [...structural, ...analyzed, ...data.nodes, ...python.nodes]);
   return {
     snapshot: buildSnapshot(discovery, [
       UNIVERSAL_CAPABILITY,
       TYPESCRIPT_CAPABILITY,
       python.capability,
       markdown.capability,
+      data.capability,
     ]),
-    nodes: mergeEnrichment([...structural, ...analyzed, ...python.nodes, ...markdown.nodes], tracked),
+    nodes: mergeEnrichment([...structural, ...analyzed, ...data.nodes, ...python.nodes, ...markdown.nodes], tracked),
   };
 }
 

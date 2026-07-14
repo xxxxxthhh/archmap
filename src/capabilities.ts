@@ -20,6 +20,17 @@ export const TYPESCRIPT_ADAPTER_VERSION = '0.1.0';
 /** Version of the bounded, content-safe Markdown docs adapter. */
 export const MARKDOWN_ADAPTER_VERSION = '0.1.0';
 
+/** Version of the bounded YAML/JSON data/config adapter. */
+export const DATA_ADAPTER_VERSION = '0.1.0';
+
+/** Deterministic YAML/JSON asset nodes and bounded top-level-key facts only. */
+export const DATA_CAPABILITY: Capability = {
+  id: 'data',
+  version: DATA_ADAPTER_VERSION,
+  status: 'supported',
+  provides: ['yaml-json-assets', 'top-level-keys'],
+};
+
 /** Content-safe Markdown docs/link/structure/convention capability. */
 export const MARKDOWN_CAPABILITY: Capability = {
   id: 'markdown',
@@ -56,7 +67,7 @@ export const PYTHON_CAPABILITY: Capability = currentPythonCapability();
 
 /** Resolve environment-sensitive adapter availability at the point of use. */
 export function getAdapterRegistry(): readonly Capability[] {
-  return [UNIVERSAL_CAPABILITY, TYPESCRIPT_CAPABILITY, currentPythonCapability(), MARKDOWN_CAPABILITY];
+  return [UNIVERSAL_CAPABILITY, TYPESCRIPT_CAPABILITY, currentPythonCapability(), MARKDOWN_CAPABILITY, DATA_CAPABILITY];
 }
 
 /** The full adapter registry as of this build, for `archmap capabilities`. */
@@ -65,4 +76,5 @@ export const ADAPTER_REGISTRY: readonly Capability[] = [
   TYPESCRIPT_CAPABILITY,
   PYTHON_CAPABILITY,
   MARKDOWN_CAPABILITY,
+  DATA_CAPABILITY,
 ];
