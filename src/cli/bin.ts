@@ -6,6 +6,7 @@ import { runContextCommand } from './context-command.js';
 import { runEvidenceCommand } from './evidence-command.js';
 import { runImpactCommand } from './impact-command.js';
 import { runInit } from './init-command.js';
+import { runProposalDispatch } from './proposal-command.js';
 import { runScanCommand } from './scan-command.js';
 import { runSearchCommand } from './search-command.js';
 import { runStatusCommand } from './status-command.js';
@@ -25,6 +26,8 @@ Commands:
   evidence <id> [--json]               Evidence bundle for a node/claim/relation id
   work-items [--json]                  Stale-node update work items with bounded evidence
   search <query> [--json]              Search slug, title, paths, and claim text
+  proposal validate <file> [--json]    Validate an external proposal without writing
+  proposal preview <file> [--json]     Preview its canonical tracked-node diff without writing
   validate <manifest> [--json]         Validate a manifest file (YAML or JSON)
 `;
 
@@ -48,6 +51,8 @@ function dispatch(command: string | undefined, rest: string[], ctx: CommandConte
       return runWorkItemsCommand(rest, ctx);
     case 'search':
       return runSearchCommand(rest, ctx);
+    case 'proposal':
+      return runProposalDispatch(rest, ctx);
     case 'validate':
       return runValidate(rest);
     default:

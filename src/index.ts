@@ -41,6 +41,9 @@ export type {
   WorkItemsResult,
 } from './query/work-items.js';
 
+// M4: external proposal contract, validation, and read-only preview
+export * from './proposal/index.js';
+
 // M3: Python adapter
 export { PYTHON_CAPABILITY } from './capabilities.js';
 export { analyzePythonModules } from './analyze/python-model.js';
