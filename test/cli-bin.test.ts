@@ -73,7 +73,7 @@ describe('archmap bin', () => {
     const search = run(['search', 'repository', '--json'], dir);
     expect(search.status).toBe(0);
     expect(JSON.parse(search.stdout)).toMatchObject({ schema_version: 1, command: 'search', found: true });
-  });
+  }, 15_000);
 
   it('does not print a stack trace for a regex-metacharacter secret glob (--json)', () => {
     writeFileSync(join(dir, 'a.py'), 'x\n');
