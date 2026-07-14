@@ -1,0 +1,4 @@
+rows:
+  - name: sample
+    value: 1
+source: fixture

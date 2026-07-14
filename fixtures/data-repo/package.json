@@ -1,0 +1,4 @@
+{
+  "private": true,
+  "manifest_secret": "MANIFEST_VALUE_CANARY"
+}

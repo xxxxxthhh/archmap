@@ -10,8 +10,9 @@ of the same model rather than independent sources of truth.
 
 ## Status
 
-Early implementation. The M0 slice (schema contract + `archmap validate`) is in place; no
-repository scanning, MCP, or Viewer yet.
+Early implementation. Done: M0 (schema contract + `archmap validate`), M1 (universal
+scanner), M2 (TypeScript/JavaScript analysis + evidence-backed queries), and the M3 Python
+and Markdown/YAML/JSON docs-and-data slices. No MCP or Viewer yet.
 
 The working plan is in [PLAN.md](./PLAN.md).
 
@@ -22,15 +23,20 @@ npm install
 npm run check      # typecheck + lint + test + build (single verification command)
 ```
 
-Validate a manifest file (YAML or JSON) against the v1 schema:
+Scan a repository and inspect its architecture model:
 
 ```bash
-npx tsx src/cli/bin.ts validate fixtures/valid/manifest.yaml
-npx tsx src/cli/bin.ts validate <manifest> --json
+npx tsx src/cli/bin.ts init                 # create .archmap/
+npx tsx src/cli/bin.ts scan                 # build snapshot, nodes, derived index
+npx tsx src/cli/bin.ts status --json        # changed files + stale nodes
+npx tsx src/cli/bin.ts capabilities --json  # adapters and environment
+npx tsx src/cli/bin.ts validate <manifest>  # validate a manifest (YAML or JSON)
 ```
 
-The authoritative structural contract is [schema/manifest.schema.json](./schema/manifest.schema.json);
-`src/model/types.ts` mirrors it for typed consumers. Example manifests live under `fixtures/`.
+`.archmap/` holds repository-owned, reviewable YAML (`project.yaml`, `snapshot.yaml`,
+`nodes/`); `.archmap/cache/` is disposable and rebuildable. The authoritative structural
+contract is [schema/manifest.schema.json](./schema/manifest.schema.json), mirrored by
+`src/model/types.ts` for typed consumers. Example manifests live under `fixtures/`.
 
 ## Initial product boundary
 

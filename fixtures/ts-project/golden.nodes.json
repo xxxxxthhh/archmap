@@ -1,0 +1,372 @@
+[
+  {
+    "claims": [
+      {
+        "confidence": 1,
+        "evidence": [
+          {
+            "analyzer": "typescript",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:6b1687c37385aaa51935ccd109d772a6394ac5b1b653fbf47e4bf033fb2bff10",
+            "commit": "working-tree",
+            "extract_hash": "sha256:ed25b2f8ba8274386cc4b7e8fc2e8aa366fc5eb39774d12dec74b50f65fed994",
+            "path": "bin/run.ts",
+            "repository": "local"
+          }
+        ],
+        "id": "claim_e5adfabe5ce877f6",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "status": "active",
+        "text": "Entry point (shebang).",
+        "type": "fact"
+      }
+    ],
+    "id": "node_90d83ff50eed9d3b",
+    "kind": "module",
+    "relations": [
+      {
+        "certainty": "known",
+        "evidence": [
+          {
+            "analyzer": "typescript",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:6b1687c37385aaa51935ccd109d772a6394ac5b1b653fbf47e4bf033fb2bff10",
+            "commit": "working-tree",
+            "extract_hash": "sha256:aa663d941e13f598101ce1085b1528f6b356c55b60abbd6622283651b1ca78c3",
+            "path": "bin/run.ts",
+            "repository": "local",
+            "symbol": "../src/index.js"
+          }
+        ],
+        "id": "rel_6093ecdbf07a9d68",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_1ce6b96420a4501f",
+        "type": "imports"
+      },
+      {
+        "certainty": "partial",
+        "evidence": [
+          {
+            "analyzer": "typescript",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:6b1687c37385aaa51935ccd109d772a6394ac5b1b653fbf47e4bf033fb2bff10",
+            "commit": "working-tree",
+            "extract_hash": "sha256:10a08448ad13348e596ec0f2460da5ff8eb408041d513719c6c508b5263c1a56",
+            "path": "bin/run.ts",
+            "repository": "local"
+          }
+        ],
+        "id": "rel_7dda55ec86612599",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_80c36bc43353d443",
+        "type": "publishes"
+      },
+      {
+        "certainty": "partial",
+        "evidence": [
+          {
+            "analyzer": "typescript",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:6b1687c37385aaa51935ccd109d772a6394ac5b1b653fbf47e4bf033fb2bff10",
+            "commit": "working-tree",
+            "extract_hash": "sha256:e1a2a4fff31869882ddba140aab483488ce096d2dcc3d0a5506bccc268a75c43",
+            "path": "bin/run.ts",
+            "repository": "local",
+            "symbol": "commander"
+          }
+        ],
+        "id": "rel_ce1be689e918787e",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_aa0659081732a367",
+        "type": "imports"
+      }
+    ],
+    "scope": {
+      "files": [
+        "bin/run.ts"
+      ]
+    },
+    "slug": "bin-run-ts",
+    "title": "bin/run.ts"
+  },
+  {
+    "claims": [],
+    "id": "node_1ce6b96420a4501f",
+    "kind": "module",
+    "relations": [
+      {
+        "certainty": "known",
+        "evidence": [
+          {
+            "analyzer": "typescript",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:2fc88c50ed725ec824594a8f2e65f31ea88e1163b4c4fdbeb5ad64c60e0b56ee",
+            "commit": "working-tree",
+            "extract_hash": "sha256:7a4deebe25d7d7e471a00ca835beb9409873f70b2e3d34e6edccc455677b1043",
+            "path": "src/index.ts",
+            "repository": "local",
+            "symbol": "./util/format.js"
+          }
+        ],
+        "id": "rel_aa48e8da864c3d79",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_1433c5e255586ac9",
+        "type": "imports"
+      },
+      {
+        "certainty": "known",
+        "evidence": [
+          {
+            "analyzer": "typescript",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:2fc88c50ed725ec824594a8f2e65f31ea88e1163b4c4fdbeb5ad64c60e0b56ee",
+            "commit": "working-tree",
+            "extract_hash": "sha256:1e5a3a7997a2eeee24677d0fc0d221ae1a5fa4527b4dd61f77b4559e76c68a66",
+            "path": "src/index.ts",
+            "repository": "local",
+            "symbol": "./service.js"
+          }
+        ],
+        "id": "rel_cbbc237581589edf",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_2f12b97b2fda0f06",
+        "type": "imports"
+      }
+    ],
+    "scope": {
+      "files": [
+        "src/index.ts"
+      ],
+      "symbols": [
+        "main"
+      ]
+    },
+    "slug": "src-index-ts",
+    "title": "src/index.ts"
+  },
+  {
+    "claims": [],
+    "id": "node_41a7da9bb7a6850f",
+    "kind": "module",
+    "relations": [
+      {
+        "certainty": "partial",
+        "evidence": [
+          {
+            "analyzer": "typescript",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:2715bdd8d9b7960961f9bcf1cd05acfff8ae1d56928532025276f6b9391147be",
+            "commit": "working-tree",
+            "extract_hash": "sha256:407c55bcdd40e75a867093cf64dba13fd73e268a43adc1eda704115db872cc1c",
+            "path": "src/server.ts",
+            "repository": "local",
+            "symbol": "express"
+          }
+        ],
+        "id": "rel_105f61a5ee452ed3",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_3c91507ca7dbaa20",
+        "type": "imports"
+      },
+      {
+        "certainty": "partial",
+        "evidence": [
+          {
+            "analyzer": "typescript",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:2715bdd8d9b7960961f9bcf1cd05acfff8ae1d56928532025276f6b9391147be",
+            "commit": "working-tree",
+            "extract_hash": "sha256:d6647699521c2530d67449348537d1b572dd099a775c1761928c066a361f02fe",
+            "path": "src/server.ts",
+            "repository": "local"
+          }
+        ],
+        "id": "rel_1935037b49eede19",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_5424a1ada1d7fd3e",
+        "type": "publishes"
+      },
+      {
+        "certainty": "partial",
+        "evidence": [
+          {
+            "analyzer": "typescript",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:2715bdd8d9b7960961f9bcf1cd05acfff8ae1d56928532025276f6b9391147be",
+            "commit": "working-tree",
+            "extract_hash": "sha256:232f0483145f0783a160ad11100ac3d41ef8f60c02c9d59fd0dc529f44c0e6f0",
+            "path": "src/server.ts",
+            "repository": "local"
+          }
+        ],
+        "id": "rel_e9812abf0f71d866",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_f7a7dcb488329c3f",
+        "type": "publishes"
+      }
+    ],
+    "scope": {
+      "files": [
+        "src/server.ts"
+      ],
+      "symbols": [
+        "app"
+      ]
+    },
+    "slug": "src-server-ts",
+    "title": "src/server.ts"
+  },
+  {
+    "claims": [],
+    "id": "node_2f12b97b2fda0f06",
+    "kind": "module",
+    "relations": [
+      {
+        "certainty": "known",
+        "evidence": [
+          {
+            "analyzer": "typescript",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:44eeb3ccfea787ad9812646907b94f23db06db99ed8964a3a41c1b761fa1efec",
+            "commit": "working-tree",
+            "extract_hash": "sha256:7a4deebe25d7d7e471a00ca835beb9409873f70b2e3d34e6edccc455677b1043",
+            "path": "src/service.ts",
+            "repository": "local",
+            "symbol": "./util/format.js"
+          }
+        ],
+        "id": "rel_5b7e1365a8821ccc",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_1433c5e255586ac9",
+        "type": "imports"
+      },
+      {
+        "certainty": "partial",
+        "evidence": [
+          {
+            "analyzer": "typescript",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:44eeb3ccfea787ad9812646907b94f23db06db99ed8964a3a41c1b761fa1efec",
+            "commit": "working-tree",
+            "extract_hash": "sha256:70f6ecde3850d2e9a20a3aebd9c777333fcbf946939a3625a5fbde1663620a17",
+            "path": "src/service.ts",
+            "repository": "local"
+          }
+        ],
+        "id": "rel_e29245ecdba1637e",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_c177ba986655ed18",
+        "type": "calls"
+      }
+    ],
+    "scope": {
+      "files": [
+        "src/service.ts"
+      ],
+      "symbols": [
+        "Service",
+        "greet"
+      ]
+    },
+    "slug": "src-service-ts",
+    "title": "src/service.ts"
+  },
+  {
+    "claims": [],
+    "id": "node_1433c5e255586ac9",
+    "kind": "module",
+    "relations": [],
+    "scope": {
+      "files": [
+        "src/util/format.ts"
+      ],
+      "symbols": [
+        "PREFIX",
+        "fmt"
+      ]
+    },
+    "slug": "src-util-format-ts",
+    "title": "src/util/format.ts"
+  },
+  {
+    "claims": [],
+    "id": "node_3c91507ca7dbaa20",
+    "kind": "external",
+    "relations": [],
+    "slug": "express",
+    "title": "express"
+  },
+  {
+    "claims": [],
+    "id": "node_5424a1ada1d7fd3e",
+    "kind": "external",
+    "relations": [],
+    "slug": "route-post-users",
+    "title": "route:POST /users"
+  },
+  {
+    "claims": [],
+    "id": "node_80c36bc43353d443",
+    "kind": "external",
+    "relations": [],
+    "slug": "cli-start",
+    "title": "cli:start"
+  },
+  {
+    "claims": [],
+    "id": "node_aa0659081732a367",
+    "kind": "external",
+    "relations": [],
+    "slug": "commander",
+    "title": "commander"
+  },
+  {
+    "claims": [],
+    "id": "node_c177ba986655ed18",
+    "kind": "external",
+    "relations": [],
+    "slug": "http-fetch",
+    "title": "http:fetch"
+  },
+  {
+    "claims": [],
+    "id": "node_f7a7dcb488329c3f",
+    "kind": "external",
+    "relations": [],
+    "slug": "route-get-health",
+    "title": "route:GET /health"
+  }
+]

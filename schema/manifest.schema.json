@@ -103,6 +103,7 @@
         },
         "target": { "$ref": "#/$defs/id" },
         "certainty": { "type": "string", "enum": ["known", "partial", "unknown"] },
+        "provenance": { "$ref": "#/$defs/provenance" },
         "evidence": {
           "type": "array",
           "minItems": 1,
