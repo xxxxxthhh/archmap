@@ -28,37 +28,101 @@ export function previewProposal(input: unknown, baseline: TrackedBaseline): Prop
   return evaluate(input, baseline, true);
 }
 
+export interface PreparedProposalApply {
+  evaluation: ProposalEvaluation;
+  projected?: Node[];
+}
+
+/** Apply-only preparation: repeat the complete validator and require the exact conflict set. */
+export function prepareProposalApply(
+  input: unknown,
+  baseline: TrackedBaseline,
+  approvals: readonly string[],
+): PreparedProposalApply {
+  return evaluatePrepared(input, baseline, true, approvals);
+}
+
 function evaluate(input: unknown, baseline: TrackedBaseline, includeDiff: boolean): ProposalEvaluation {
+  return evaluatePrepared(input, baseline, includeDiff).evaluation;
+}
+
+function evaluatePrepared(
+  input: unknown,
+  baseline: TrackedBaseline,
+  includeDiff: boolean,
+  approvals?: readonly string[],
+): PreparedProposalApply {
   const structure = validateProposalStructure(input);
-  if (!structure.valid) return result('invalid', structure.errors);
+  if (!structure.valid) return prepared(result('invalid', structure.errors));
   const proposal = structure.proposal;
 
   const fingerprintErrors = checkBaselineFingerprint(proposal, baseline);
-  if (fingerprintErrors.length > 0) return result('invalid', fingerprintErrors);
+  if (fingerprintErrors.length > 0) return prepared(result('invalid', fingerprintErrors));
 
   const staticAuthorizationErrors = authorizeStatic(proposal);
-  if (staticAuthorizationErrors.length > 0) return result('forbidden', staticAuthorizationErrors);
+  if (staticAuthorizationErrors.length > 0) return prepared(result('forbidden', staticAuthorizationErrors));
 
   const referenceErrors = checkReferencesAndCollisions(proposal, baseline);
-  if (referenceErrors.length > 0) return result('invalid', referenceErrors);
+  if (referenceErrors.length > 0) return prepared(result('invalid', referenceErrors));
 
   const authorizationErrors = authorizeExistingContent(proposal, baseline);
-  if (authorizationErrors.length > 0) return result('forbidden', authorizationErrors);
+  if (authorizationErrors.length > 0) return prepared(result('forbidden', authorizationErrors));
 
   const operations = proposal.operations as AuthorizedOperation[];
   const conflicts = findConflicts(operations, baseline);
-  if (conflicts.length > 0) return { verdict: 'requires-approval', errors: [], conflicts };
+  if (approvals === undefined && conflicts.length > 0) {
+    return prepared({ verdict: 'requires-approval', errors: [], conflicts });
+  }
+  if (approvals !== undefined) {
+    const approvalErrors = checkApprovalSet(approvals, conflicts);
+    if (approvalErrors.length > 0) {
+      return prepared({
+        verdict: conflicts.length > 0 ? 'requires-approval' : 'invalid',
+        errors: approvalErrors,
+        conflicts,
+      });
+    }
+  }
 
   const projected = project(operations, baseline.nodes);
   const projectionErrors = validateProjection(projected, operations, baseline);
-  if (projectionErrors.length > 0) return result('invalid', projectionErrors);
+  if (projectionErrors.length > 0) return prepared(result('invalid', projectionErrors));
 
-  if (!includeDiff) return result('valid', []);
-  return { verdict: 'valid', errors: [], conflicts: [], diff: buildDiff(baseline.nodes, projected) };
+  if (!includeDiff) return prepared(result('valid', []), projected);
+  return prepared(
+    { verdict: 'valid', errors: [], conflicts: [], diff: buildDiff(baseline.nodes, projected) },
+    projected,
+  );
+}
+
+function prepared(evaluation: ProposalEvaluation, projected?: Node[]): PreparedProposalApply {
+  return projected === undefined ? { evaluation } : { evaluation, projected };
 }
 
 function result(verdict: ProposalEvaluation['verdict'], errors: ProposalError[]): ProposalEvaluation {
   return { verdict, errors: sortErrors(errors), conflicts: [] };
+}
+
+function checkApprovalSet(approvals: readonly string[], conflicts: ProposalConflict[]): ProposalError[] {
+  const expected = conflicts.map((conflict) => conflict.id);
+  const expectedSet = new Set(expected);
+  const providedSet = new Set(approvals);
+  const duplicates = [...providedSet].filter(
+    (id) => approvals.filter((approval) => approval === id).length > 1,
+  );
+  const missing = expected.filter((id) => !providedSet.has(id));
+  const extra = [...providedSet].filter((id) => !expectedSet.has(id)).sort();
+  if (duplicates.length === 0 && missing.length === 0 && extra.length === 0) return [];
+
+  const parts: string[] = [];
+  if (missing.length > 0) parts.push(`missing: ${missing.join(', ')}`);
+  if (extra.length > 0) parts.push(`extra or stale: ${extra.join(', ')}`);
+  if (duplicates.length > 0) parts.push(`duplicate: ${duplicates.sort().join(', ')}`);
+  return [{
+    path: '/approvals',
+    code: 'approval-set',
+    message: `approval IDs must exactly match the current conflict set (${parts.join('; ')})`,
+  }];
 }
 
 function checkBaselineFingerprint(proposal: Proposal, baseline: TrackedBaseline): ProposalError[] {

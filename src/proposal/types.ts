@@ -3,6 +3,7 @@ import type { Claim, ClaimStatus, Relation } from '../model/types.js';
 export const PROPOSAL_SCHEMA_VERSION = 1;
 
 export type ProposalVerdict = 'valid' | 'invalid' | 'forbidden' | 'requires-approval';
+export type ProposalApplyVerdict = ProposalVerdict | 'applied';
 export type ProposalMutation = 'add' | 'replace' | 'remove';
 export type ProposalTargetClass =
   | 'node'
@@ -46,6 +47,7 @@ export interface ProposalError {
     | 'invalid-evidence-path'
     | 'evidence-mismatch'
     | 'invalid-projection'
+    | 'approval-set'
     | 'proposal-load';
   message: string;
 }
@@ -69,6 +71,20 @@ export interface ProposalEvaluation {
   errors: ProposalError[];
   conflicts: ProposalConflict[];
   diff?: ProposalNodeDiff[];
+}
+
+export interface ProposalApplyWarning {
+  code: 'cache-refresh';
+  message: string;
+}
+
+export interface ProposalApplyResult {
+  verdict: ProposalApplyVerdict;
+  errors: ProposalError[];
+  conflicts: ProposalConflict[];
+  changed_paths: string[];
+  cache_refreshed: boolean;
+  warnings: ProposalApplyWarning[];
 }
 
 export type AddClaimOperation = ProposalOperation & {
