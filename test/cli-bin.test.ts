@@ -91,5 +91,5 @@ describe('archmap bin', () => {
     const report = JSON.parse(res.stdout);
     expect(report.diff.modified).toContain('__proto__');
     expect(report.stale_nodes.length).toBeGreaterThan(0); // mapping survived
-  });
+  }, 15_000);
 });

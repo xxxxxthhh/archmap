@@ -9,22 +9,23 @@ import type { Evidence, Node } from '../model/types.js';
 
 interface Graph {
   byId: Map<string, Node>;
-  /** node id -> target ids of its relations. */
-  outgoing: Map<string, string[]>;
-  /** node id -> ids of nodes whose relations target it. */
-  incoming: Map<string, string[]>;
+  /** node id -> outgoing relation targets and types. */
+  outgoing: Map<string, Array<{ id: string; type: Node['relations'][number]['type'] }>>;
+  /** node id -> source nodes and relation types that target it. */
+  incoming: Map<string, Array<{ id: string; type: Node['relations'][number]['type'] }>>;
 }
 
 function buildGraph(nodes: Node[]): Graph {
   const byId = new Map(nodes.map((n) => [n.id, n]));
-  const outgoing = new Map<string, string[]>();
-  const incoming = new Map<string, string[]>();
+  const outgoing = new Map<string, Array<{ id: string; type: Node['relations'][number]['type'] }>>();
+  const incoming = new Map<string, Array<{ id: string; type: Node['relations'][number]['type'] }>>();
   for (const node of nodes) {
-    outgoing.set(node.id, node.relations.map((r) => r.target));
+    outgoing.set(node.id, node.relations.map((relation) => ({ id: relation.target, type: relation.type })));
     for (const rel of node.relations) {
       const bucket = incoming.get(rel.target);
-      if (bucket) bucket.push(node.id);
-      else incoming.set(rel.target, [node.id]);
+      const edge = { id: node.id, type: rel.type };
+      if (bucket) bucket.push(edge);
+      else incoming.set(rel.target, [edge]);
     }
   }
   return { byId, outgoing, incoming };
@@ -71,8 +72,8 @@ export const DEFAULT_CONTEXT_BUDGET = 2000;
 
 /**
  * The minimal relevant context for `paths`, ranked and **hard-capped** at `budget` tokens:
- * the file's own module node, its imports and importers, its containing structural (parent)
- * views, and the repository root. `included` carries the full node payload (scope, claims,
+ * the file's own per-file node, its referenced dependencies and reverse references, its
+ * containing structural (parent) views, and the repository root. `included` carries the full node payload (scope, claims,
  * relations, evidence) — the actual context an agent reads — and its token cost is measured
  * on exactly that payload, so `used_tokens <= budget` always holds. Nodes that do not fit,
  * including the target itself when it alone exceeds the budget, are reported as `omitted`.
@@ -91,12 +92,23 @@ export function contextFor(nodes: Node[], paths: string[], budget: number): Cont
     }
   };
 
-  // Tier 0: the requested file's own module node(s) — ranked first, but still budget-bound.
-  const primary = scoping.filter((n) => pathSet.has(n.title));
+  // Tier 0: the requested file's own per-file node(s) — ranked first, but still budget-bound.
+  const primary = scoping.filter((node) => {
+    const files = node.scope?.files ?? [];
+    return files.length === 1 && pathSet.has(files[0]!) && (pathSet.has(node.title) || node.kind === 'store');
+  });
   for (const n of primary) add(n.id, 'target: the requested file');
-  // Tier 1: what the target imports, then who imports the target.
-  for (const n of primary) for (const t of graph.outgoing.get(n.id) ?? []) add(t, 'imported by the requested file');
-  for (const n of primary) for (const s of graph.incoming.get(n.id) ?? []) add(s, 'imports the requested file');
+  // Tier 1: what the target references, then who references the target.
+  for (const n of primary) {
+    for (const edge of graph.outgoing.get(n.id) ?? []) {
+      add(edge.id, edge.type === 'depends-on' ? 'referenced by the requested file' : 'imported by the requested file');
+    }
+  }
+  for (const n of primary) {
+    for (const edge of graph.incoming.get(n.id) ?? []) {
+      add(edge.id, edge.type === 'depends-on' ? 'references the requested file' : 'imports the requested file');
+    }
+  }
   // Tier 2: parent structural views (containing directory, then repository root).
   for (const n of scoping) if (!pathSet.has(n.title)) add(n.id, 'parent view: contains the requested file');
   const root = nodes.find((n) => n.kind === 'system');
@@ -133,8 +145,8 @@ export interface ImpactResult {
 }
 
 /**
- * Nodes affected by changing `paths`: the scoping nodes, the transitive closure of modules
- * that import them (upstream impact), and the repository root as the top-level view.
+ * Nodes affected by changing `paths`: the scoping nodes, the transitive closure of nodes
+ * that import/reference them (upstream impact), and the repository root as the top-level view.
  */
 export function impactFor(nodes: Node[], paths: string[]): ImpactResult {
   const graph = buildGraph(nodes);
@@ -147,10 +159,13 @@ export function impactFor(nodes: Node[], paths: string[]): ImpactResult {
   const queue = [...seedIds];
   while (queue.length > 0) {
     const id = queue.shift()!;
-    for (const importer of graph.incoming.get(id) ?? []) {
-      if (!reasonById.has(importer)) {
-        reasonById.set(importer, 'transitively imports a changed file');
-        queue.push(importer);
+    for (const edge of graph.incoming.get(id) ?? []) {
+      if (!reasonById.has(edge.id)) {
+        reasonById.set(
+          edge.id,
+          edge.type === 'depends-on' ? 'transitively references a changed file' : 'transitively imports a changed file',
+        );
+        queue.push(edge.id);
       }
     }
   }

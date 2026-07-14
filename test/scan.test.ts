@@ -163,13 +163,14 @@ describe('status', () => {
 });
 
 describe('capabilities', () => {
-  it('reports universal, typescript, and the available packaged Python adapter truthfully', () => {
+  it('reports universal, language, and docs adapters truthfully', () => {
     const out = runCapabilitiesCommand(['--json'], ctx());
     const report = JSON.parse(out.stdout);
     const byId = Object.fromEntries(report.adapters.map((a: { id: string; status: string }) => [a.id, a.status]));
     expect(byId.universal).toBe('supported');
     expect(byId.typescript).toBe('supported');
     expect(byId.python).toBe('supported');
+    expect(byId.markdown).toBe('supported');
     expect(report.environment.git).toBe(true);
   });
 });

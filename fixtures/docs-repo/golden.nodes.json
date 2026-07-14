@@ -1,0 +1,399 @@
+[
+  {
+    "claims": [],
+    "id": "node_278a4c8f8eb667f4",
+    "kind": "external",
+    "relations": [],
+    "slug": "unresolved-guides-guide-md",
+    "title": "unresolved:Guides/guide.md"
+  },
+  {
+    "claims": [],
+    "id": "node_33d6c68023123fc2",
+    "kind": "external",
+    "relations": [],
+    "slug": "https-example-com-docs",
+    "title": "https://example.com/docs"
+  },
+  {
+    "claims": [],
+    "id": "node_43a8f10313ecc5b3",
+    "kind": "store",
+    "relations": [
+      {
+        "certainty": "known",
+        "evidence": [
+          {
+            "analyzer": "markdown",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:42b06140bb20cc218a794584158b7ada61fdade645dca20ddf954a943b0a3ec2",
+            "commit": "working-tree",
+            "extract_hash": "sha256:67e6f7599678097d7e85ba4e8dddac76f218ff723f3b3c09edfc0cfcd6df178e",
+            "path": "README.md",
+            "repository": "local",
+            "symbol": "src/service.py"
+          }
+        ],
+        "id": "rel_28ce531aded9ae9b",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_a1706e8cf50fb7d5",
+        "type": "depends-on"
+      },
+      {
+        "certainty": "partial",
+        "evidence": [
+          {
+            "analyzer": "markdown",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:42b06140bb20cc218a794584158b7ada61fdade645dca20ddf954a943b0a3ec2",
+            "commit": "working-tree",
+            "extract_hash": "sha256:958d0e57e28b8f959ff78a915ead660ddd9a3d10ca08bebd9f870bdf5343eae3",
+            "path": "README.md",
+            "repository": "local",
+            "symbol": "mailto:docs@example.com"
+          }
+        ],
+        "id": "rel_3375f793c4301638",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_a6fed2c63cb51ae0",
+        "type": "depends-on"
+      },
+      {
+        "certainty": "known",
+        "evidence": [
+          {
+            "analyzer": "markdown",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:42b06140bb20cc218a794584158b7ada61fdade645dca20ddf954a943b0a3ec2",
+            "commit": "working-tree",
+            "extract_hash": "sha256:971e4f971ead7fc2778f2b8b5baa8bb33f25f8e084665681d007167dfec9d27f",
+            "path": "README.md",
+            "repository": "local",
+            "symbol": "assets/architecture.svg"
+          }
+        ],
+        "id": "rel_362eb1340026e113",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_8bf729ffe074caee",
+        "type": "depends-on"
+      },
+      {
+        "certainty": "known",
+        "evidence": [
+          {
+            "analyzer": "markdown",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:42b06140bb20cc218a794584158b7ada61fdade645dca20ddf954a943b0a3ec2",
+            "commit": "working-tree",
+            "extract_hash": "sha256:e7b6bff7d3cc0d65153b70ad141d09b3d5dde4d839e7ca8c22934a35c08aedab",
+            "path": "README.md",
+            "repository": "local",
+            "symbol": "guides/guide.md#install"
+          }
+        ],
+        "id": "rel_5bce366fdad9a4c5",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_f5f0c0f9b94e4416",
+        "type": "depends-on"
+      },
+      {
+        "certainty": "known",
+        "evidence": [
+          {
+            "analyzer": "markdown",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:42b06140bb20cc218a794584158b7ada61fdade645dca20ddf954a943b0a3ec2",
+            "commit": "working-tree",
+            "extract_hash": "sha256:ee2d2a10b92cd3b64b7d531612375e9657716d9149fab0e2e22ef6fc5a9b41f3",
+            "path": "README.md",
+            "repository": "local",
+            "symbol": "guides/guide.md"
+          }
+        ],
+        "id": "rel_8cce48834cd73473",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_f5f0c0f9b94e4416",
+        "type": "depends-on"
+      },
+      {
+        "certainty": "partial",
+        "evidence": [
+          {
+            "analyzer": "markdown",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:42b06140bb20cc218a794584158b7ada61fdade645dca20ddf954a943b0a3ec2",
+            "commit": "working-tree",
+            "extract_hash": "sha256:9d664639ba092775af75d609169677dcaa6f7de431317ceaea5e294910bb6042",
+            "path": "README.md",
+            "repository": "local",
+            "symbol": "https://autolink.example/docs"
+          }
+        ],
+        "id": "rel_8d4a37bda8a7f61d",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_74667b3a36073690",
+        "type": "depends-on"
+      },
+      {
+        "certainty": "partial",
+        "evidence": [
+          {
+            "analyzer": "markdown",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:42b06140bb20cc218a794584158b7ada61fdade645dca20ddf954a943b0a3ec2",
+            "commit": "working-tree",
+            "extract_hash": "sha256:4ba70b8f0ebe168e9dd235e4b71b14f17c4100482003b9e2786d779319c4aac4",
+            "path": "README.md",
+            "repository": "local",
+            "symbol": "https://example.com/docs"
+          }
+        ],
+        "id": "rel_a6275d880882c610",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_33d6c68023123fc2",
+        "type": "depends-on"
+      },
+      {
+        "certainty": "partial",
+        "evidence": [
+          {
+            "analyzer": "markdown",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:42b06140bb20cc218a794584158b7ada61fdade645dca20ddf954a943b0a3ec2",
+            "commit": "working-tree",
+            "extract_hash": "sha256:ce3fe03e5c629669f42699131965c3e5964575b96dc6137645f29f1db615dc81",
+            "path": "README.md",
+            "repository": "local",
+            "symbol": "Guides/guide.md"
+          }
+        ],
+        "id": "rel_a765cfb266399561",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_278a4c8f8eb667f4",
+        "type": "depends-on"
+      },
+      {
+        "certainty": "partial",
+        "evidence": [
+          {
+            "analyzer": "markdown",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:42b06140bb20cc218a794584158b7ada61fdade645dca20ddf954a943b0a3ec2",
+            "commit": "working-tree",
+            "extract_hash": "sha256:365fbdd93230d1c6d974461d7186e6e7294b14b09147bb18c04d81f371033745",
+            "path": "README.md",
+            "repository": "local",
+            "symbol": "guides\\guide.md"
+          }
+        ],
+        "id": "rel_cf10bc7bf705958e",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_fe8194b7e4c207ec",
+        "type": "depends-on"
+      },
+      {
+        "certainty": "partial",
+        "evidence": [
+          {
+            "analyzer": "markdown",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:42b06140bb20cc218a794584158b7ada61fdade645dca20ddf954a943b0a3ec2",
+            "commit": "working-tree",
+            "extract_hash": "sha256:21aa0585ac03e24b436a9294a3949adc9c0e0b708c3fdf0c34cd4e350cbe5984",
+            "path": "README.md",
+            "repository": "local",
+            "symbol": "missing.md"
+          }
+        ],
+        "id": "rel_e5a2bb28e0747b98",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_bc4ec9407ef6d444",
+        "type": "depends-on"
+      }
+    ],
+    "scope": {
+      "files": [
+        "README.md"
+      ],
+      "symbols": [
+        "Overview"
+      ]
+    },
+    "slug": "readme-md",
+    "title": "Architecture Docs"
+  },
+  {
+    "claims": [
+      {
+        "confidence": 1,
+        "evidence": [
+          {
+            "analyzer": "markdown",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:7630ca7e9ae6d736efe79e0c0436317094b764242d36825a9607a481d627bfb7",
+            "commit": "working-tree",
+            "extract_hash": "sha256:fd211556a5b02427a268bcdfa79af0ae8d129f9d5dfbe47c25bf498125cc9078",
+            "path": "ledger/2026.md",
+            "repository": "local"
+          }
+        ],
+        "id": "claim_f84e477add9b112e",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "status": "active",
+        "text": "Ledger asset (path convention: ledger directory).",
+        "type": "fact"
+      }
+    ],
+    "id": "node_43dc4afae303b290",
+    "kind": "store",
+    "relations": [],
+    "scope": {
+      "files": [
+        "ledger/2026.md"
+      ]
+    },
+    "slug": "ledger-2026-md",
+    "title": "2026 Ledger"
+  },
+  {
+    "claims": [],
+    "id": "node_74667b3a36073690",
+    "kind": "external",
+    "relations": [],
+    "slug": "https-autolink-example-docs",
+    "title": "https://autolink.example/docs"
+  },
+  {
+    "claims": [],
+    "id": "node_a6fed2c63cb51ae0",
+    "kind": "external",
+    "relations": [],
+    "slug": "mailto-docs-example-com",
+    "title": "mailto:docs@example.com"
+  },
+  {
+    "claims": [],
+    "id": "node_bc4ec9407ef6d444",
+    "kind": "external",
+    "relations": [],
+    "slug": "unresolved-missing-md",
+    "title": "unresolved:missing.md"
+  },
+  {
+    "claims": [
+      {
+        "confidence": 1,
+        "evidence": [
+          {
+            "analyzer": "markdown",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:d19fb19ed5389ebf40b196d485574cb925786b48ff0308af66624b7d036d9c7a",
+            "commit": "working-tree",
+            "extract_hash": "sha256:067bd1f3c6075dbbcc4bd8849fe8c3e5b73447819390018b850f98930aecb946",
+            "path": "decisions/ADR-0001.md",
+            "repository": "local"
+          }
+        ],
+        "id": "claim_e381e2cf3fe0418c",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "status": "active",
+        "text": "Decision record (path convention: ADR filename in decisions directory).",
+        "type": "fact"
+      }
+    ],
+    "id": "node_c3a58455cce7558e",
+    "kind": "store",
+    "relations": [],
+    "scope": {
+      "files": [
+        "decisions/ADR-0001.md"
+      ]
+    },
+    "slug": "decisions-adr-0001-md",
+    "title": "Use a local fact graph"
+  },
+  {
+    "claims": [],
+    "id": "node_f5f0c0f9b94e4416",
+    "kind": "store",
+    "relations": [
+      {
+        "certainty": "known",
+        "evidence": [
+          {
+            "analyzer": "markdown",
+            "analyzer_version": "0.1.0",
+            "blob_hash": "sha256:e7631303c3a15967af10e60053e99de8b66dbe722ef1f65ced9a27ae30723349",
+            "commit": "working-tree",
+            "extract_hash": "sha256:af9d2a42ecb1d88ea477358af20031bf0b99646b9611086508e241017f0e8d90",
+            "path": "guides/guide.md",
+            "repository": "local",
+            "symbol": "../README.md"
+          }
+        ],
+        "id": "rel_4b56a6f0c7e1bab8",
+        "provenance": {
+          "actor": "analyzer",
+          "created_at": "1970-01-01T00:00:00Z"
+        },
+        "target": "node_43a8f10313ecc5b3",
+        "type": "depends-on"
+      }
+    ],
+    "scope": {
+      "files": [
+        "guides/guide.md"
+      ],
+      "symbols": [
+        "Install",
+        "Run"
+      ]
+    },
+    "slug": "guides-guide-md",
+    "title": "User Guide"
+  },
+  {
+    "claims": [],
+    "id": "node_fe8194b7e4c207ec",
+    "kind": "external",
+    "relations": [],
+    "slug": "unresolved-guides-guide-md",
+    "title": "unresolved:guides\\guide.md"
+  }
+]
