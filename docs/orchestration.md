@@ -1,125 +1,171 @@
-# Artifact-backed delivery
+# Artifact-backed delivery v3
 
-ArcMap uses an artifact-backed workflow for long-running delivery. GitHub issues, fixed pull
-request SHAs and diffs, CI, and current independent verification carry state between roles.
-Chat is a control surface, not a durable handoff protocol.
+ArcMap uses a state-aware artifact-backed workflow. GitHub issue contracts, compact
+checkpoints, fixed pull-request SHAs and diffs, CI, and current independent verification carry
+state between roles. Chat is a control surface, not a durable handoff protocol.
 
-The current runtime-checkpoint format is demonstrated by
-[the ArcMap M3-M6 delivery tracker](https://github.com/xxxxxthhh/archmap/issues/9). That issue
-is an example location, not a place to copy permanent state from. Each active delivery program
-must name its own checkpoint.
+The program checkpoint is demonstrated by
+[the ArcMap delivery tracker](https://github.com/xxxxxthhh/archmap/issues/9). Each active
+implementation lane has its own compact checkpoint issue.
 
 ## Sources of authority
 
 Use these sources in descending order:
 
-1. repository instructions and `PLAN.md`;
-2. the runtime checkpoint and the sole ready feature issue;
-3. the fixed PR base/head SHAs and complete diff;
-4. CI, focused probe logs, and current Codex verification;
-5. a structured fixed-SHA reviewer verdict.
+1. repository instructions and the relevant `PLAN.md` section;
+2. the program checkpoint, selected lane checkpoint, and ready issue;
+3. fixed base/head SHAs and the complete PR diff;
+4. current Codex evidence and CI;
+5. a structured reviewer verdict when the risk policy requires one.
 
-Do not reconstruct authority from a model transcript or assistant-authored summary. Dynamic
-state—current SHA, issue, branch, PR, CI run, model session, verification counts, and next
-action—belongs in the checkpoint or PR evidence. Keep it out of this document, `AGENTS.md`,
-skills, and automation prompts.
+Dynamic state belongs in checkpoint bodies, structured transition comments, and PR evidence.
+Do not reconstruct authority from a model transcript or copy delivery history into automation
+prompts, skills, or repository instructions.
 
-## Roles and ownership
+## Roles, not model brands
 
 | Role | Owns | Must not own |
 | --- | --- | --- |
-| Orchestrator/integrator | Scope, dispatch, checkpoint truth, independent evidence, commit, PR, merge, stable-line verification, and cleanup | Trusting another model's completion claim without evidence |
-| Implementer | Bounded edits and focused regressions | Commit, push, PR, merge, branch changes, or checkpoint mutation |
-| Planner/reviewer | Read-only planning or fixed-SHA spec and standards judgment | Editing or delivering the reviewed branch |
+| Orchestrator/integrator | Program/lane state, dispatch, independent evidence, commit, PR, merge, stable verification, cleanup | Trusting another model's completion claim |
+| Implementer | Bounded edits and focused regressions | Commit, push, PR, merge, branch/checkpoint mutation |
+| Planner/reviewer | Read-only planning or fixed-SHA spec/standards judgment | Editing or delivering reviewed work |
 | CI | Clean-environment execution | Product judgment or root-cause diagnosis |
 
-Model names are replaceable. The role boundary is not.
+Choose the model when dispatching the role. A feature issue may state required capabilities and
+a preferred/fallback tier, but it must not make an unavailable historical model mandatory. In
+the current Claude catalog, Opus 4.8 is the normal implementation and deep-review option;
+Fable 5 is reserved for milestone architecture, arbitration, and release review.
 
-## One-ready-issue rule
+## Program and lane checkpoints
 
-- `main` is the stable line. A milestone integration branch starts from a verified `main`.
-- Exactly one feature issue is ready at a time.
-- Each issue uses one short-lived branch and one PR into the milestone integration branch.
-- The issue freezes its base, allowed seams, non-goals, risk tier, required probes, and
-  delivery boundary before implementation starts.
-- After acceptance, merge with the expected head SHA, verify the integration result, close
-  the issue, and remove only the branch that was just merged.
-- When all milestone issues are accepted, run one bounded milestone review and one Codex
-  milestone gate, then deliver the exact integration head to `main` without repeating an
-  identical product audit.
+The program tracker contains only global status, stable branch/head, active lane references,
+global action/lease ownership, and the latest transition link. A lane checkpoint contains its
+worktree, integration and issue branches, fixed base/head, issue, write/lease sets, model role
+and active context, PR/CI/review state, `action_id`, and `next_action`.
 
-## Risk tiers and model routing
+Checkpoint bodies are current snapshots, not journals. Record transitions as compact issue
+comments and link only the latest comment from the body. This keeps every heartbeat cheap and
+prevents stale narrative from competing with the state block.
 
-Choose the least expensive role/model tier expected to close the bounded work in one pass.
-Escalate for judgment or contract risk, not because a premium model is available.
+Status controls authority:
 
-| Tier | Typical work | Required flow |
-| --- | --- | --- |
-| A | Documentation, metadata, deterministic formatting, or a justified local test timeout | Codex implements and verifies directly; CI confirms. Escalate if production behavior or assertions change. |
-| B | A bounded vertical feature or existing public-seam behavior | Implementer edits; Codex verifies and delivers; one cost-efficient fixed-SHA review and one substantive follow-up are budgeted. An Opus-class medium review is appropriate when it is the practical independent option. |
-| C | Schema, provenance, deterministic truth, permissions, secrets, transactions, or no-partial-write guarantees | One bounded planning pass; implementer edit; Codex evidence gate; Opus-class high fixed-SHA review; milestone review. Transaction and rollback probes are mandatory when relevant. |
+- `active`: execute only the selected lane's `next_action`;
+- `paused`: perform no repository, GitHub, model, or automation mutation;
+- `waiting_usage`: record reset time, schedule one reset wake, and stop polling;
+- `blocked`: record an unrecoverable external/authority blocker;
+- `completed`: final stable delivery and gates are closed.
 
-Use a Fable/frontier-class high-effort pass only for new milestone architecture, long-horizon
-dependency planning, invariant redesign after a second sibling defect, evidence-backed
-arbitration, or the final release audit. Do not use it for routine implementation, CI diagnosis,
-mechanical fixes, or identical-head delivery PRs.
+## State-aware heartbeat fast paths
 
-## Evidence gates
+One automation dispatcher serves the program. It reads the compact program state first, then
+uses exactly one path:
 
-### Implement
+| State | Allowed heartbeat work |
+| --- | --- |
+| Program or lane `paused` | Return without mutation |
+| `waiting_usage` | Maintain one reset wake only |
+| Active implementation context | Check context state plus branch HEAD/status; do not reload contracts or run gates |
+| Active CI run | Query only that run and exact PR head |
+| Active reviewer context | Check only reviewer state and fixed head |
+| No external action active | Perform mutation preflight, load the ready contract, claim a new `action_id`, and execute `next_action` |
 
-The implementer receives one self-contained issue, permitted and forbidden scope, exact
-focused verification, and a prohibition on Git/GitHub delivery actions. It stops at an
-uncommitted review boundary.
+Five-minute monitoring can remain responsive because unchanged waits take the fast path.
+`action_id`, context ID, PR number/head, and CI run ID are idempotency keys: a repeated or
+overlapping heartbeat must observe the existing action instead of creating another one.
 
-### Verify
+## Parallel lanes and leases
 
-Codex inspects the entire diff and repository state, reproduces the issue through public
-seams, and owns the freshest full gate. Add compiled-bin, packaging, browser, transaction,
-or fixture probes in proportion to risk. Treat implementation reports as leads, not proof.
+- Use at most two active implementation lanes for the program.
+- Keep one ready issue per lane and one implementer per worktree.
+- Give each lane a separate worktree, integration branch, issue branch, model context, and lane
+  checkpoint. Never place two implementers in one checkout.
+- Freeze machine-readable `write_set`, `lease_set`, and exclusive test resources before
+  dispatch. Reject a second implementation lane when any set overlaps.
+- Serialize checkpoint mutation, authoritative full gates, commits, pushes, PR merges, stable
+  reconciliation, and cleanup through Codex.
+- Read-only planning/spikes may run off-worktree beside an implementation lane, but cannot
+  authorize repository work or consume a write lease.
+- Early future-milestone work cannot reach `main` before the current milestone. Reconcile the
+  exact new stable head and pass a cross-lane gate before delivery.
 
-### Review
+## Freeze the issue before implementation
 
-An independent reviewer receives only the issue contract, fixed base/head SHAs, relevant
-diff, changed-file summary, existing Codex/CI evidence, and a few targeted probes. It returns
-separate spec and standards judgments and at most two or three blocking findings. A blocker
-must include the fixed SHA, tight file/line range, exact reproducer, observed result, expected
-contract, and severity.
+The issue contract must name:
 
-### Repair
+- fixed integration base and intended short branch/worktree;
+- allowed seams, `write_set`, `lease_set`, and non-goals;
+- risk tier and public/transaction/security invariants;
+- exact dependency versions or an explicit Codex-owned `prepare_issue` step that freezes them;
+- implementation role plus current preferred/fallback model tier;
+- implementer checks, Codex final gate, CI evidence, and review triggers;
+- merge/delivery boundary.
 
-Codex reproduces every finding before dispatching a repair. Reject speculative, stylistic,
-future-stage, or out-of-scope findings. For a valid finding, identify the violated invariant,
-cover its input classes and required positive behavior with a compact matrix, then repair the
-shared seam. A second sibling defect ends example-by-example patching and triggers a
-conservative allowlist, invariant redesign, or explicit orchestrator decision.
+Do not delegate an unresolved dependency version, product decision, or shared-file conflict to
+the implementer.
 
-### Deliver
+## Verification profiles
 
-Codex alone stages and commits intended files, pushes the short branch, opens or updates the
-PR, records fixed-SHA evidence, interprets CI, merges with the expected SHA, verifies the
-result, and cleans only merged branches. CI is clean-environment confirmation, not a
-substitute for local diagnosis.
+### Implementer profile
 
-## Runtime checkpoint
+The implementer runs only the focused regressions needed to develop the change, touched-scope
+typecheck/lint, and a local build when useful. It stops at an uncommitted review boundary and
+reports files and commands. It does not own the full repository, package, or release gate.
 
-Keep a machine-readable state block near the top of one GitHub tracking issue. At minimum it
-records status, milestone, stable and integration branches, accepted base, current issue and
-issue branch, PR, fixed head, review/CI state, `next_action`, updater, and timestamp.
+### Repair profile
 
-Checkpoint status controls authority:
+Codex first reproduces a finding. The implementer repairs the violated invariant and reruns the
+compact negative/positive matrix. Do not run the full gate after every intermediate repair.
 
-- `active`: execute only `next_action`;
-- `paused`: make no repository, GitHub, model, or automation mutations;
-- `waiting_usage`: record the reset time and schedule one wake after reset instead of polling;
-- `blocked`: record an unrecoverable external or authority blocker with evidence;
-- `completed`: stable delivery and final gates are complete.
+### Final issue profile
 
-Append compact transitions with the issue/PR, fixed SHA, verification and CI evidence,
-reviewer verdict, and next action. On resume, re-read the checkpoint, fetch remote state,
-verify local branch/head/status and any active model context, and reconcile discrepancies
-without overwriting unexpected work.
+On one final candidate head, Codex inspects the complete diff and repository state, exercises
+the public seam, runs focused checks, then one authoritative full gate plus only the compiled,
+package, schema, content-safety, or transaction probes justified by risk. This is the local
+evidence used for the PR.
 
-Recurring automation prompts should contain only the workflow skill, repository, checkpoint,
-and instructions for `active`, `paused`, and `waiting_usage`. History and test logs belong in
-the checkpoint or PR evidence.
+### CI and post-merge profile
+
+CI confirms the clean merge result. When exact-head CI is green and the merge uses the expected
+SHA, post-merge work is limited to branch/head equality, clean status, and an integration-specific
+smoke. Repeat a full gate only when the merge result differs, base reconciliation was non-trivial,
+or a documented risk trigger requires it.
+
+### Milestone and stable profiles
+
+Run one full milestone gate on the final integration candidate. If the final issue reviewer is
+given the stable-base-to-candidate range and the accepted tree remains identical after merge,
+that verdict may also satisfy milestone review. An identical-head delivery PR receives only
+base/history, accidental-diff, CI, and mergeability review. After stable merge, verify exact
+remote/local state and critical smoke rather than repeating the product audit.
+
+## Risk and review policy
+
+| Tier | Default review |
+| --- | --- |
+| A | No independent model; Codex plus proportionate checks and CI |
+| B | Trigger-based only after the final Codex gate and CI |
+| C | One fixed-SHA spec/standards review; one substantive follow-up maximum |
+
+Tier B review triggers include unresolved contract ambiguity, a public behavior mismatch,
+cross-module ownership uncertainty, a substantive repair, conflicting evidence, or an explicit
+issue requirement. A new dependency or process boundary alone is handled by the frozen issue
+and Codex gate unless it introduces Tier C risk.
+
+A blocking finding must identify fixed SHA, file/line, exact reproducer, observed behavior,
+expected contract, and severity. Reject speculative, stylistic, future-stage, or out-of-scope
+findings. A second sibling in one seam ends example patching and requires a regression matrix,
+conservative allowlist, or redesign decision.
+
+## Prompt and context budget
+
+An implementation prompt points to the repository, branch, issue, role, stop boundary, and Git
+prohibitions. Do not repeat the issue body. A reviewer prompt supplies the issue/PR, fixed SHAs,
+changed-file summary, Codex/CI evidence, and finding contract. Start fresh review contexts; reuse
+the original implementation context only for a bounded repair.
+
+## Milestone delivery
+
+Merge accepted issue PRs into the integration branch with expected heads. After the final
+candidate passes the one milestone gate/review, open the exact-head delivery PR immediately.
+Do not repeat an identical audit. Merge, verify stable state, close lane/program checkpoints as
+appropriate, clean only merged branches/worktrees, and start the next lane from verified stable.
