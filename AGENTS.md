@@ -3,22 +3,39 @@
 For long-running, multi-model, or issue-to-PR delivery in this repository, use
 `$artifact-backed-delivery` and follow [docs/orchestration.md](docs/orchestration.md).
 
-Before changing anything, read this file, `PLAN.md`, the runtime checkpoint, the sole ready
-feature issue, and the current Git state. Treat those artifacts, fixed PR SHAs and diffs, CI,
-and current Codex verification as authoritative. Chat summaries are pointers only.
+## Start with the smallest authoritative state
 
-## Boundaries
+1. Read the compact program checkpoint first.
+2. If it is `paused`, do not mutate repository, GitHub, models, or automation. If it is
+   `waiting_usage`, schedule one reset wake and stop.
+3. When active, resolve the selected lane checkpoint. Only at a mutation boundary read the
+   relevant `PLAN.md` section, ready issue, fixed Git state, and required skill references.
+4. While an implementation, CI run, or review is active, use its fast path; do not rerun
+   planning, broad scans, or full gates.
 
-- Keep `main` stable. Use one short-lived branch and one PR for the one ready issue.
-- The orchestrator owns checkpoint truth, independent verification, commit, push, PR, merge,
-  post-merge checks, and branch cleanup.
-- An implementer edits only the bounded issue and stops uncommitted. A reviewer is read-only.
-- Reproduce review findings before repair. A second sibling defect in one seam requires an
-  invariant-level regression matrix or redesign, not another isolated example patch.
-- Execute only the checkpoint's `next_action`. `paused` authorizes no mutations;
-  `waiting_usage` schedules one wake after reset rather than polling.
-- Keep dynamic SHAs, issue/PR numbers, CI runs, model sessions, and test counts in the runtime
-  checkpoint and PR evidence, never in repository instructions.
+Treat repository instructions, program/lane checkpoints, ready issues, fixed PR SHAs/diffs,
+CI, and current Codex evidence as authoritative. Chat summaries are pointers only.
 
-The current checkpoint convention is demonstrated by
+## Delivery boundaries
+
+- `main` is stable. Use at most two active implementation lanes, one ready issue per lane,
+  one isolated worktree and short branch per issue, and one PR per issue.
+- Codex is the sole dispatcher, checkpoint owner, independent verifier, committer, merger,
+  stable-line verifier, and cleanup owner. Checkpoint and delivery mutations are serialized.
+- Select models at dispatch time by role and current availability. Do not hard-code or search
+  for an unavailable model. Implementers stop uncommitted; reviewers remain read-only.
+- Freeze each issue's base, worktree, allowed seams, `write_set`, `lease_set`, dependency
+  versions, verification ownership, risk tier, non-goals, and delivery boundary before edits.
+- Implementers run focused development checks. Codex runs one authoritative final issue gate;
+  repairs rerun the regression matrix first. CI supplies clean-environment confirmation.
+- Tier B review is trigger-based, not automatic. Tier C and explicit risk triggers require a
+  fixed-SHA review. A second sibling defect requires invariant closure or redesign.
+- If PR CI tested the exact merge result, post-merge verification is SHA/status plus targeted
+  smoke, not another full gate. Run one full milestone gate and avoid identical-head re-audits.
+- Execute only the lane checkpoint's `next_action`. Use `action_id`, active contexts, PR head,
+  and CI run as idempotency keys so repeated heartbeats cannot duplicate work.
+- Keep dynamic SHAs, issues, PRs, CI runs, model sessions, leases, and test counts in compact
+  checkpoints, transition comments, and PR evidence—not in repository instructions.
+
+The program checkpoint convention is demonstrated by
 [the ArcMap delivery tracker](https://github.com/xxxxxthhh/archmap/issues/9).
