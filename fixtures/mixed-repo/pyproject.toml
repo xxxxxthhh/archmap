@@ -1,0 +1,11 @@
+[project]
+name = "mixed-pipeline"
+version = "0.1.0"
+dependencies = [
+  "click>=8",
+  "fastapi>=0.100",
+  "requests>=2",
+]
+
+[project.scripts]
+mixed-report = "pipeline.cli:main"

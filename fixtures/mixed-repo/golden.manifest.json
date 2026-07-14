@@ -1,0 +1,1342 @@
+{
+  "capabilities": [
+    {
+      "id": "universal",
+      "provides": [
+        "files",
+        "directories",
+        "git",
+        "manifest-detection",
+        "doc-detection",
+        "config-detection"
+      ],
+      "status": "supported",
+      "version": "0.1.0"
+    },
+    {
+      "id": "typescript",
+      "provides": [
+        "modules",
+        "imports",
+        "exports",
+        "entry-points"
+      ],
+      "status": "supported",
+      "version": "0.1.0"
+    },
+    {
+      "id": "python",
+      "provides": [
+        "modules",
+        "symbols",
+        "imports",
+        "entry-points",
+        "pytest-tests"
+      ],
+      "status": "supported",
+      "version": "0.2.0+python-runtime"
+    },
+    {
+      "id": "markdown",
+      "provides": [
+        "documents",
+        "headings",
+        "links",
+        "decision-conventions",
+        "ledger-conventions"
+      ],
+      "status": "supported",
+      "version": "0.1.0"
+    },
+    {
+      "id": "data",
+      "provides": [
+        "yaml-json-assets",
+        "top-level-keys"
+      ],
+      "status": "supported",
+      "version": "0.1.0"
+    }
+  ],
+  "nodes": [
+    {
+      "claims": [],
+      "id": "node_00d13a1b88a82f29",
+      "kind": "external",
+      "relations": [],
+      "slug": "route-post-reports",
+      "title": "route:POST /reports"
+    },
+    {
+      "claims": [],
+      "id": "node_0c8bda7ca652ae7d",
+      "kind": "module",
+      "relations": [
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:f1dda810697a19e74fe7f6af4b97778682dcd6d1fd35f597e0669beb1f1bba2e",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:7c98fe3c8cc939938242455ca28b7d61e313653024a6c7f889d3eba1ef72533e",
+              "path": "pipeline/transform.py",
+              "repository": "local",
+              "symbol": "pathlib"
+            }
+          ],
+          "id": "rel_042e4265c5b26109",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_fc03eb4fcc5bdbba",
+          "type": "imports"
+        },
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:f1dda810697a19e74fe7f6af4b97778682dcd6d1fd35f597e0669beb1f1bba2e",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:06185522e4085460db5f973d6987f2c5f42519fccd56836e5e5ed9842962de8d",
+              "path": "pipeline/transform.py",
+              "repository": "local",
+              "symbol": "requests"
+            }
+          ],
+          "id": "rel_204c429468306768",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_26b663078a172c33",
+          "type": "imports"
+        },
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:f1dda810697a19e74fe7f6af4b97778682dcd6d1fd35f597e0669beb1f1bba2e",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:ff3e4d4dcf7250cae8d622d77c9a6d69aefcf4ab04ef9920218fafe93c0f1991",
+              "path": "pipeline/transform.py",
+              "repository": "local",
+              "symbol": "json"
+            }
+          ],
+          "id": "rel_334f95a3af824885",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_0d20033a2276e877",
+          "type": "imports"
+        },
+        {
+          "certainty": "partial",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:f1dda810697a19e74fe7f6af4b97778682dcd6d1fd35f597e0669beb1f1bba2e",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:5948b49792df36417a1fa749f4a55f4b3913d60756d4b367774afba50cbc0168",
+              "path": "pipeline/transform.py",
+              "repository": "local",
+              "symbol": "config/pipeline.json"
+            }
+          ],
+          "id": "rel_4ebe990dfbeb3104",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_90785909dc675958",
+          "type": "reads"
+        },
+        {
+          "certainty": "partial",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:f1dda810697a19e74fe7f6af4b97778682dcd6d1fd35f597e0669beb1f1bba2e",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:05e6b1bf907db710ba61dff91f98f1f8d36bbdff75c23196e8544b135eebf347",
+              "path": "pipeline/transform.py",
+              "repository": "local",
+              "symbol": "data/output.json"
+            }
+          ],
+          "id": "rel_9c0e0ea57783f754",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_7e9a6d43659b4761",
+          "type": "writes"
+        },
+        {
+          "certainty": "partial",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:f1dda810697a19e74fe7f6af4b97778682dcd6d1fd35f597e0669beb1f1bba2e",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:2493d436bd6f512a9e6f8bdb1a79eb111ccb4aa6d435432034eec88f23c59bc6",
+              "path": "pipeline/transform.py",
+              "repository": "local",
+              "symbol": "data/source.yaml"
+            }
+          ],
+          "id": "rel_9e8599dbd84abeb7",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_672f3902fd118695",
+          "type": "reads"
+        },
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:f1dda810697a19e74fe7f6af4b97778682dcd6d1fd35f597e0669beb1f1bba2e",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:b517b35a038d3d45d610f983b44c985f00852ae9938b7e42521e55d22e88b760",
+              "path": "pipeline/transform.py",
+              "repository": "local",
+              "symbol": "pipeline.models"
+            }
+          ],
+          "id": "rel_e84ac761d033c2bf",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_efce14c38f71422f",
+          "type": "imports"
+        }
+      ],
+      "scope": {
+        "files": [
+          "pipeline/transform.py"
+        ],
+        "symbols": [
+          "build_report",
+          "dynamic_target"
+        ]
+      },
+      "slug": "pipeline-transform-py",
+      "title": "pipeline/transform.py"
+    },
+    {
+      "claims": [],
+      "id": "node_0d00a1b8e7b3e1a5",
+      "kind": "external",
+      "relations": [],
+      "slug": "fastapi",
+      "title": "fastapi"
+    },
+    {
+      "claims": [],
+      "id": "node_0d20033a2276e877",
+      "kind": "external",
+      "relations": [],
+      "slug": "json",
+      "title": "json"
+    },
+    {
+      "claims": [],
+      "id": "node_23bf0d244a4cb62c",
+      "kind": "module",
+      "relations": [],
+      "scope": {
+        "files": [
+          "pipeline/__init__.py",
+          "pipeline/api.py",
+          "pipeline/cli.py",
+          "pipeline/models.py",
+          "pipeline/transform.py"
+        ]
+      },
+      "slug": "pipeline",
+      "title": "pipeline"
+    },
+    {
+      "claims": [],
+      "id": "node_2419fb0c1044ba04",
+      "kind": "external",
+      "relations": [],
+      "slug": "https-example-com-operations",
+      "title": "https://example.com/operations"
+    },
+    {
+      "claims": [],
+      "id": "node_26b663078a172c33",
+      "kind": "external",
+      "relations": [],
+      "slug": "requests",
+      "title": "requests"
+    },
+    {
+      "claims": [],
+      "id": "node_29b228e43d8e67b1",
+      "kind": "external",
+      "relations": [],
+      "slug": "click",
+      "title": "click"
+    },
+    {
+      "claims": [
+        {
+          "confidence": 1,
+          "evidence": [
+            {
+              "analyzer": "markdown",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:b084c6382eebc4fba3cd4f3b3f1a661c7e11b9ec1f6c1e8592f45e7d949b1ded",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:067bd1f3c6075dbbcc4bd8849fe8c3e5b73447819390018b850f98930aecb946",
+              "path": "docs/decisions/ADR-0001.md",
+              "repository": "local"
+            }
+          ],
+          "id": "claim_e4ddefe6ef56563e",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "status": "active",
+          "text": "Decision record (path convention: ADR filename in decisions directory).",
+          "type": "fact"
+        }
+      ],
+      "id": "node_3897bcb63ff89b32",
+      "kind": "store",
+      "relations": [
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "markdown",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:b084c6382eebc4fba3cd4f3b3f1a661c7e11b9ec1f6c1e8592f45e7d949b1ded",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:bc6653629393c2fa27ab36d2370ecd86fe7c0049c99138dd81dfc9aff91da7b4",
+              "path": "docs/decisions/ADR-0001.md",
+              "repository": "local",
+              "symbol": "../../config/pipeline.json"
+            }
+          ],
+          "id": "rel_23e35387f11b2b96",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_90785909dc675958",
+          "type": "depends-on"
+        },
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "markdown",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:b084c6382eebc4fba3cd4f3b3f1a661c7e11b9ec1f6c1e8592f45e7d949b1ded",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:02958a80d939cd2ec34f4e45074fc4ec17172d1a155bed477fa289432af996cf",
+              "path": "docs/decisions/ADR-0001.md",
+              "repository": "local",
+              "symbol": "../../pipeline/transform.py"
+            }
+          ],
+          "id": "rel_e0c0d6e9d80b5258",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_0c8bda7ca652ae7d",
+          "type": "depends-on"
+        }
+      ],
+      "scope": {
+        "files": [
+          "docs/decisions/ADR-0001.md"
+        ]
+      },
+      "slug": "docs-decisions-adr-0001-md",
+      "title": "Keep transformations deterministic"
+    },
+    {
+      "claims": [],
+      "id": "node_3a6eb0790f39ac87",
+      "kind": "module",
+      "relations": [],
+      "scope": {
+        "files": [
+          "data/output.json",
+          "data/source.yaml"
+        ]
+      },
+      "slug": "data",
+      "title": "data"
+    },
+    {
+      "claims": [],
+      "id": "node_416835d9a3879904",
+      "kind": "external",
+      "relations": [],
+      "slug": "cli-build",
+      "title": "cli:build"
+    },
+    {
+      "claims": [],
+      "id": "node_46b42b4229cd7a39",
+      "kind": "module",
+      "relations": [],
+      "scope": {
+        "files": [
+          "docs/README.md",
+          "docs/report.md"
+        ]
+      },
+      "slug": "docs",
+      "title": "docs"
+    },
+    {
+      "claims": [],
+      "id": "node_59830ebc3a418411",
+      "kind": "module",
+      "relations": [],
+      "scope": {
+        "files": [
+          "tests/test_transform.py"
+        ]
+      },
+      "slug": "tests",
+      "title": "tests"
+    },
+    {
+      "claims": [
+        {
+          "confidence": 1,
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:d4321f0c14267503c2d895bdb266cc3c18f3c2c5f9df6ba6b3af1c738d888d22",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:1022daac59d7b498b6c717aee682f639ef42b75f5d718f12a7b4e081d6901f62",
+              "path": "tests/test_transform.py",
+              "repository": "local"
+            }
+          ],
+          "id": "claim_b41d7e46747a0434",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "status": "active",
+          "text": "Pytest test module (path convention).",
+          "type": "fact"
+        }
+      ],
+      "id": "node_5c064699da8c3d1d",
+      "kind": "module",
+      "relations": [
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:d4321f0c14267503c2d895bdb266cc3c18f3c2c5f9df6ba6b3af1c738d888d22",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:e54075d0f1851191e9a47c972ff93e7a4bddbf50654e8ef153a53f28d76c486f",
+              "path": "tests/test_transform.py",
+              "repository": "local",
+              "symbol": "pipeline.transform"
+            }
+          ],
+          "id": "rel_3cabce1381b5c302",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_0c8bda7ca652ae7d",
+          "type": "imports"
+        },
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:d4321f0c14267503c2d895bdb266cc3c18f3c2c5f9df6ba6b3af1c738d888d22",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:b517b35a038d3d45d610f983b44c985f00852ae9938b7e42521e55d22e88b760",
+              "path": "tests/test_transform.py",
+              "repository": "local",
+              "symbol": "pipeline.models"
+            }
+          ],
+          "id": "rel_d17070032aff2412",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_efce14c38f71422f",
+          "type": "imports"
+        }
+      ],
+      "scope": {
+        "files": [
+          "tests/test_transform.py"
+        ],
+        "symbols": [
+          "test_normalize",
+          "test_transform_is_importable"
+        ]
+      },
+      "slug": "tests-test-transform-py",
+      "title": "tests/test_transform.py"
+    },
+    {
+      "claims": [
+        {
+          "confidence": 1,
+          "evidence": [
+            {
+              "analyzer": "data",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:5623683fe6af4a95bbee4459026aa3272c726fbe0b173ba96c7ff19b00b93f28",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:50c443f8b0c7993e21b7be02d49078ecfda7ea8dcc9c1d866846093b8cbd3b61",
+              "path": "data/source.yaml",
+              "repository": "local"
+            }
+          ],
+          "id": "claim_516811769786ccb3",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "status": "active",
+          "text": "Top-level keys (sorted, max 20): rows, source.",
+          "type": "fact"
+        }
+      ],
+      "id": "node_672f3902fd118695",
+      "kind": "store",
+      "relations": [],
+      "scope": {
+        "files": [
+          "data/source.yaml"
+        ]
+      },
+      "slug": "data-source-yaml",
+      "title": "data/source.yaml"
+    },
+    {
+      "claims": [
+        {
+          "confidence": 1,
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:9f2899ca02e1a13f912f55d4040392934045c60d05fd83f7e00fd8bdbdb991ab",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:f140ebe5863195ab8fd926b97a24c8263bed402c17f4bd44f5ee501945cfac12",
+              "path": "pipeline/cli.py",
+              "repository": "local"
+            }
+          ],
+          "id": "claim_4e789d971557dea1",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "status": "active",
+          "text": "Entry point (__main__ guard).",
+          "type": "fact"
+        }
+      ],
+      "id": "node_7c0712cf2b2ba169",
+      "kind": "module",
+      "relations": [
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:9f2899ca02e1a13f912f55d4040392934045c60d05fd83f7e00fd8bdbdb991ab",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:e54075d0f1851191e9a47c972ff93e7a4bddbf50654e8ef153a53f28d76c486f",
+              "path": "pipeline/cli.py",
+              "repository": "local",
+              "symbol": "pipeline.transform"
+            }
+          ],
+          "id": "rel_3c2ebdc1df12497f",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_0c8bda7ca652ae7d",
+          "type": "imports"
+        },
+        {
+          "certainty": "partial",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:9f2899ca02e1a13f912f55d4040392934045c60d05fd83f7e00fd8bdbdb991ab",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:922a042be4564e60d091d188b9213f94d69993f5947e06b623c0e464ac7addfa",
+              "path": "pipeline/cli.py",
+              "repository": "local"
+            }
+          ],
+          "id": "rel_5f9fff0053e60810",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_416835d9a3879904",
+          "type": "publishes"
+        },
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:9f2899ca02e1a13f912f55d4040392934045c60d05fd83f7e00fd8bdbdb991ab",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:76f34aeab5435eb20dc16b24cdf2568c6d8583fe89c8c9abed52a8e078733aca",
+              "path": "pipeline/cli.py",
+              "repository": "local",
+              "symbol": "click"
+            }
+          ],
+          "id": "rel_bb210d81d51c11e4",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_29b228e43d8e67b1",
+          "type": "imports"
+        }
+      ],
+      "scope": {
+        "files": [
+          "pipeline/cli.py"
+        ],
+        "symbols": [
+          "main"
+        ]
+      },
+      "slug": "pipeline-cli-py",
+      "title": "pipeline/cli.py"
+    },
+    {
+      "claims": [
+        {
+          "confidence": 1,
+          "evidence": [
+            {
+              "analyzer": "data",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:27637745770e6ecf63c43e1e027f474e4b55df655b83c04f00e6c7820c162f42",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:bf58858794e745dced305459b723da49c5963a299cdb74ab949b8809a8972c0f",
+              "path": "data/output.json",
+              "repository": "local"
+            }
+          ],
+          "id": "claim_a6d40cb432528379",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "status": "active",
+          "text": "Top-level keys (sorted, max 20): rows, status.",
+          "type": "fact"
+        }
+      ],
+      "id": "node_7e9a6d43659b4761",
+      "kind": "store",
+      "relations": [],
+      "scope": {
+        "files": [
+          "data/output.json"
+        ]
+      },
+      "slug": "data-output-json",
+      "title": "data/output.json"
+    },
+    {
+      "claims": [],
+      "id": "node_81bc4ed0e3446a51",
+      "kind": "store",
+      "relations": [
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "markdown",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:7e47ef65d93b004b6174df55ef38848249638df8894721a4627d2f8a2e3707f6",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:020b4b3b67dd8de4f353f758da3c67b1641efd92be50ee03d6b1bcd035c05f1a",
+              "path": "docs/README.md",
+              "repository": "local",
+              "symbol": "decisions/ADR-0001.md"
+            }
+          ],
+          "id": "rel_33b3967a6ebabce4",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_3897bcb63ff89b32",
+          "type": "depends-on"
+        },
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "markdown",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:7e47ef65d93b004b6174df55ef38848249638df8894721a4627d2f8a2e3707f6",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:2ff25c9d0434a974a3c0920fae7759a49bdcf47cbb31eba356da3c80e8ec8f8f",
+              "path": "docs/README.md",
+              "repository": "local",
+              "symbol": "../pipeline/transform.py"
+            }
+          ],
+          "id": "rel_55f485fdbcab7731",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_0c8bda7ca652ae7d",
+          "type": "depends-on"
+        },
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "markdown",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:7e47ef65d93b004b6174df55ef38848249638df8894721a4627d2f8a2e3707f6",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:a4f5e9024e34de0821b2531b90c8a104207018faa76a3c4b01706ff99a4a56a1",
+              "path": "docs/README.md",
+              "repository": "local",
+              "symbol": "../data/source.yaml"
+            }
+          ],
+          "id": "rel_6c1999589b09eb4a",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_672f3902fd118695",
+          "type": "depends-on"
+        },
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "markdown",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:7e47ef65d93b004b6174df55ef38848249638df8894721a4627d2f8a2e3707f6",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:46a6dcabefc07969df430f79107aa0052e2e1f60248ce5c75487b7c44724b9ff",
+              "path": "docs/README.md",
+              "repository": "local",
+              "symbol": "../config/pipeline.json"
+            }
+          ],
+          "id": "rel_cbd817624f92fc32",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_90785909dc675958",
+          "type": "depends-on"
+        },
+        {
+          "certainty": "partial",
+          "evidence": [
+            {
+              "analyzer": "markdown",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:7e47ef65d93b004b6174df55ef38848249638df8894721a4627d2f8a2e3707f6",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:bb1ae0ec937a44ff4762c5a5c714dcd77b37933a6d793e4f2d359239372ea56e",
+              "path": "docs/README.md",
+              "repository": "local",
+              "symbol": "https://example.com/operations"
+            }
+          ],
+          "id": "rel_cea58a1158a81dc3",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_2419fb0c1044ba04",
+          "type": "depends-on"
+        },
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "markdown",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:7e47ef65d93b004b6174df55ef38848249638df8894721a4627d2f8a2e3707f6",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:8ed56c883ba7e1c4507ebbedcb5e56fd59078f71e6898031f5e7607a47e89db6",
+              "path": "docs/README.md",
+              "repository": "local",
+              "symbol": "report.md"
+            }
+          ],
+          "id": "rel_ee9d3b3fff7fdc6a",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_f2966ceb61e852bf",
+          "type": "depends-on"
+        }
+      ],
+      "scope": {
+        "files": [
+          "docs/README.md"
+        ],
+        "symbols": [
+          "Pipeline"
+        ]
+      },
+      "slug": "docs-readme-md",
+      "title": "M3 repository guide"
+    },
+    {
+      "claims": [],
+      "id": "node_8779fbb84f595b41",
+      "kind": "module",
+      "relations": [
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:fa61aecffea0339e3674d74bb2847db980f6b7252fe297f2b7ecba0d11632cf3",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:e54075d0f1851191e9a47c972ff93e7a4bddbf50654e8ef153a53f28d76c486f",
+              "path": "pipeline/__init__.py",
+              "repository": "local",
+              "symbol": "pipeline.transform"
+            }
+          ],
+          "id": "rel_d4920f11282e0d11",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_0c8bda7ca652ae7d",
+          "type": "imports"
+        }
+      ],
+      "scope": {
+        "files": [
+          "pipeline/__init__.py"
+        ],
+        "symbols": [
+          "build_report"
+        ]
+      },
+      "slug": "pipeline-init-py",
+      "title": "pipeline/__init__.py"
+    },
+    {
+      "claims": [
+        {
+          "confidence": 1,
+          "evidence": [
+            {
+              "analyzer": "data",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:dc4d4f52b60403a55d3123ddde6b7479f16a74e7903c6c1757d1bf8044933a9f",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:d19fa94d29283052b60a09e75fedb3fd529dfea7cc197ede689c49cef4aae87f",
+              "path": "config/pipeline.json",
+              "repository": "local"
+            }
+          ],
+          "id": "claim_2eaa14145829d59c",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "status": "active",
+          "text": "Top-level keys (sorted, max 20): format, mode.",
+          "type": "fact"
+        }
+      ],
+      "id": "node_90785909dc675958",
+      "kind": "store",
+      "relations": [],
+      "scope": {
+        "files": [
+          "config/pipeline.json"
+        ]
+      },
+      "slug": "config-pipeline-json",
+      "title": "config/pipeline.json"
+    },
+    {
+      "claims": [],
+      "id": "node_a724bba08fecae23",
+      "kind": "external",
+      "relations": [],
+      "slug": "dataclasses",
+      "title": "dataclasses"
+    },
+    {
+      "claims": [],
+      "id": "node_a776805f02ad1c1b",
+      "kind": "module",
+      "relations": [],
+      "scope": {
+        "files": [
+          "docs/decisions/ADR-0001.md"
+        ]
+      },
+      "slug": "docs-decisions",
+      "title": "docs/decisions"
+    },
+    {
+      "claims": [],
+      "id": "node_ab120647a5c8da17",
+      "kind": "external",
+      "relations": [],
+      "slug": "route-get-health",
+      "title": "route:GET /health"
+    },
+    {
+      "claims": [],
+      "id": "node_ad8f9412d7a99d12",
+      "kind": "module",
+      "relations": [
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:d0b9b269414bc0b4711b620485172c82b0e7ca29173f0c835fc942da1b3f417b",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:777cd50e130cf3e27762d06d901aab480f4f2ce3bdced8901c905f055517c35a",
+              "path": "pipeline/api.py",
+              "repository": "local",
+              "symbol": "fastapi"
+            }
+          ],
+          "id": "rel_57f1691021ff116f",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_0d00a1b8e7b3e1a5",
+          "type": "imports"
+        },
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:d0b9b269414bc0b4711b620485172c82b0e7ca29173f0c835fc942da1b3f417b",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:e54075d0f1851191e9a47c972ff93e7a4bddbf50654e8ef153a53f28d76c486f",
+              "path": "pipeline/api.py",
+              "repository": "local",
+              "symbol": "pipeline.transform"
+            }
+          ],
+          "id": "rel_59403db7b60071c6",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_0c8bda7ca652ae7d",
+          "type": "imports"
+        },
+        {
+          "certainty": "partial",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:d0b9b269414bc0b4711b620485172c82b0e7ca29173f0c835fc942da1b3f417b",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:5e184f88a18cdd9e63b3b442f9746eab4b7857b1f627ba22c02d882a16906492",
+              "path": "pipeline/api.py",
+              "repository": "local"
+            }
+          ],
+          "id": "rel_890bfc2d4050faf5",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_00d13a1b88a82f29",
+          "type": "publishes"
+        },
+        {
+          "certainty": "partial",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:d0b9b269414bc0b4711b620485172c82b0e7ca29173f0c835fc942da1b3f417b",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:232f0483145f0783a160ad11100ac3d41ef8f60c02c9d59fd0dc529f44c0e6f0",
+              "path": "pipeline/api.py",
+              "repository": "local"
+            }
+          ],
+          "id": "rel_dbd59eb49354a984",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_ab120647a5c8da17",
+          "type": "publishes"
+        },
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:d0b9b269414bc0b4711b620485172c82b0e7ca29173f0c835fc942da1b3f417b",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:06185522e4085460db5f973d6987f2c5f42519fccd56836e5e5ed9842962de8d",
+              "path": "pipeline/api.py",
+              "repository": "local",
+              "symbol": "requests"
+            }
+          ],
+          "id": "rel_faec413bd10447cc",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_26b663078a172c33",
+          "type": "imports"
+        }
+      ],
+      "scope": {
+        "files": [
+          "pipeline/api.py"
+        ],
+        "symbols": [
+          "create_report",
+          "health"
+        ]
+      },
+      "slug": "pipeline-api-py",
+      "title": "pipeline/api.py"
+    },
+    {
+      "claims": [],
+      "id": "node_b79606fb3afea5bd",
+      "kind": "module",
+      "relations": [],
+      "scope": {
+        "files": [
+          "config/pipeline.json"
+        ]
+      },
+      "slug": "config",
+      "title": "config"
+    },
+    {
+      "claims": [],
+      "id": "node_cdb4ee2aea69cc6a",
+      "kind": "system",
+      "relations": [],
+      "scope": {
+        "files": [
+          "pyproject.toml"
+        ]
+      },
+      "slug": "repository",
+      "title": "mixed-repo"
+    },
+    {
+      "claims": [
+        {
+          "confidence": 1,
+          "evidence": [
+            {
+              "analyzer": "markdown",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:b0f1b705116889131b1eeb9d704e0ebe32bfcfa055b6c8fe5dc4e0384f456b03",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:fd211556a5b02427a268bcdfa79af0ae8d129f9d5dfbe47c25bf498125cc9078",
+              "path": "docs/ledger/2026.md",
+              "repository": "local"
+            }
+          ],
+          "id": "claim_84d6287251d395a2",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "status": "active",
+          "text": "Ledger asset (path convention: ledger directory).",
+          "type": "fact"
+        }
+      ],
+      "id": "node_e3116145e439f55b",
+      "kind": "store",
+      "relations": [
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "markdown",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:b0f1b705116889131b1eeb9d704e0ebe32bfcfa055b6c8fe5dc4e0384f456b03",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:8518dc9f833559516cd040358e1287bde553b32491d321f9fb0a3ba2ee594261",
+              "path": "docs/ledger/2026.md",
+              "repository": "local",
+              "symbol": "../../data/output.json"
+            }
+          ],
+          "id": "rel_5e2a2c3b78bdd2db",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_7e9a6d43659b4761",
+          "type": "depends-on"
+        },
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "markdown",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:b0f1b705116889131b1eeb9d704e0ebe32bfcfa055b6c8fe5dc4e0384f456b03",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:58854bf98ee33cdd4baecdf70bb3350828232816a9930dd2c50b0bfe26023467",
+              "path": "docs/ledger/2026.md",
+              "repository": "local",
+              "symbol": "../report.md"
+            }
+          ],
+          "id": "rel_e87b1416b052b757",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_f2966ceb61e852bf",
+          "type": "depends-on"
+        }
+      ],
+      "scope": {
+        "files": [
+          "docs/ledger/2026.md"
+        ]
+      },
+      "slug": "docs-ledger-2026-md",
+      "title": "2026 run ledger"
+    },
+    {
+      "claims": [],
+      "id": "node_efce14c38f71422f",
+      "kind": "module",
+      "relations": [
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "python",
+              "analyzer_version": "0.2.0+python-runtime",
+              "blob_hash": "sha256:47431088b9b242fbaf00da3d0e1d597fdf66696044c3d9069bb7278458fa3bc4",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:623bf13edd8e63de82f0e647b9b0b2641a31e2d61b8a8c24fd70690b005bfea0",
+              "path": "pipeline/models.py",
+              "repository": "local",
+              "symbol": "dataclasses"
+            }
+          ],
+          "id": "rel_1429b012bf10cc8a",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_a724bba08fecae23",
+          "type": "imports"
+        }
+      ],
+      "scope": {
+        "files": [
+          "pipeline/models.py"
+        ],
+        "symbols": [
+          "ReportRow",
+          "normalize"
+        ]
+      },
+      "slug": "pipeline-models-py",
+      "title": "pipeline/models.py"
+    },
+    {
+      "claims": [],
+      "id": "node_f23eb274158d2454",
+      "kind": "module",
+      "relations": [],
+      "scope": {
+        "files": [
+          "docs/ledger/2026.md"
+        ]
+      },
+      "slug": "docs-ledger",
+      "title": "docs/ledger"
+    },
+    {
+      "claims": [],
+      "id": "node_f2966ceb61e852bf",
+      "kind": "store",
+      "relations": [
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "markdown",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:ea4459fd38fdff32ecbe2efd47fdc5306fa3206a1d39c26ee0ffd2f41d6c2cc4",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:2ff25c9d0434a974a3c0920fae7759a49bdcf47cbb31eba356da3c80e8ec8f8f",
+              "path": "docs/report.md",
+              "repository": "local",
+              "symbol": "../pipeline/transform.py"
+            }
+          ],
+          "id": "rel_4ddc9fad6db0d48f",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_0c8bda7ca652ae7d",
+          "type": "depends-on"
+        },
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "markdown",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:ea4459fd38fdff32ecbe2efd47fdc5306fa3206a1d39c26ee0ffd2f41d6c2cc4",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:7afcfa488a63376bcd78eacd4f99f7b719967a2d36bd48957ef45b5d60cfbc7a",
+              "path": "docs/report.md",
+              "repository": "local",
+              "symbol": "../data/output.json"
+            }
+          ],
+          "id": "rel_83c686c190f3030c",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_7e9a6d43659b4761",
+          "type": "depends-on"
+        },
+        {
+          "certainty": "known",
+          "evidence": [
+            {
+              "analyzer": "markdown",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:ea4459fd38fdff32ecbe2efd47fdc5306fa3206a1d39c26ee0ffd2f41d6c2cc4",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:a4f5e9024e34de0821b2531b90c8a104207018faa76a3c4b01706ff99a4a56a1",
+              "path": "docs/report.md",
+              "repository": "local",
+              "symbol": "../data/source.yaml"
+            }
+          ],
+          "id": "rel_9881ad248b604569",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_672f3902fd118695",
+          "type": "depends-on"
+        },
+        {
+          "certainty": "partial",
+          "evidence": [
+            {
+              "analyzer": "markdown",
+              "analyzer_version": "0.1.0",
+              "blob_hash": "sha256:ea4459fd38fdff32ecbe2efd47fdc5306fa3206a1d39c26ee0ffd2f41d6c2cc4",
+              "commit": "275996f8519b724cebbcefc7af82095176b0ea53",
+              "extract_hash": "sha256:bb1ae0ec937a44ff4762c5a5c714dcd77b37933a6d793e4f2d359239372ea56e",
+              "path": "docs/report.md",
+              "repository": "local",
+              "symbol": "https://example.com/operations"
+            }
+          ],
+          "id": "rel_cb0f56c49b4ecb3b",
+          "provenance": {
+            "actor": "analyzer",
+            "created_at": "1970-01-01T00:00:00Z"
+          },
+          "target": "node_2419fb0c1044ba04",
+          "type": "depends-on"
+        }
+      ],
+      "scope": {
+        "files": [
+          "docs/report.md"
+        ]
+      },
+      "slug": "docs-report-md",
+      "title": "M3 report"
+    },
+    {
+      "claims": [],
+      "id": "node_fc03eb4fcc5bdbba",
+      "kind": "external",
+      "relations": [],
+      "slug": "pathlib",
+      "title": "pathlib"
+    }
+  ],
+  "schema_version": 1
+}
