@@ -1,7 +1,7 @@
 /** `archmap work-items [--json]` — one deterministic read-only item per status-stale node. */
 
 import { toCanonicalJson } from '../model/canonical.js';
-import { workItemsFor } from '../query/work-items.js';
+import { workItemsReport } from '../query/reports.js';
 import { computeStatus } from '../scan/status.js';
 import { parseOptions, usageError } from './options.js';
 import { loadScannedProject } from './query-support.js';
@@ -15,20 +15,12 @@ export function runWorkItemsCommand(args: string[], ctx: CommandContext): Comman
 
   const loaded = loadScannedProject(ctx, json);
   if (!loaded.ok) return loaded.out;
-  const status = computeStatus(loaded.root);
-  const result = workItemsFor(loaded.baseline.nodes, status);
+  const result = workItemsReport(loaded.baseline.nodes, computeStatus(loaded.root));
 
   if (json) {
     return {
       exitCode: 0,
-      stdout: toCanonicalJson({
-        schema_version: 1,
-        command: 'work-items',
-        base_commit: status.base_commit,
-        snapshot_dirty: status.dirty,
-        clean: status.clean,
-        ...result,
-      }),
+      stdout: toCanonicalJson({ schema_version: 1, command: 'work-items', ...result }),
       stderr: '',
     };
   }

@@ -5,8 +5,7 @@
  * listed explicitly so gaps are visible rather than silent (PLAN 3.5, M1 exit criteria).
  */
 
-import { getAdapterRegistry } from '../capabilities.js';
-import { isGitRepo } from '../scan/git.js';
+import { capabilitiesReport } from '../query/reports.js';
 import { parseOptions, usageError } from './options.js';
 import type { CommandContext, CommandOutput } from './types.js';
 
@@ -18,8 +17,7 @@ export function runCapabilitiesCommand(args: string[], ctx: CommandContext): Com
     return usageError(json, 'capabilities takes no positional arguments');
   }
 
-  const environment = { git: isGitRepo(ctx.cwd) };
-  const adapters = getAdapterRegistry();
+  const { environment, adapters } = capabilitiesReport(ctx.cwd);
 
   if (json) {
     const report = {

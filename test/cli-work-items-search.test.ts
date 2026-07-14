@@ -16,6 +16,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { runEvidenceCommand } from '../src/cli/evidence-command.js';
 import { runInit } from '../src/cli/init-command.js';
+import { runNodeCommand } from '../src/cli/node-command.js';
 import { runScanCommand } from '../src/cli/scan-command.js';
 import { runSearchCommand } from '../src/cli/search-command.js';
 import { runStatusCommand } from '../src/cli/status-command.js';
@@ -220,6 +221,46 @@ describe('work-items command', () => {
     expect(first.exitCode).toBe(0);
     expect(second.stdout).toBe(first.stdout);
     expect(parseWorkItems(first.stdout).items).toEqual([]);
+  });
+});
+
+describe('node command', () => {
+  it('returns the tracked node document for an id, and exits 1 on a miss', () => {
+    // The tracked document minus its own `schema_version`, which is store framing, not model.
+    const { schema_version, ...node } = nodeDocument('src/a.ts').value;
+
+    const found = runNodeCommand([node.id, '--json'], ctx());
+    expect(found.exitCode).toBe(0);
+    expect(JSON.parse(found.stdout)).toEqual({
+      schema_version: 1,
+      command: 'node',
+      target: node.id,
+      found: true,
+      node,
+    });
+    expect(runNodeCommand([node.id, '--json'], ctx()).stdout).toBe(found.stdout);
+    expect(runNodeCommand([node.id], ctx()).stdout).toContain(node.title);
+
+    const missing = runNodeCommand(['no_such_node', '--json'], ctx());
+    expect(missing.exitCode).toBe(1);
+    expect(JSON.parse(missing.stdout)).toMatchObject({ command: 'node', found: false, target: 'no_such_node' });
+
+    const missingText = runNodeCommand(['no_such_node'], ctx());
+    expect(missingText.exitCode).toBe(1);
+    expect(missingText.stdout).toBe('');
+    expect(missingText.stderr).toContain('no node with id "no_such_node"');
+  });
+
+  it('rejects a wrong argument count and an unknown flag as a v1 usage error', () => {
+    for (const out of [
+      runNodeCommand(['--json'], ctx()),
+      runNodeCommand(['a', 'b', '--json'], ctx()),
+      runNodeCommand(['a', '--jso', '--json'], ctx()),
+    ]) {
+      expect(out.exitCode).toBe(2);
+      expect(out.stdout).toBe('');
+      expect(JSON.parse(out.stderr).schema_version).toBe(1);
+    }
   });
 });
 

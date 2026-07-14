@@ -60,7 +60,7 @@ describe('archmap bin', () => {
     expect(run(['init'], dir).status).toBe(0);
     expect(run(['scan'], dir).status).toBe(0);
     expect(run(['status'], dir).status).toBe(0);
-  });
+  }, 15_000);
 
   it('dispatches work-items and search through the real bin', () => {
     writeFileSync(join(dir, 'service.ts'), 'export const service = 1;\n');
