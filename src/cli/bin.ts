@@ -7,9 +7,11 @@ import { runEvidenceCommand } from './evidence-command.js';
 import { runImpactCommand } from './impact-command.js';
 import { runInit } from './init-command.js';
 import { runScanCommand } from './scan-command.js';
+import { runSearchCommand } from './search-command.js';
 import { runStatusCommand } from './status-command.js';
 import type { CommandContext, CommandOutput } from './types.js';
 import { runValidate } from './validate-command.js';
+import { runWorkItemsCommand } from './work-items-command.js';
 
 const USAGE = `archmap <command> [options]
 
@@ -21,6 +23,8 @@ Commands:
   context <path...> [--budget <n>] [--json]  Minimal evidence-backed context for files
   impact <path...> [--base <ref>] [--json]    Nodes affected by changing files
   evidence <id> [--json]               Evidence bundle for a node/claim/relation id
+  work-items [--json]                  Stale-node update work items with bounded evidence
+  search <query> [--json]              Search slug, title, paths, and claim text
   validate <manifest> [--json]         Validate a manifest file (YAML or JSON)
 `;
 
@@ -40,6 +44,10 @@ function dispatch(command: string | undefined, rest: string[], ctx: CommandConte
       return runImpactCommand(rest, ctx);
     case 'evidence':
       return runEvidenceCommand(rest, ctx);
+    case 'work-items':
+      return runWorkItemsCommand(rest, ctx);
+    case 'search':
+      return runSearchCommand(rest, ctx);
     case 'validate':
       return runValidate(rest);
     default:

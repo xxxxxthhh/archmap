@@ -43,6 +43,8 @@ describe('archmap bin', () => {
     const res = run(['--help'], dir);
     expect(res.status).toBe(0);
     expect(res.stdout).toContain('Commands:');
+    expect(res.stdout).toContain('work-items');
+    expect(res.stdout).toContain('search <query>');
   });
 
   it('exits 2 on a misspelled flag and does not initialize', () => {
@@ -56,6 +58,22 @@ describe('archmap bin', () => {
     expect(run(['scan'], dir).status).toBe(0);
     expect(run(['status'], dir).status).toBe(0);
   });
+
+  it('dispatches work-items and search through the real bin', () => {
+    writeFileSync(join(dir, 'service.ts'), 'export const service = 1;\n');
+    spawnSync('git', ['add', '-A'], { cwd: dir });
+    spawnSync('git', ['commit', '-m', 'service'], { cwd: dir });
+    expect(run(['init'], dir).status).toBe(0);
+    expect(run(['scan'], dir).status).toBe(0);
+
+    const workItems = run(['work-items', '--json'], dir);
+    expect(workItems.status).toBe(0);
+    expect(JSON.parse(workItems.stdout)).toMatchObject({ schema_version: 1, command: 'work-items', items: [] });
+
+    const search = run(['search', 'repository', '--json'], dir);
+    expect(search.status).toBe(0);
+    expect(JSON.parse(search.stdout)).toMatchObject({ schema_version: 1, command: 'search', found: true });
+  }, 15_000);
 
   it('does not print a stack trace for a regex-metacharacter secret glob (--json)', () => {
     writeFileSync(join(dir, 'a.py'), 'x\n');

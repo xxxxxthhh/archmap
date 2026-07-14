@@ -30,6 +30,17 @@ export { isTsJs } from './analyze/languages.js';
 export { contextFor, impactFor, evidenceFor, DEFAULT_CONTEXT_BUDGET } from './query/queries.js';
 export type { ContextResult, ImpactResult, EvidenceResult } from './query/queries.js';
 
+// M4: deterministic read-only work items and search
+export { searchArchitecture } from './query/search.js';
+export type { SearchField, SearchMatch, SearchResult } from './query/search.js';
+export { workItemsFor, DEFAULT_WORK_ITEM_EVIDENCE_BUDGET } from './query/work-items.js';
+export type {
+  WorkItem,
+  WorkItemEvidenceBundle,
+  WorkItemReason,
+  WorkItemsResult,
+} from './query/work-items.js';
+
 // M3: Python adapter
 export { PYTHON_CAPABILITY } from './capabilities.js';
 export { analyzePythonModules } from './analyze/python-model.js';
