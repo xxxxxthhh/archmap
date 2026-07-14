@@ -39,3 +39,8 @@ export { isPython } from './analyze/languages.js';
 export { MARKDOWN_CAPABILITY } from './capabilities.js';
 export { analyzeMarkdownDocuments } from './analyze/markdown.js';
 export { isMarkdown } from './analyze/languages.js';
+
+// M3: YAML/JSON data/config assets and Python data-flow targets
+export { DATA_CAPABILITY } from './capabilities.js';
+export { analyzeDataAssets } from './analyze/data.js';
+export { isYamlJson } from './analyze/languages.js';

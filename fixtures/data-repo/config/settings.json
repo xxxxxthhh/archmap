@@ -1,0 +1,4 @@
+{
+  "threshold": "CONFIG_VALUE_CANARY",
+  "mode": "batch"
+}

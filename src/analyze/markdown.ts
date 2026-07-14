@@ -451,8 +451,9 @@ export function analyzeMarkdownDocuments(discovery: Discovery, availableNodes: N
   const fileSet = new Set(discovery.files.map((file) => file.path));
   const perFileNodeIds = new Map(
     availableNodes.flatMap((node) =>
-      node.kind === 'module' && node.scope?.files?.includes(node.title)
-        ? [[node.title, node.id] as const]
+      node.scope?.files?.length === 1 && node.scope.files[0] === node.title &&
+        (node.kind === 'module' || node.kind === 'store')
+        ? [[node.scope.files[0], node.id] as const]
         : [],
     ),
   );

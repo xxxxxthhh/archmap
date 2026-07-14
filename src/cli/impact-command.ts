@@ -2,7 +2,7 @@
  * `archmap impact <path...> [--base <ref>] [--json]`
  *
  * Reports the nodes affected by changing the given files: the scoping nodes, the transitive
- * closure of modules that import them, and the repository parent view. `--base <ref>` derives
+ * closure of nodes that import/reference/read/write them, and the repository parent view. `--base <ref>` derives
  * the changed-file set from `git diff --name-only <ref>` instead of explicit paths.
  */
 

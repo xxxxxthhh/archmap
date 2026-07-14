@@ -19,7 +19,7 @@ import {
   type ExclusionRules,
 } from './exclude.js';
 import { collectGitState, isGitRepo } from './git.js';
-import { isMarkdown, isPython, isTsJs } from '../analyze/languages.js';
+import { isMarkdown, isPython, isTsJs, isYamlJson } from '../analyze/languages.js';
 import { ARCHMAP_DIR } from '../store.js';
 import { ScanInputError } from '../store-errors.js';
 import type { Discovery, ExclusionReason, FileRecord, ProjectConfig } from './types.js';
@@ -174,6 +174,7 @@ export function discover(root: string, config: ProjectConfig['scan']): Discovery
       isTsJs(relPath) ||
       isPython(relPath) ||
       isMarkdown(relPath) ||
+      (isYamlJson(relPath) && classify(relPath) === 'config') ||
       relPath === 'package.json' ||
       relPath === 'tsconfig.json' ||
       relPath === 'pyproject.toml' ||

@@ -70,6 +70,30 @@ export interface ContextResult {
 
 export const DEFAULT_CONTEXT_BUDGET = 2000;
 
+function outgoingReason(type: Node['relations'][number]['type']): string {
+  if (type === 'depends-on') return 'referenced by the requested file';
+  if (type === 'imports') return 'imported by the requested file';
+  if (type === 'reads') return 'read by the requested file';
+  if (type === 'writes') return 'written by the requested file';
+  return 'related to the requested file';
+}
+
+function incomingReason(type: Node['relations'][number]['type']): string {
+  if (type === 'depends-on') return 'references the requested file';
+  if (type === 'imports') return 'imports the requested file';
+  if (type === 'reads') return 'reads the requested file';
+  if (type === 'writes') return 'writes the requested file';
+  return 'relates to the requested file';
+}
+
+function impactReason(type: Node['relations'][number]['type']): string {
+  if (type === 'depends-on') return 'transitively references a changed file';
+  if (type === 'imports') return 'transitively imports a changed file';
+  if (type === 'reads') return 'transitively reads a changed file';
+  if (type === 'writes') return 'transitively writes a changed file';
+  return 'transitively relates to a changed file';
+}
+
 /**
  * The minimal relevant context for `paths`, ranked and **hard-capped** at `budget` tokens:
  * the file's own per-file node, its referenced dependencies and reverse references, its
@@ -101,12 +125,12 @@ export function contextFor(nodes: Node[], paths: string[], budget: number): Cont
   // Tier 1: what the target references, then who references the target.
   for (const n of primary) {
     for (const edge of graph.outgoing.get(n.id) ?? []) {
-      add(edge.id, edge.type === 'depends-on' ? 'referenced by the requested file' : 'imported by the requested file');
+      add(edge.id, outgoingReason(edge.type));
     }
   }
   for (const n of primary) {
     for (const edge of graph.incoming.get(n.id) ?? []) {
-      add(edge.id, edge.type === 'depends-on' ? 'references the requested file' : 'imports the requested file');
+      add(edge.id, incomingReason(edge.type));
     }
   }
   // Tier 2: parent structural views (containing directory, then repository root).
@@ -146,7 +170,7 @@ export interface ImpactResult {
 
 /**
  * Nodes affected by changing `paths`: the scoping nodes, the transitive closure of nodes
- * that import/reference them (upstream impact), and the repository root as the top-level view.
+ * that import/reference/read/write them (upstream impact), and the repository root.
  */
 export function impactFor(nodes: Node[], paths: string[]): ImpactResult {
   const graph = buildGraph(nodes);
@@ -155,16 +179,13 @@ export function impactFor(nodes: Node[], paths: string[]): ImpactResult {
   const seedIds = seeds.map((n) => n.id);
   for (const n of seeds) reasonById.set(n.id, 'directly scopes a changed file');
 
-  // BFS over reverse-import edges: who (transitively) imports the impacted nodes.
+  // BFS over reverse behavior/dependency edges: who relates to the impacted nodes.
   const queue = [...seedIds];
   while (queue.length > 0) {
     const id = queue.shift()!;
     for (const edge of graph.incoming.get(id) ?? []) {
       if (!reasonById.has(edge.id)) {
-        reasonById.set(
-          edge.id,
-          edge.type === 'depends-on' ? 'transitively references a changed file' : 'transitively imports a changed file',
-        );
+        reasonById.set(edge.id, impactReason(edge.type));
         queue.push(edge.id);
       }
     }

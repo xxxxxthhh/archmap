@@ -11,7 +11,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { ScanInputError } from '../store-errors.js';
 
-export const PYTHON_ADAPTER_VERSION = '0.1.0';
+export const PYTHON_ADAPTER_VERSION = '0.2.0';
 const PROTOCOL_VERSION = 1;
 const MAX_INPUT_BYTES = 7_000_000;
 const MAX_OUTPUT_BYTES = 1_000_000;
@@ -33,6 +33,12 @@ export interface PythonAnalysis {
   entry_signals: string[];
   routes: string[];
   cli_commands: string[];
+  data_references: PythonDataReference[];
+}
+
+export interface PythonDataReference {
+  path: string;
+  access: 'read' | 'write' | 'bare';
 }
 
 export type PythonWorkerState =
@@ -142,6 +148,13 @@ function validImport(value: unknown): value is PythonImport {
   );
 }
 
+function validDataReference(value: unknown): value is PythonDataReference {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
+  const item = value as Record<string, unknown>;
+  return typeof item.path === 'string' && typeof item.access === 'string' &&
+    ['read', 'write', 'bare'].includes(item.access);
+}
+
 function parseAnalysis(stdout: string, expectedPath: string): PythonAnalysis | 'syntax-error' | null {
   const parsed = parseObject(stdout);
   if (parsed?.protocol_version !== PROTOCOL_VERSION || parsed.path !== expectedPath) return null;
@@ -154,7 +167,9 @@ function parseAnalysis(stdout: string, expectedPath: string): PythonAnalysis | '
     !stringArray(parsed.dynamic_imports) ||
     !stringArray(parsed.entry_signals) ||
     !stringArray(parsed.routes) ||
-    !stringArray(parsed.cli_commands)
+    !stringArray(parsed.cli_commands) ||
+    !Array.isArray(parsed.data_references) ||
+    !parsed.data_references.every(validDataReference)
   ) {
     return null;
   }

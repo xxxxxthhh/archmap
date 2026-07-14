@@ -1,5 +1,6 @@
 /** Evidence-backed model projection for parser-confirmed Python analysis. */
 
+import { dirname } from 'node:path/posix';
 import { hashContent } from '../scan/hash.js';
 import { nodeId, slugFor } from '../scan/nodes.js';
 import { ScanInputError } from '../store-errors.js';
@@ -12,6 +13,7 @@ import {
   declaredPythonDependencies,
   probePythonWorker,
   type PythonAnalysis,
+  type PythonDataReference,
   type PythonImport,
   type PythonWorkerState,
 } from './python-worker.js';
@@ -96,6 +98,7 @@ interface Context {
   dependencies: ReadonlySet<string>;
   analyzerVersion: string;
   externals: Map<string, Node>;
+  dataNodeByPath: ReadonlyMap<string, string>;
 }
 
 function ensureExternal(ctx: Context, name: string): string {
@@ -207,6 +210,49 @@ function partialPublish(ctx: Context, path: string, kind: 'route' | 'cli', value
   };
 }
 
+function normalizeWithinRoot(path: string): string | null {
+  if (path.startsWith('/') || path.includes('\\')) return null;
+  const segments: string[] = [];
+  for (const segment of path.split('/')) {
+    if (segment === '' || segment === '.') continue;
+    if (segment === '..') {
+      if (segments.length === 0) return null;
+      segments.pop();
+    } else {
+      segments.push(segment);
+    }
+  }
+  return segments.length > 0 ? segments.join('/') : null;
+}
+
+function resolveDataTarget(ctx: Context, importerPath: string, literal: string): { path: string; id: string } | null {
+  const candidates = new Set<string>();
+  const rootRelative = normalizeWithinRoot(literal);
+  if (rootRelative && ctx.dataNodeByPath.has(rootRelative)) candidates.add(rootRelative);
+  const importerDirectory = dirname(importerPath);
+  const sourceRelative = normalizeWithinRoot(`${importerDirectory === '.' ? '' : `${importerDirectory}/`}${literal}`);
+  if (sourceRelative && ctx.dataNodeByPath.has(sourceRelative)) candidates.add(sourceRelative);
+  if (candidates.size !== 1) return null;
+  const path = [...candidates][0]!;
+  return { path, id: ctx.dataNodeByPath.get(path)! };
+}
+
+function dataRelation(ctx: Context, path: string, reference: PythonDataReference): Relation | null {
+  const target = resolveDataTarget(ctx, path, reference.path);
+  if (!target) return null;
+  const type = reference.access === 'read' ? 'reads' : reference.access === 'write' ? 'writes' : 'depends-on';
+  return {
+    id: `rel_${shortHash(`${path}|python-data|${reference.access}|${target.path}`)}`,
+    type,
+    target: target.id,
+    certainty: 'partial',
+    provenance: PROVENANCE,
+    evidence: [
+      evidence(ctx.discovery, ctx.analyzerVersion, path, `data ${reference.access} ${reference.path}`, reference.path),
+    ],
+  };
+}
+
 function claimsFor(ctx: Context, path: string, analysis: PythonAnalysis): Claim[] {
   const claims: Claim[] = [];
   if (analysis.entry_signals.length > 0) {
@@ -240,6 +286,7 @@ function claimsFor(ctx: Context, path: string, analysis: PythonAnalysis): Claim[
 export function analyzePythonModules(
   discovery: Discovery,
   state: PythonWorkerState = probePythonWorker(),
+  dataNodes: Node[] = [],
 ): PythonModelResult {
   if (state.status === 'unavailable') return { capability: unsupportedCapability(), nodes: [] };
   if (state.status === 'invalid') throw new ScanInputError(state.reason);
@@ -282,6 +329,14 @@ export function analyzePythonModules(
     dependencies,
     analyzerVersion: state.analyzerVersion,
     externals: new Map(),
+    dataNodeByPath: new Map(
+      dataNodes.flatMap((node) => {
+        const files = node.scope?.files ?? [];
+        return node.kind === 'store' && files.length === 1 && node.title === files[0]
+          ? [[files[0]!, node.id] as const]
+          : [];
+      }),
+    ),
   };
   const modules: Node[] = [];
 
@@ -295,6 +350,10 @@ export function analyzePythonModules(
     }
     for (const route of analysis.routes) relations.push(partialPublish(ctx, path, 'route', route));
     for (const command of analysis.cli_commands) relations.push(partialPublish(ctx, path, 'cli', command));
+    for (const reference of analysis.data_references) {
+      const relation = dataRelation(ctx, path, reference);
+      if (relation) relations.push(relation);
+    }
     const uniqueRelations = new Map(relations.map((relation) => [relation.id, relation]));
     modules.push({
       id: moduleNodeId(path),
