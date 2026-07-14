@@ -192,6 +192,12 @@ def risky_literal(
         if isinstance(current, ast.Call):
             name = dotted_name(current.func)
             joinpath = isinstance(current.func, ast.Attribute) and current.func.attr == "joinpath"
+            literal_string_builder = (
+                isinstance(current.func, ast.Attribute)
+                and current.func.attr in {"format", "join"}
+                and isinstance(current.func.value, ast.Constant)
+                and isinstance(current.func.value.value, str)
+            )
             multi_component_path = name in path_constructors and (
                 len(current.args) > 1 or any(isinstance(arg, ast.Starred) for arg in current.args)
             )
@@ -200,6 +206,7 @@ def risky_literal(
                 or name in path_joins
                 or (name or "").endswith(".format")
                 or joinpath
+                or literal_string_builder
                 or multi_component_path
             ):
                 return True

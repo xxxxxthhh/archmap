@@ -149,10 +149,10 @@ describe('YAML/JSON data adapter', () => {
 });
 
 describe('Python literal YAML/JSON references', () => {
-  function relationsForSource(source: string) {
+  function relationsForSource(source: string, targetPath = 'input.yaml') {
     const sources = new Map([
       ['builder.py', Buffer.from(source)],
-      ['input.yaml', Buffer.from('key: value\n')],
+      [targetPath, Buffer.from('key: value\n')],
     ]);
     const discovery: Discovery = {
       root: 'fixture',
@@ -184,6 +184,14 @@ describe('Python literal YAML/JSON references', () => {
     ['multi-component Path', 'from pathlib import Path\nPath("data", "input.yaml")\n'],
   ])('does not treat a component literal inside %s as a bare data reference', (_name, source) => {
     expect(relationsForSource(source)).toEqual([]);
+  });
+
+  it.each([
+    ['literal-receiver format', 'name = "actual"\n"data/{}.yaml".format(name)\n', 'data/{}.yaml'],
+    ['empty-separator str.join', '"".join(["data/", "input.yaml"])\n', 'input.yaml'],
+    ['slash-separator str.join', '"/".join(["data", "input.yaml"])\n', 'input.yaml'],
+  ])('does not treat a literal inside %s as a bare data reference', (_name, source, targetPath) => {
+    expect(relationsForSource(source, targetPath)).toEqual([]);
   });
 
   it('emits the exact conservative partial edge matrix and no guessed path edges', () => {
