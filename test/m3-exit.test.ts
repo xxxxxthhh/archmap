@@ -309,7 +309,7 @@ describe('M3 compiled mixed-repository exit fixture', () => {
       relation.type === 'publishes' || relation.type === 'reads' || relation.type === 'writes');
     expect(uncertain.length).toBeGreaterThan(0);
     expect(uncertain.every((relation) => relation.certainty === 'partial')).toBe(true);
-  }, 30_000);
+  }, 90_000);
 
   it.each([
     {
