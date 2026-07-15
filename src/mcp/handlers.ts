@@ -2,9 +2,12 @@
  * MCP tool handlers: transport adaptation only.
  *
  * Every handler reloads the validated tracked baseline and then calls the exact same exported
- * query functions the CLI commands call, returning their payload unchanged. There is no MCP
- * copy of any query semantic — a payload difference between a tool and its CLI command is a
- * defect, not a variant.
+ * query or proposal functions the CLI commands call, returning their payload unchanged. There
+ * is no MCP copy of any query, authorization, or transaction semantic — a payload difference
+ * between a tool and its CLI command is a defect, not a variant. The proposal tools are thin
+ * adapters: `propose_update` only stamps the baseline fingerprint, `validate_proposal` reuses
+ * the CLI's validator, and `apply_proposal` reuses the CLI's transaction with no approval
+ * channel, so a human-decision conflict can only ever return `requires-approval`.
  */
 
 import { isAbsolute } from 'node:path';
@@ -12,6 +15,12 @@ import { contextFor, DEFAULT_CONTEXT_BUDGET, evidenceFor, nodeFor } from '../que
 import { loadTrackedProject, toRepoPaths } from '../query/project.js';
 import { impactReport, projectSummaryReport, staleNodesReport, workItemsReport } from '../query/reports.js';
 import { searchArchitecture } from '../query/search.js';
+import {
+  applyProposal,
+  computeModelHash,
+  PROPOSAL_SCHEMA_VERSION,
+  validateProposal,
+} from '../proposal/index.js';
 import { computeStatus } from '../scan/status.js';
 import { findTool, ToolInputError, validateToolArguments } from './tools.js';
 
@@ -79,6 +88,26 @@ export function callTool(name: string, args: unknown, ctx: QueryContext): ToolRe
       return { ok: true, payload: staleNodesReport(computeStatus(root)) };
     case 'get_update_work_items':
       return { ok: true, payload: workItemsReport(baseline.nodes, computeStatus(root)) };
+    case 'propose_update':
+      // Fingerprint only: stamp the live baseline identity onto the operations. Authorization,
+      // conflict detection, and the transaction all happen later in validate_proposal /
+      // apply_proposal via the one shared library, never here.
+      return {
+        ok: true,
+        payload: {
+          proposal_schema_version: PROPOSAL_SCHEMA_VERSION,
+          base_commit: baseline.snapshot.base_commit,
+          model_hash: computeModelHash(baseline),
+          operations: params.operations,
+        },
+      };
+    case 'validate_proposal':
+      return { ok: true, payload: validateProposal(params.proposal, baseline) };
+    case 'apply_proposal':
+      // No approval argument exists on this tool, so applyProposal runs with the empty approval
+      // set: a conflicting proposal returns `requires-approval` with stable ids and writes
+      // nothing. Approval is possible only through the CLI.
+      return { ok: true, payload: applyProposal(root, params.proposal) };
     default:
       throw new ToolInputError(`unknown tool "${tool.name}"`);
   }

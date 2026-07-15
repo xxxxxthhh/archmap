@@ -1,5 +1,6 @@
 /**
- * `archmap mcp` — run the read-only stdio MCP query server.
+ * `archmap mcp` — run the stdio MCP server: the query tools plus the guarded proposal
+ * transaction (`apply_proposal` carries no approval channel).
  *
  * The one long-running command: on success stdout belongs to the JSON-RPC channel until the
  * client disconnects, so it returns a `CommandOutput` only when the invocation itself is a

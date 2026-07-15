@@ -62,7 +62,7 @@ export type {
 // M4: external proposal contract, validation, and read-only preview
 export * from './proposal/index.js';
 
-// M4: read-only stdio MCP query server
+// M4: stdio MCP server — query tools plus the guarded proposal transaction
 export { createMcpServer, serveMcpStdio, MCP_SERVER_INFO } from './mcp/server.js';
 export { callTool } from './mcp/handlers.js';
 export type { QueryContext, ToolResult } from './mcp/handlers.js';
