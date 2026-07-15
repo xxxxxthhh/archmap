@@ -332,23 +332,96 @@ def analyze(path: str, source: bytes) -> dict[str, Any]:
     }
 
 
+def pep621_dependency_values(pyproject: str) -> list[str]:
+    """Parse the same deliberately small PEP 621 dependency subset on every runtime.
+
+    This is intentionally not a TOML parser: it accepts only a ``[project]`` section with one
+    ``dependencies = ["..."]``/``['...']`` string array (including whitespace and comments).
+    Using this frozen subset instead of version-dependent ``tomllib`` keeps relation certainty
+    identical on every supported Python 3.9+ runtime. Any unfamiliar value fails closed to an
+    empty result, leaving its imports ``partial``.
+    """
+    section = re.search(
+        r"(?ms)^[ \t]*\[project\][ \t]*(?:#[^\n]*)?$\n?(.*?)(?=^[ \t]*\[[^\]]+\][ \t]*(?:#[^\n]*)?$|\Z)",
+        pyproject,
+    )
+    if section is None:
+        return []
+    body = section.group(1)
+    assignment = re.search(r"(?m)^[ \t]*dependencies[ \t]*=[ \t]*", body)
+    if assignment is None:
+        return []
+
+    index = assignment.end()
+
+    def skip_space_and_comments(position: int) -> int:
+        while position < len(body):
+            if body[position] in " \t\r\n":
+                position += 1
+                continue
+            if body[position] == "#":
+                newline = body.find("\n", position + 1)
+                position = len(body) if newline == -1 else newline + 1
+                continue
+            break
+        return position
+
+    def closes_current_line(position: int) -> bool:
+        while position < len(body) and body[position] in " \t\r":
+            position += 1
+        return position == len(body) or body[position] in "\n#"
+
+    index = skip_space_and_comments(index)
+    if index == len(body) or body[index] != "[":
+        return []
+    index += 1
+    values: list[str] = []
+    while True:
+        index = skip_space_and_comments(index)
+        if index == len(body):
+            return []
+        if body[index] == "]":
+            return values if closes_current_line(index + 1) else []
+        quote = body[index]
+        if quote not in {"\"", "'"}:
+            return []
+        index += 1
+        characters: list[str] = []
+        while index < len(body):
+            character = body[index]
+            if character == quote:
+                index += 1
+                break
+            if quote == "\"" and character == "\\":
+                if index + 1 >= len(body):
+                    return []
+                characters.extend((character, body[index + 1]))
+                index += 2
+                continue
+            characters.append(character)
+            index += 1
+        else:
+            return []
+        values.append("".join(characters))
+        index = skip_space_and_comments(index)
+        if index == len(body):
+            return []
+        if body[index] == "]":
+            return values if closes_current_line(index + 1) else []
+        if body[index] != ",":
+            return []
+        index += 1
+
+
 def dependency_names(pyproject: str, requirements: str) -> list[str]:
     """Return only distribution names that are also exact Python import identifiers."""
     declared: set[str] = set()
     if pyproject:
-        try:
-            import tomllib
-
-            document = tomllib.loads(pyproject)
-            values = document.get("project", {}).get("dependencies", [])
-            if isinstance(values, list):
-                for value in values:
-                    if isinstance(value, str):
-                        match = re.match(r"^\s*([A-Za-z0-9][A-Za-z0-9._-]*)", value)
-                        if match:
-                            declared.add(match.group(1))
-        except (ImportError, ValueError, TypeError):
-            pass
+        for value in pep621_dependency_values(pyproject):
+            if isinstance(value, str):
+                match = re.match(r"^\s*([A-Za-z0-9][A-Za-z0-9._-]*)", value)
+                if match:
+                    declared.add(match.group(1))
     for line in requirements.splitlines():
         if line.lstrip().startswith(("#", "-")):
             continue

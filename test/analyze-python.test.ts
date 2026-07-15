@@ -24,14 +24,17 @@ function walk(dir: string, out: string[]): void {
   }
 }
 
-function fixtureDiscovery(): Discovery {
+function fixtureDiscovery(overrides: { pyproject?: string; requirements?: string } = {}): Discovery {
   const absolute: string[] = [];
   walk(fixtureRoot, absolute);
   const files = [];
   const contents = new Map<string, Buffer>();
   for (const path of absolute.sort()) {
     const rel = relative(fixtureRoot, path).split('\\').join('/');
-    const content = readFileSync(path);
+    const override = rel === 'pyproject.toml' ? overrides.pyproject
+      : rel === 'requirements.txt' ? overrides.requirements
+        : undefined;
+    const content = override === undefined ? readFileSync(path) : Buffer.from(override);
     files.push({ path: rel, blob_hash: hashContent(content), size: content.length, category: classify(rel) });
     contents.set(rel, content);
   }
@@ -87,6 +90,72 @@ describe('Python adapter', () => {
     expect(targetByTitle.get('dupe')).toBe('partial');
     expect(targetByTitle.has('nested_only')).toBe(false);
     expect(targetByTitle.has('fake_docstring')).toBe(false);
+  });
+
+  it('recognizes the bounded PEP 621 string-array form with comments on every runtime', () => {
+    const parsed = analyzePythonModules(fixtureDiscovery({
+      pyproject: [
+        '[project] # canonical metadata',
+        'dependencies = [',
+        '  # this remains metadata, never a dependency',
+        "  'requests>=2', # inline comment",
+        ']',
+        '[tool.example]',
+        'enabled = true',
+        '',
+      ].join('\n'),
+      requirements: '',
+    }));
+    const service = parsed.nodes.find((node) => node.title === 'pkg/service.py')!;
+    const targetByTitle = new Map(
+      service.relations
+        .filter((relation) => relation.type === 'imports')
+        .map((relation) => [parsed.nodes.find((node) => node.id === relation.target)!.title, relation.certainty]),
+    );
+    expect(targetByTitle.get('requests')).toBe('known');
+    expect(targetByTitle.get('mystery')).toBe('partial');
+  });
+
+  it('fails closed instead of promoting dependencies from an unsupported PEP 621 value', () => {
+    const malformed = analyzePythonModules(fixtureDiscovery({
+      pyproject: [
+        '[project]',
+        'name = "fixture-project"',
+        'dependencies = [',
+        '  "requests>=2",',
+        '  { value = "not-a-string" },',
+        ']',
+        '',
+      ].join('\n'),
+      requirements: '',
+    }));
+    const service = malformed.nodes.find((node) => node.title === 'pkg/service.py')!;
+    const targetByTitle = new Map(
+      service.relations
+        .filter((relation) => relation.type === 'imports')
+        .map((relation) => [malformed.nodes.find((node) => node.id === relation.target)!.title, relation.certainty]),
+    );
+    expect(targetByTitle.get('requests')).toBe('partial');
+    expect(targetByTitle.get('mystery')).toBe('partial');
+  });
+
+  it('fails closed when a bounded PEP 621 array has non-comment trailing content', () => {
+    const malformed = analyzePythonModules(fixtureDiscovery({
+      pyproject: [
+        '[project]',
+        'dependencies = ["requests>=2"] unsupported',
+        '',
+      ].join('\n'),
+      requirements: '',
+    }));
+    const service = malformed.nodes.find((node) => node.title === 'pkg/service.py')!;
+    const targetByTitle = new Map(
+      service.relations
+        .filter((relation) => relation.type === 'imports')
+        .map((relation) => [malformed.nodes.find((node) => node.id === relation.target)!.title, relation.certainty]),
+    );
+    expect(targetByTitle.get('requests')).toBe('partial');
+    expect(targetByTitle.get('mystery')).toBe('partial');
   });
 
   it('emits parser-confirmed entry/test facts and only partial CLI/route relations', () => {
