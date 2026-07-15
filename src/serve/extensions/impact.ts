@@ -1,5 +1,6 @@
 /** V5's independently owned server registration slot. */
 
+import { createImpactFeature } from '../impact.js';
 import type { ViewerExtensionContext, ViewerExtensionRegistry } from '../features.js';
 
 /**
@@ -7,6 +8,8 @@ import type { ViewerExtensionContext, ViewerExtensionRegistry } from '../feature
  * without editing the server composition or another lane's registration module.
  */
 export function registerImpactExtension(
-  _registry: ViewerExtensionRegistry,
-  _context: ViewerExtensionContext,
-): void {}
+  registry: ViewerExtensionRegistry,
+  context: ViewerExtensionContext,
+): void {
+  registry.register('impact', createImpactFeature(context.cwd));
+}
