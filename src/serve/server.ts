@@ -12,8 +12,7 @@
  */
 
 import { createServer, type Server } from 'node:http';
-import { createGraphFeature } from './api.js';
-import { createAssetsFeature } from './assets.js';
+import { createViewerFeatures } from './features.js';
 import { createRouter } from './router.js';
 
 /** Hosts the viewer is permitted to bind. Loopback literals only — never a wildcard/any address. */
@@ -48,7 +47,7 @@ export function startViewerServer(opts: ServeOptions): Promise<RunningViewer> {
     );
   }
 
-  const router = createRouter([createGraphFeature(opts.cwd), createAssetsFeature()]);
+  const router = createRouter(createViewerFeatures(opts.cwd));
   const server = createServer((req, res) => {
     // A handler rejection must never crash the process or leak a stack to the client.
     void Promise.resolve(router(req, res)).catch(() => {

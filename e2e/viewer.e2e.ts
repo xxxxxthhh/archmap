@@ -84,6 +84,17 @@ test('opens the map and expands a collapsed group', async ({ page }) => {
   expect(consoleErrors, `unexpected console errors: ${consoleErrors.join(' | ')}`).toEqual([]);
 });
 
+test('initializes separately mountable V4/V5 client slots', async ({ page }) => {
+  await page.goto(baseURL);
+  await expect(page.getByTestId('map')).toBeVisible();
+
+  // The V3 host imports and calls each fixed extension module after the graph renders. Future
+  // slices own these independent modules and DOM slots, so neither needs to edit viewer/app.js.
+  for (const slot of ['viewer-slot-evidence', 'viewer-slot-filters', 'viewer-slot-diff']) {
+    await expect(page.getByTestId(slot)).toHaveAttribute('data-feature-mounted', 'true');
+  }
+});
+
 test('renders hostile repository content inert (no script executes)', async ({ page }) => {
   let dialogFired = false;
   page.on('dialog', (d) => {

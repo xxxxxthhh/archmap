@@ -7,7 +7,8 @@
 // re-enter as active markup on the client. The CSP additionally blocks any remote fetch.
 
 /* global document, fetch */
-'use strict';
+
+import { mountViewerFeatures } from './features.js';
 
 // Kinds in structural-outermost-first order; only kinds present in the graph render a group.
 const KIND_ORDER = ['system', 'component', 'module', 'store', 'external'];
@@ -51,7 +52,13 @@ function nodeDetail(node, edgesBySource) {
     const list = el('ul', { className: 'edges' });
     for (const edge of outgoing) {
       const marker = edge.certainty === 'known' ? '→' : '⇢';
-      list.appendChild(el('li', { text: `${marker} ${edge.type} ${edge.target}` }));
+      const item = el('li', { text: `${marker} ${edge.type} ${edge.target}` });
+      // The relation identity is data-only; V4 can delegate selection from the map without
+      // parsing display text or guessing which source claim an edge represents.
+      item.setAttribute('data-edge-source', edge.source);
+      item.setAttribute('data-edge-type', edge.type);
+      item.setAttribute('data-edge-target', edge.target);
+      list.appendChild(item);
     }
     detail.appendChild(list);
   }
@@ -64,6 +71,9 @@ function nodeDetail(node, edgesBySource) {
 
 function nodeCard(node, edgesBySource) {
   const card = el('li', { className: 'node-card', testid: `node-${node.id}` });
+  // Stable data identity lets the evidence and filter features attach delegated behavior without
+  // changing this V3 renderer or taking a lease on another feature's client module.
+  card.setAttribute('data-node-id', node.id);
 
   const toggle = el('button', { className: 'node-toggle' });
   toggle.type = 'button';
@@ -114,7 +124,19 @@ function kindGroup(kind, nodes, edgesBySource, expanded) {
   return section;
 }
 
-function render(graph) {
+function viewerFeatureSlots() {
+  const slots = {
+    evidence: document.getElementById('viewer-slot-evidence'),
+    filters: document.getElementById('viewer-slot-filters'),
+    diff: document.getElementById('viewer-slot-diff'),
+  };
+  for (const [name, slot] of Object.entries(slots)) {
+    if (!slot) throw new Error(`missing viewer feature slot "${name}"`);
+  }
+  return slots;
+}
+
+async function render(graph) {
   const map = document.getElementById('map');
   const edgesBySource = new Map();
   for (const edge of graph.projection.edges) {
@@ -139,6 +161,7 @@ function render(graph) {
   const stats = graph.projection.stats;
   setStatus(`view "${graph.view.id}" · ${stats.visible_nodes}/${stats.total_nodes} nodes · ${stats.visible_edges} edges`);
   map.hidden = false;
+  await mountViewerFeatures({ graph, map, slots: viewerFeatureSlots() });
 }
 
 async function load() {
@@ -149,7 +172,7 @@ async function load() {
       setStatus(`Could not load map: ${body.error || res.status}`);
       return;
     }
-    render(body);
+    await render(body);
   } catch (err) {
     setStatus(`Could not load map: ${err && err.message ? err.message : 'network error'}`);
   }

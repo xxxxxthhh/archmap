@@ -122,6 +122,10 @@ describe('bundled static assets (local, pinned, no remote origin)', () => {
       ['', 'text/html'],
       ['index.html', 'text/html'],
       ['app.js', 'text/javascript'],
+      ['features.js', 'text/javascript'],
+      ['extensions/evidence.js', 'text/javascript'],
+      ['extensions/filters.js', 'text/javascript'],
+      ['extensions/diff.js', 'text/javascript'],
       ['style.css', 'text/css'],
     ];
     for (const [path, type] of cases) {
@@ -134,7 +138,15 @@ describe('bundled static assets (local, pinned, no remote origin)', () => {
 
   it('references no remote origin from any served asset (offline / no-CDN)', async () => {
     const viewer = await start();
-    for (const path of ['', 'app.js', 'style.css']) {
+    for (const path of [
+      '',
+      'app.js',
+      'features.js',
+      'extensions/evidence.js',
+      'extensions/filters.js',
+      'extensions/diff.js',
+      'style.css',
+    ]) {
       const body = await (await fetch(`${viewer.url}${path}`)).text();
       expect(body, path).not.toMatch(/https?:\/\//);
     }
