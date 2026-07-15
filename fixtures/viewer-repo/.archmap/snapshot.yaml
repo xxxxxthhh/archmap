@@ -1,0 +1,22 @@
+base_commit: abc1234
+capabilities:
+  - id: typescript
+    provides:
+      - symbols
+      - imports
+    status: supported
+    version: 0.1.0
+  - id: universal
+    provides:
+      - files
+    status: supported
+    version: 0.1.0
+dirty: false
+excluded_counts:
+  binary: 0
+  excluded-dir: 0
+  secret: 0
+  symlink: 0
+  too-large: 0
+files: []
+schema_version: 1

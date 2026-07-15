@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archmap.dev/schema/view/v1.json",
+  "title": "Archmap View Definition",
+  "description": "A tracked view file (.archmap/views/<id>.yaml). Versioned independently so view files can be validated and migrated on their own. A view saves only query and layout preference (PLAN 9); it must never carry source content, evidence bodies, or proposal data. The strict allowlist (additionalProperties: false everywhere) is the enforcement of that boundary.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id"],
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "include": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "node_kinds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["system", "component", "module", "external", "store"]
+          }
+        },
+        "edge_types": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["calls", "reads", "writes", "imports", "publishes", "consumes", "depends-on"]
+          }
+        }
+      }
+    },
+    "collapse_below": { "type": "string", "enum": ["system", "component", "module"] },
+    "layout": { "type": "string", "enum": ["left-to-right", "top-to-bottom"] }
+  }
+}

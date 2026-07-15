@@ -1,0 +1,19 @@
+%% archmap view: overall
+%% nodes 7/7 (collapsed 0), edges 7/7
+graph LR
+  node_api["API Service<br/>component · fact 1 · inf 1"]
+  node_api_handlers["API Handlers<br/>module · fact 1 · inf 0"]
+  node_cdb4ee2aea69cc6a["Viewer Repo<br/>system · fact 0 · inf 0"]
+  node_db["Primary Store<br/>store · fact 1 · inf 0"]
+  node_payments["Payments API<br/>external · fact 1 · inf 0"]
+  node_worker["Background Worker<br/>component · fact 0 · inf 1 · stale 1"]
+  node_worker_jobs["Worker Jobs<br/>module · fact 1 · inf 0"]
+  node_api -.->|calls ~| node_payments
+  node_api -->|reads| node_db
+  node_api_handlers -->|imports| node_api
+  node_worker_jobs -->|writes| node_db
+  node_cdb4ee2aea69cc6a -->|depends-on| node_api
+  node_worker -.->|consumes ?| node_payments
+  node_worker -->|depends-on| node_worker_jobs
+  classDef stale stroke-dasharray:5 5;
+  class node_worker stale;

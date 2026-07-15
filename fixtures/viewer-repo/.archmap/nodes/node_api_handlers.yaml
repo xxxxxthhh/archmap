@@ -1,0 +1,40 @@
+claims:
+  - confidence: 1
+    evidence:
+      - analyzer: typescript
+        analyzer_version: 0.1.0
+        blob_hash: sha256:blob-src-api-handlers-ts
+        commit: abc1234
+        extract_hash: sha256:extract-src-api-handlers-ts
+        path: src/api/handlers.ts
+        repository: viewer-repo
+        symbol: getUser
+    id: claim_handlers_fact
+    provenance:
+      actor: analyzer
+      created_at: 2026-07-13T00:00:00Z
+    status: active
+    text: Declares per-route handler functions.
+    type: fact
+id: node_api_handlers
+kind: module
+relations:
+  - certainty: known
+    evidence:
+      - analyzer: typescript
+        analyzer_version: 0.1.0
+        blob_hash: sha256:blob-src-api-handlers-ts
+        commit: abc1234
+        extract_hash: sha256:extract-src-api-handlers-ts
+        path: src/api/handlers.ts
+        repository: viewer-repo
+        symbol: router
+    id: rel_handlers_imports_api
+    provenance:
+      actor: analyzer
+      created_at: 2026-07-13T00:00:00Z
+    target: node_api
+    type: imports
+schema_version: 1
+slug: api-handlers
+title: API Handlers

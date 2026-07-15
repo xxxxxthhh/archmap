@@ -1,0 +1,43 @@
+claims:
+  - confidence: 0.6
+    evidence:
+      - analyzer: typescript
+        analyzer_version: 0.1.0
+        blob_hash: sha256:blob-src-worker-main-ts
+        commit: abc1234
+        extract_hash: sha256:extract-src-worker-main-ts
+        path: src/worker/main.ts
+        repository: viewer-repo
+    id: claim_worker_stale
+    provenance:
+      actor: human
+      created_at: 2026-07-13T00:00:00Z
+    status: stale
+    text: Drains the async job queue.
+    type: inference
+id: node_worker
+kind: component
+relations:
+  - certainty: known
+    evidence:
+      - analyzer: typescript
+        analyzer_version: 0.1.0
+        blob_hash: sha256:blob-src-worker-main-ts
+        commit: abc1234
+        extract_hash: sha256:extract-src-worker-main-ts
+        path: src/worker/main.ts
+        repository: viewer-repo
+        symbol: runJobs
+    id: rel_worker_jobs
+    provenance:
+      actor: analyzer
+      created_at: 2026-07-13T00:00:00Z
+    target: node_worker_jobs
+    type: depends-on
+  - certainty: unknown
+    id: rel_worker_consumes_pay
+    target: node_payments
+    type: consumes
+schema_version: 1
+slug: worker
+title: Background Worker
