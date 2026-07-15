@@ -1,5 +1,6 @@
 /**
- * The read-only MCP tool surface and its input contract.
+ * The MCP tool surface and its input contract: read-only query tools plus the guarded
+ * proposal tools (`apply_proposal` is the one write, and it carries no approval channel).
  *
  * Each tool's JSON Schema is the single deterministic gate on its arguments: a missing, extra,
  * mistyped, empty, or out-of-range value is rejected here, before any query runs, with the same
@@ -36,6 +37,9 @@ const PATHS = {
 };
 const ID = { type: 'string', minLength: 1, description: 'A tracked id.' };
 const NO_ARGS = { type: 'object', properties: {}, additionalProperties: false } as const;
+// A proposal envelope is validated deeply by the one shared proposal schema at
+// validate_proposal/apply_proposal, so the tool boundary only asserts it is an object here.
+const PROPOSAL = { type: 'object', description: 'A proposal object, as returned by propose_update.' };
 
 export const MCP_TOOLS: ToolDefinition[] = [
   {
@@ -117,6 +121,54 @@ export const MCP_TOOLS: ToolDefinition[] = [
       'One update work item per stale node: the tracked node, why it is stale, and a ' +
       'budget-capped evidence bundle.',
     inputSchema: NO_ARGS,
+  },
+  {
+    name: 'propose_update',
+    description:
+      'Stamp an operations payload with the current validated baseline fingerprint (base ' +
+      'commit and model hash) and return the canonical proposal. This authorizes nothing and ' +
+      'carries no approval; validity and authorization are decided by validate_proposal and ' +
+      'apply_proposal.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        operations: {
+          type: 'array',
+          minItems: 1,
+          items: { type: 'object' },
+          description: 'The proposal operations to normalize and fingerprint.',
+        },
+      },
+      required: ['operations'],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'validate_proposal',
+    description:
+      'The same domain verdict as `archmap proposal validate`: schema, fingerprint, ' +
+      'authorization, reference, and conflict evaluation of a proposal against the current ' +
+      'baseline. Read-only.',
+    inputSchema: {
+      type: 'object',
+      properties: { proposal: PROPOSAL },
+      required: ['proposal'],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'apply_proposal',
+    description:
+      'Apply a valid, non-conflicting proposal through the same transaction as `archmap ' +
+      'proposal apply`. There is no approval argument: a human-decision conflict returns a ' +
+      'pending-approval verdict with stable conflict ids and writes nothing, and approval is ' +
+      'possible only through the CLI.',
+    inputSchema: {
+      type: 'object',
+      properties: { proposal: PROPOSAL },
+      required: ['proposal'],
+      additionalProperties: false,
+    },
   },
 ];
 

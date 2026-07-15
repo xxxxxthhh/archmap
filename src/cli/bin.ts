@@ -29,7 +29,7 @@ Commands:
   evidence <id> [--json]               Evidence bundle for a node/claim/relation id
   work-items [--json]                  Stale-node update work items with bounded evidence
   search <query> [--json]              Search slug, title, paths, and claim text
-  mcp                                  Serve the read-only query tools over stdio (MCP)
+  mcp                                  Serve the query and guarded proposal tools over stdio (MCP)
   proposal validate <file> [--json]    Validate an external proposal without writing
   proposal preview <file> [--json]     Preview its canonical tracked-node diff without writing
   proposal apply <file> [--approve <conflict-id>]... [--json]

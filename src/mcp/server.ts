@@ -1,9 +1,11 @@
 /**
- * The `archmap mcp` server: the read-only query surface over stdio.
+ * The `archmap mcp` server: the query and proposal surface over stdio.
  *
- * Stdio is the only transport — no listener, no port, no network, no auth surface — and the
- * server never writes: it answers from the same validated tracked model the CLI reads. stdout
- * is the JSON-RPC channel and nothing but protocol messages may ever be written to it.
+ * Stdio is the only transport — no listener, no port, no network, no auth surface. The query
+ * tools never write; the only write is `apply_proposal`, which reuses the CLI's guarded
+ * transaction, carries no approval channel, and answers from the same validated tracked model
+ * the CLI reads. stdout is the JSON-RPC channel and nothing but protocol messages may ever be
+ * written to it.
  *
  * Failures are isolated by kind: an unknown tool or rejected arguments become a JSON-RPC
  * invalid-params error, an unusable repository becomes a structured tool error carrying the

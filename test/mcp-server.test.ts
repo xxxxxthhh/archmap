@@ -28,6 +28,9 @@ const TOOL_NAMES = [
   'get_evidence',
   'list_stale_nodes',
   'get_update_work_items',
+  'propose_update',
+  'validate_proposal',
+  'apply_proposal',
 ];
 
 interface JsonRpcResponse {
@@ -220,13 +223,24 @@ afterEach(async () => {
 afterAll(() => rmSync(repo, { recursive: true, force: true }));
 
 describe('mcp server: CLI parity', () => {
-  it('exposes exactly the contracted read-only tool surface', async () => {
+  it('exposes exactly the contracted tool surface', async () => {
     const session = open(repo);
     const info = await session.initialize();
     expect(info.result).toMatchObject({ serverInfo: { name: 'archmap' } });
 
     const tools = await session.request('tools/list', {});
     expect(tools.result!.tools!.map((tool) => tool.name)).toEqual(TOOL_NAMES);
+  }, 30_000);
+
+  it('does not advertise the write-capable MCP surface as read-only in --help', () => {
+    // The served surface now includes the guarded `apply_proposal` write, so the top-level help
+    // must not describe `archmap mcp` as read-only.
+    const help = cli(['--help'], repo);
+    expect(help.status).toBe(0);
+    const mcpLine = help.stdout.split('\n').find((line) => /^\s*mcp\s/.test(line));
+    expect(mcpLine, 'help must list the mcp command').toBeDefined();
+    expect(mcpLine).not.toMatch(/read-only/i);
+    expect(mcpLine!.toLowerCase()).toContain('proposal');
   }, 30_000);
 
   it('answers every tool with its CLI command payload, byte for byte', async () => {
@@ -344,7 +358,11 @@ describe('mcp server: fail-closed and input rejection', () => {
           ? { query: 'x' }
           : tool === 'get_node' || tool === 'get_evidence'
             ? { id: 'x' }
-            : {};
+            : tool === 'propose_update'
+              ? { operations: [{}] }
+              : tool === 'validate_proposal' || tool === 'apply_proposal'
+                ? { proposal: {} }
+                : {};
       const res = await bare.call(tool, args);
       expect(res.result?.isError, `${tool} must fail closed on an unscanned project`).toBe(true);
       expect(JSON.parse(res.result!.content![0]!.text)).toEqual({
