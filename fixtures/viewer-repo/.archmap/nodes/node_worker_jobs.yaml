@@ -1,0 +1,40 @@
+claims:
+  - confidence: 1
+    evidence:
+      - analyzer: typescript
+        analyzer_version: 0.1.0
+        blob_hash: sha256:blob-src-worker-jobs-ts
+        commit: abc1234
+        extract_hash: sha256:extract-src-worker-jobs-ts
+        path: src/worker/jobs.ts
+        repository: viewer-repo
+        symbol: reconcile
+    id: claim_jobs_fact
+    provenance:
+      actor: analyzer
+      created_at: 2026-07-13T00:00:00Z
+    status: active
+    text: Defines scheduled job units.
+    type: fact
+id: node_worker_jobs
+kind: module
+relations:
+  - certainty: known
+    evidence:
+      - analyzer: typescript
+        analyzer_version: 0.1.0
+        blob_hash: sha256:blob-src-worker-jobs-ts
+        commit: abc1234
+        extract_hash: sha256:extract-src-worker-jobs-ts
+        path: src/worker/jobs.ts
+        repository: viewer-repo
+        symbol: persist
+    id: rel_jobs_writes_db
+    provenance:
+      actor: analyzer
+      created_at: 2026-07-13T00:00:00Z
+    target: node_db
+    type: writes
+schema_version: 1
+slug: worker-jobs
+title: Worker Jobs

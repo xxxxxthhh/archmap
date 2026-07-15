@@ -1,0 +1,22 @@
+claims: []
+id: node_cdb4ee2aea69cc6a
+kind: system
+relations:
+  - certainty: known
+    evidence:
+      - analyzer: typescript
+        analyzer_version: 0.1.0
+        blob_hash: sha256:blob-src-api-index-ts
+        commit: abc1234
+        extract_hash: sha256:extract-src-api-index-ts
+        path: src/api/index.ts
+        repository: viewer-repo
+    id: rel_repo_api
+    provenance:
+      actor: analyzer
+      created_at: 2026-07-13T00:00:00Z
+    target: node_api
+    type: depends-on
+schema_version: 1
+slug: repository
+title: Viewer Repo

@@ -4,6 +4,7 @@
 import { runCapabilitiesCommand } from './capabilities-command.js';
 import { runContextCommand } from './context-command.js';
 import { runEvidenceCommand } from './evidence-command.js';
+import { runExportCommand } from './export-command.js';
 import { runImpactCommand } from './impact-command.js';
 import { runInit } from './init-command.js';
 import { runMcpCommand } from './mcp-command.js';
@@ -35,6 +36,8 @@ Commands:
   proposal apply <file> [--approve <conflict-id>]... [--json]
                                        Atomically publish validated node enrichment
   validate <manifest> [--json]         Validate a manifest file (YAML or JSON)
+  export --format mermaid|markdown|svg [--view <id>] [--json]
+                                       Render a deterministic view projection of the model
 `;
 
 function dispatch(command: string | undefined, rest: string[], ctx: CommandContext): CommandOutput | null {
@@ -63,6 +66,8 @@ function dispatch(command: string | undefined, rest: string[], ctx: CommandConte
       return runProposalDispatch(rest, ctx);
     case 'validate':
       return runValidate(rest);
+    case 'export':
+      return runExportCommand(rest, ctx);
     default:
       return null;
   }

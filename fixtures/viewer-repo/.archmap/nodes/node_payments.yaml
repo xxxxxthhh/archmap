@@ -1,0 +1,24 @@
+claims:
+  - confidence: 1
+    evidence:
+      - analyzer: typescript
+        analyzer_version: 0.1.0
+        blob_hash: sha256:blob-src-api-index-ts
+        commit: abc1234
+        extract_hash: sha256:extract-src-api-index-ts
+        path: src/api/index.ts
+        repository: viewer-repo
+        symbol: chargeCard
+    id: claim_pay_fact
+    provenance:
+      actor: analyzer
+      created_at: 2026-07-13T00:00:00Z
+    status: active
+    text: External payment provider dependency.
+    type: fact
+id: node_payments
+kind: external
+relations: []
+schema_version: 1
+slug: payments-api
+title: Payments API
