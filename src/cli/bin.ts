@@ -3,6 +3,7 @@
 
 import { runCapabilitiesCommand } from './capabilities-command.js';
 import { runContextCommand } from './context-command.js';
+import { runDiffCommand } from './diff-command.js';
 import { runEvidenceCommand } from './evidence-command.js';
 import { runExportCommand } from './export-command.js';
 import { runImpactCommand } from './impact-command.js';
@@ -26,6 +27,7 @@ Commands:
   capabilities [--json]                List adapters and repository environment
   context <path...> [--budget <n>] [--json]  Minimal evidence-backed context for files
   impact <path...> [--base <ref>] [--json]    Nodes affected by changing files
+  diff <base> [head] [--json]          Architecture diff of tracked state between two commits
   node <id> [--json]                   Tracked node document for a node id
   evidence <id> [--json]               Evidence bundle for a node/claim/relation id
   work-items [--json]                  Stale-node update work items with bounded evidence
@@ -54,6 +56,8 @@ function dispatch(command: string | undefined, rest: string[], ctx: CommandConte
       return runContextCommand(rest, ctx);
     case 'impact':
       return runImpactCommand(rest, ctx);
+    case 'diff':
+      return runDiffCommand(rest, ctx);
     case 'node':
       return runNodeCommand(rest, ctx);
     case 'evidence':

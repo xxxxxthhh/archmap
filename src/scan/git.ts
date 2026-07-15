@@ -80,3 +80,42 @@ export function collectGitState(root: string): GitState {
 
   return { files, base_commit, dirty };
 }
+
+// --- read-only ref/tree access (M5 diff) -------------------------------------------------
+//
+// These helpers read historical tracked state straight from the object store; none of them
+// touch the working tree, so an `archmap diff` cannot mutate the caller's checkout. All refs
+// go through explicit argv (no shell), and `--end-of-options` keeps a hostile ref like
+// `--upload-pack=...` from ever being parsed as a git option.
+
+/**
+ * Resolve `ref` to a full 40-hex commit SHA, or null when it is not an existing commit-ish
+ * (unknown ref, malformed rev, a tag/blob that is not commit-ish, or not a git repository).
+ * Peeling with `^{commit}` means a tag resolves to the commit it points at, and anything that
+ * cannot be a commit fails closed as null rather than being diffed against.
+ */
+export function resolveCommit(root: string, ref: string): string | null {
+  const res = git(root, ['rev-parse', '--verify', '--quiet', '--end-of-options', `${ref}^{commit}`]);
+  const sha = res.stdout.trim();
+  return res.ok && /^[0-9a-f]{40}$/.test(sha) ? sha : null;
+}
+
+/**
+ * List the repository-root-relative paths of every file under `dir` in `commit`'s tree
+ * (recursive). Returns `[]` when the directory does not exist at that commit. `commit` must be
+ * a resolved SHA from `resolveCommit`; `dir` is a pathspec relative to `root`.
+ */
+export function listTreeFiles(root: string, commit: string, dir: string): string[] {
+  const res = git(root, ['ls-tree', '-r', '--name-only', '-z', commit, '--', dir]);
+  if (!res.ok) return [];
+  return res.stdout.split('\0').filter((p) => p.length > 0);
+}
+
+/**
+ * Read the blob at `path` (repository-root-relative) in `commit`'s tree, or null when the path
+ * does not exist there. `commit` must be a resolved SHA from `resolveCommit`.
+ */
+export function readTreeFile(root: string, commit: string, path: string): string | null {
+  const res = git(root, ['show', `${commit}:${path}`]);
+  return res.ok ? res.stdout : null;
+}
