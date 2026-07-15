@@ -11,6 +11,7 @@ import type { ServerResponse } from 'node:http';
 import { architectureDiff } from '../diff/diff.js';
 import type { ArchDiffReport } from '../diff/types.js';
 import { toCanonicalJson } from '../model/canonical.js';
+import type { Scope } from '../model/types.js';
 import { neutralizeText } from '../render/sanitize.js';
 import { StoreError } from '../store-errors.js';
 import type { FeatureModule, RequestContext } from './router.js';
@@ -63,14 +64,19 @@ function requestedRefs(ctx: RequestContext): DiffRefs | undefined {
 
 /**
  * The V2 engine owns diff membership, ordering, ids, types, certainty, and lifecycle status.
- * At the Viewer boundary, mirror the existing graph/impact projection rule: free-form titles and
- * claim bodies must be made inert before they are emitted as browser JSON. This deliberately
- * does not reinterpret the report or alter its semantic buckets.
+ * At the Viewer boundary, mirror the existing graph/impact projection rule: free-form titles,
+ * scope values, and claim bodies must be made inert before they are emitted as browser JSON.
+ * This deliberately does not reinterpret the report or alter its semantic buckets.
  */
 function viewerDiffReport(report: ArchDiffReport): ArchDiffReport {
+  const scope = (value: Scope): Scope => ({
+    ...(value.files ? { files: value.files.map(neutralizeText) } : {}),
+    ...(value.symbols ? { symbols: value.symbols.map(neutralizeText) } : {}),
+  });
   const node = (entry: ArchDiffReport['nodes']['added'][number]) => ({
     ...entry,
     title: neutralizeText(entry.title),
+    ...(entry.scope ? { scope: scope(entry.scope) } : {}),
   });
   const claim = (entry: ArchDiffReport['claims']['added'][number]) => ({
     ...entry,

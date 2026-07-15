@@ -21,9 +21,9 @@ The normal Viewer is local and read-only.  It binds a loopback address, serves
 only bundled same-origin assets, accepts only `GET`, and projects repository
 values as inert text.  The V6 diff route is an extension of that same boundary:
 it uses V2's architecture-diff partition and applies the existing Viewer
-`neutralizeText` projection only to free-form node titles and claim text before
-browser JSON is emitted.  It does not construct a second interpretation of
-membership, ids, types, certainty, provenance, or status.
+`neutralizeText` projection to free-form node titles, scope file/symbol values,
+and claim text before browser JSON is emitted.  It does not construct a second
+interpretation of membership, ids, types, certainty, provenance, or status.
 
 ## M5 delivery evidence map
 
@@ -32,7 +32,7 @@ membership, ids, types, certainty, provenance, or status.
 | **Architecture map** | `test/render-projection.test.ts` (`projectModel`); `test/serve-server.test.ts` “serves the display-graph projection …”; `e2e/viewer.e2e.ts` “opens the map and expands a collapsed group” | The display projection retains stable ids, certainty, claim type/status/provenance and safe evidence pointers; the loopback API reports the expected graph; a real browser loads the map and navigates a collapsed group. |
 | **Evidence inspector** | `test/serve-evidence-api.test.ts`; `e2e/evidence-inspector.e2e.ts` “selects nodes and exact relation evidence with durable deep links and inert excerpts” | Node and relation targets return their own CLI-equivalent evidence, bounded safe excerpts, and their actual partial/unknown gaps.  Browser node/edge selection and reloadable evidence links remain reachable. |
 | **Impact** | `test/serve-impact-api.test.ts` “matches the CLI impact JSON semantics …”; `e2e/filters-impact.e2e.ts` “shows CLI-equivalent impact highlights …” | The Viewer highlights the same impact result as `archmap impact`; it does not invent an impact interpretation or overwrite existing graph labels. |
-| **Diff mode** | `test/m5-exit.test.ts` “serves the V2 bucket report …” and “neutralizes hostile diff display text …”; `e2e/diff-mode.e2e.ts` “renders the exact prepared node and relation buckets …” | A two-commit fixture (`fixtures/viewer-diff-repo/base` → `head`) asserts added, removed, and changed node and relation buckets from V2's engine, plus active and stale claim states. The Viewer preserves bucket membership/ids/types/certainty/status while neutralizing only free-form title/claim display text; the browser renders the prepared buckets through loopback. |
+| **Diff mode** | `test/m5-exit.test.ts` “serves the V2 bucket report …” and “neutralizes hostile diff display text …”; `e2e/diff-mode.e2e.ts` “renders the exact prepared node and relation buckets …” | A two-commit fixture (`fixtures/viewer-diff-repo/base` → `head`) asserts added, removed, and changed node and relation buckets from V2's engine, plus active and stale claim states. The Viewer preserves bucket membership/ids/types/certainty/status while neutralizing free-form title, scope file/symbol, and claim-text values; the browser renders the prepared buckets through loopback. |
 | **Stale, confidence, source/provenance, and relation filters** | `test/serve-impact-api.test.ts` “exposes only factual filter facets …”; `e2e/filters-impact.e2e.ts` “filters nodes and relations without relabelling their provenance or certainty” | Filter choices use the existing status/claim/relation facts.  The browser test keeps human/analyzer provenance and partial/unknown certainty intact, distinguishes status staleness from stale claims, and verifies a readable empty state. |
 | **SVG, Mermaid, and Markdown exports** | `test/render-export.test.ts` canonical-golden and byte-identical cases, format-distinction cases, content-safety cases, and compiled-source CLI cases | All three formats come from the same deterministic projection; their goldens retain certainty, claim/state/actor distinctions and are byte-stable.  The compiled CLI output and invalid inputs are also covered. |
 
@@ -42,8 +42,9 @@ The V6 fixture creates two deterministic commits from its `base/.archmap` and
 `head/.archmap` states. `test/m5-exit.test.ts` compares the endpoint's V2
 membership/buckets, ids, relation certainty, and claim type/status with
 `architectureDiff(root, base, head)`; only the existing Viewer safety projection
-changes free-form title/claim text. Thus V6 cannot silently reclassify a V2
-result or let an active diff payload reach browser JSON. The same test
+changes free-form title, scope file/symbol, and claim-text values. Thus V6 cannot
+silently reclassify a V2 result or let raw active free-form diff text reach
+browser JSON. The same test
 calls the endpoint with two references resolving to the same commit and
 requires `identical: true` plus empty node and relation buckets.  The browser
 counterpart requires the explicit readable message **“No architectural
@@ -83,7 +84,7 @@ sampled manual check:
   `test/m5-exit.test.ts` keep
   excerpts and impacted labels inert, fail closed on unsafe inputs, and retain
   the shared GET-only boundary. The V6 regression specifically requires the
-  diff JSON to omit raw hostile node-title and claim-text markup while keeping
+  diff JSON to omit raw hostile node-title, scope file/symbol, and claim-text markup while keeping
   the V2 bucket, certainty, and status facts intact.
 - `test/render-export.test.ts` neutralizes hostile values across SVG, Mermaid,
   Markdown, and JSON without erasing their contract fields.
