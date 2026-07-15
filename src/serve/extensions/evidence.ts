@@ -1,12 +1,15 @@
 /** V4's independently owned server registration slot. */
 
+import { registerEvidenceApi } from '../evidence-api.js';
 import type { ViewerExtensionContext, ViewerExtensionRegistry } from '../features.js';
 
 /**
- * V3 intentionally leaves the evidence slot empty. V4 adds its read-only evidence feature here
- * without editing the server composition or another lane's registration module.
+ * V4 adds its single bounded, read-only evidence route here without editing the server
+ * composition or another lane's registration module.
  */
 export function registerEvidenceExtension(
-  _registry: ViewerExtensionRegistry,
-  _context: ViewerExtensionContext,
-): void {}
+  registry: ViewerExtensionRegistry,
+  context: ViewerExtensionContext,
+): void {
+  registerEvidenceApi(registry, context);
+}

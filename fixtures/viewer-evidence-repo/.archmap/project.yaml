@@ -1,0 +1,11 @@
+project:
+  id: viewer-evidence-repo
+  name: Viewer Evidence Repo
+scan:
+  exclude_dirs:
+    - node_modules
+    - .git
+  max_file_bytes: 1048576
+  secret_globs:
+    - "*.pem"
+schema_version: 1

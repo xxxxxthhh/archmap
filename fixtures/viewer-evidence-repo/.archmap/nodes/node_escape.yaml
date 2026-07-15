@@ -1,0 +1,23 @@
+claims:
+  - confidence: 1
+    evidence:
+      - analyzer: typescript
+        analyzer_version: 0.1.0
+        blob_hash: sha256:blob-escape
+        commit: evidence123
+        extract_hash: sha256:extract-escape
+        path: ../../package.json
+        repository: viewer-evidence-repo
+    id: claim_escape_fact
+    provenance:
+      actor: analyzer
+      created_at: 2026-07-15T00:00:00Z
+    status: active
+    text: Deliberately unsafe source pointer fixture.
+    type: fact
+id: node_escape
+kind: module
+relations: []
+schema_version: 1
+slug: escape
+title: Escaping Evidence
