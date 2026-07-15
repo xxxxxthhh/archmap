@@ -13,6 +13,7 @@ import { runNodeCommand } from './node-command.js';
 import { runProposalDispatch } from './proposal-command.js';
 import { runScanCommand } from './scan-command.js';
 import { runSearchCommand } from './search-command.js';
+import { runServeCommand } from './serve-command.js';
 import { runStatusCommand } from './status-command.js';
 import type { CommandContext, CommandOutput } from './types.js';
 import { runValidate } from './validate-command.js';
@@ -40,6 +41,7 @@ Commands:
   validate <manifest> [--json]         Validate a manifest file (YAML or JSON)
   export --format mermaid|markdown|svg [--view <id>] [--json]
                                        Render a deterministic view projection of the model
+  serve [--port <port>]                Serve the read-only architecture map on 127.0.0.1
 `;
 
 function dispatch(command: string | undefined, rest: string[], ctx: CommandContext): CommandOutput | null {
@@ -92,6 +94,14 @@ async function main(argv: string[]): Promise<void> {
   // only when the invocation itself is a usage error.
   if (command === 'mcp') {
     const usage = await runMcpCommand(rest, ctx);
+    if (usage) emit(usage);
+    return;
+  }
+
+  // `serve` is long-running too: on success it keeps the loopback socket open and returns null,
+  // so it emits an output only when the invocation itself is a usage/environment error.
+  if (command === 'serve') {
+    const usage = await runServeCommand(rest, ctx);
     if (usage) emit(usage);
     return;
   }

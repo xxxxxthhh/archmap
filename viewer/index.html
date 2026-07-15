@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--
+      Defense-in-depth CSP mirroring the server header. The server's Content-Security-Policy is
+      authoritative; this <meta> keeps the page inert even if the file is opened directly. No
+      inline script/style, no remote origins, no eval. `frame-ancestors` is intentionally omitted
+      here: it is a header-only directive (ignored in <meta>) and the server header enforces it.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'"
+    />
+    <title>archmap viewer</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>archmap</h1>
+      <p class="subtitle">read-only architecture map · localhost only</p>
+    </header>
+    <main>
+      <p id="status" class="status" data-testid="status">Loading architecture map…</p>
+      <section id="map" class="map" data-testid="map" hidden></section>
+    </main>
+    <script src="/app.js" defer></script>
+  </body>
+</html>
