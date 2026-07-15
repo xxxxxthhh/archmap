@@ -63,10 +63,14 @@ describe('fixed M5 server extension seams', () => {
     ).toThrow(/cannot register the static-asset fallback/);
   });
 
-  it('keeps V3 composition at graph, fixed extensions, then static assets', () => {
-    expect(createViewerFeatures('/tmp/archmap-viewer-test').map((feature) => feature.name)).toEqual([
-      'graph-api',
-      'viewer-assets',
-    ]);
+  it('keeps V3 composition at graph, zero or more fixed extension routes, then static assets', () => {
+    const features = createViewerFeatures('/tmp/archmap-viewer-test');
+
+    expect(features[0]?.name).toBe('graph-api');
+    expect(features.at(-1)?.name).toBe('viewer-assets');
+    for (const extension of features.slice(1, -1)) {
+      expect(extension.fallback).toBeUndefined();
+      expect(extension.routes?.length).toBeGreaterThan(0);
+    }
   });
 });
