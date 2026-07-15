@@ -30,6 +30,45 @@ export { isTsJs } from './analyze/languages.js';
 export { contextFor, impactFor, evidenceFor, DEFAULT_CONTEXT_BUDGET } from './query/queries.js';
 export type { ContextResult, ImpactResult, EvidenceResult } from './query/queries.js';
 
+// M4: deterministic read-only work items, search, and node lookup
+export { nodeFor } from './query/queries.js';
+export type { NodeResult } from './query/queries.js';
+export { loadTrackedProject, toRepoPaths } from './query/project.js';
+export type { LoadedProject } from './query/project.js';
+export {
+  capabilitiesReport,
+  impactReport,
+  projectSummaryReport,
+  staleNodesReport,
+  workItemsReport,
+} from './query/reports.js';
+export type {
+  CapabilitiesReport,
+  ImpactReport,
+  ProjectSummaryReport,
+  StaleNodesReport,
+  WorkItemsReport,
+} from './query/reports.js';
+export { searchArchitecture } from './query/search.js';
+export type { SearchField, SearchMatch, SearchResult } from './query/search.js';
+export { workItemsFor, DEFAULT_WORK_ITEM_EVIDENCE_BUDGET } from './query/work-items.js';
+export type {
+  WorkItem,
+  WorkItemEvidenceBundle,
+  WorkItemReason,
+  WorkItemsResult,
+} from './query/work-items.js';
+
+// M4: external proposal contract, validation, and read-only preview
+export * from './proposal/index.js';
+
+// M4: stdio MCP server — query tools plus the guarded proposal transaction
+export { createMcpServer, serveMcpStdio, MCP_SERVER_INFO } from './mcp/server.js';
+export { callTool } from './mcp/handlers.js';
+export type { QueryContext, ToolResult } from './mcp/handlers.js';
+export { MCP_TOOLS, ToolInputError } from './mcp/tools.js';
+export type { ToolDefinition } from './mcp/tools.js';
+
 // M3: Python adapter
 export { PYTHON_CAPABILITY } from './capabilities.js';
 export { analyzePythonModules } from './analyze/python-model.js';

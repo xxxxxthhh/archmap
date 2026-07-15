@@ -9,6 +9,9 @@ export class StoreFormatError extends StoreError {}
 /** A store path is (or passes through) a symlink, risking a read/write outside the repository. */
 export class StorePathError extends StoreError {}
 
+/** The tracked model changed after a caller validated it but before publication began. */
+export class StorePreconditionError extends StoreError {}
+
 /**
  * A source file or directory could not be read during discovery for a reason other than it
  * being absent (e.g. EACCES/EIO). Such a read must never be mistaken for a deletion, so it

@@ -204,6 +204,20 @@ export function impactFor(nodes: Node[], paths: string[]): ImpactResult {
   return { seeds: seedIds.sort(), impacted };
 }
 
+// --- node -------------------------------------------------------------------------------
+
+export interface NodeResult {
+  target: string;
+  found: boolean;
+  node?: Node;
+}
+
+/** Look up a single tracked node by id. A miss is a domain answer, not an error. */
+export function nodeFor(nodes: Node[], target: string): NodeResult {
+  const node = nodes.find((n) => n.id === target);
+  return node ? { target, found: true, node } : { target, found: false };
+}
+
 // --- evidence ---------------------------------------------------------------------------
 
 export interface EvidenceResult {

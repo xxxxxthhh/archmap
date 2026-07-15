@@ -7,7 +7,7 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { impactFor } from '../query/queries.js';
+import { impactReport } from '../query/reports.js';
 import { parseOptions, takeOptionValue, usageError } from './options.js';
 import { loadScannedProject, toRepoPaths } from './query-support.js';
 import type { CommandContext, CommandOutput } from './types.js';
@@ -47,12 +47,12 @@ export function runImpactCommand(args: string[], ctx: CommandContext): CommandOu
     paths = toRepoPaths(loaded.root, ctx.cwd, opts.positionals);
   }
 
-  const result = impactFor(loaded.baseline.nodes, paths);
+  const result = impactReport(loaded.baseline.nodes, paths);
 
   if (json) {
     return {
       exitCode: 0,
-      stdout: `${JSON.stringify({ schema_version: 1, command: 'impact', requested_paths: paths, ...result }, null, 2)}\n`,
+      stdout: `${JSON.stringify({ schema_version: 1, command: 'impact', ...result }, null, 2)}\n`,
       stderr: '',
     };
   }
