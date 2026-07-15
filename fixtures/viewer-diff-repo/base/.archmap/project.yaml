@@ -1,0 +1,8 @@
+project:
+  id: viewer-diff-repo
+  name: Viewer Diff Repo
+scan:
+  exclude_dirs: []
+  max_file_bytes: 1048576
+  secret_globs: []
+schema_version: 1

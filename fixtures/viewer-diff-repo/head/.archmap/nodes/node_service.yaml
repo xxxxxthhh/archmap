@@ -1,0 +1,47 @@
+claims:
+  - confidence: 0.6
+    evidence:
+      - analyzer: universal
+        analyzer_version: "1"
+        blob_hash: sha256:viewer-diff-claim-added
+        commit: head
+        extract_hash: sha256:viewer-diff-claim-added
+        path: fixture/service.ts
+        repository: viewer-diff-repo
+    id: claim_added
+    provenance:
+      actor: human
+      created_at: 2026-07-16T00:01:00Z
+    status: active
+    text: "<script>window.__diffClaim=1</script>"
+    type: inference
+  - confidence: 0.6
+    evidence:
+      - analyzer: universal
+        analyzer_version: "1"
+        blob_hash: sha256:viewer-diff-claim-stale
+        commit: base
+        extract_hash: sha256:viewer-diff-claim-stale
+        path: fixture/service.ts
+        repository: viewer-diff-repo
+    id: claim_stale
+    provenance:
+      actor: human
+      created_at: 2026-07-16T00:00:00Z
+    status: stale
+    text: Service ownership was verified.
+    type: inference
+id: node_service
+kind: component
+relations:
+  - certainty: partial
+    id: rel_added
+    target: node_keep
+    type: calls
+  - certainty: partial
+    id: rel_changed
+    target: node_added
+    type: calls
+schema_version: 1
+slug: service
+title: Service

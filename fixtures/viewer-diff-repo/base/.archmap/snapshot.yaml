@@ -1,0 +1,16 @@
+base_commit: null
+capabilities:
+  - id: universal
+    provides:
+      - files
+    status: supported
+    version: "1"
+dirty: false
+excluded_counts:
+  binary: 0
+  excluded-dir: 0
+  secret: 0
+  symlink: 0
+  too-large: 0
+files: []
+schema_version: 1
