@@ -18,6 +18,7 @@ import { runServeCommand } from './serve-command.js';
 import { runStatusCommand } from './status-command.js';
 import type { CommandContext, CommandOutput } from './types.js';
 import { runValidate } from './validate-command.js';
+import { runWorkspaceCommand } from './workspace-command.js';
 import { runWorkItemsCommand } from './work-items-command.js';
 
 const USAGE = `archmap <command> [options]
@@ -27,6 +28,7 @@ Commands:
   scan [--changed] [--json]            Rebuild the snapshot, nodes, and derived index
   status [--json]                      Report changed files and stale nodes
   check [--strict] [--json]            Evaluate freshness and local architecture rules
+  workspace index <member...> [--json] Aggregate valid child-project baselines
   capabilities [--json]                List adapters and repository environment
   context <path...> [--budget <n>] [--json]  Minimal evidence-backed context for files
   impact <path...> [--base <ref>] [--json]    Nodes affected by changing files
@@ -56,6 +58,8 @@ function dispatch(command: string | undefined, rest: string[], ctx: CommandConte
       return runStatusCommand(rest, ctx);
     case 'check':
       return runCheckCommand(rest, ctx);
+    case 'workspace':
+      return runWorkspaceCommand(rest, ctx);
     case 'capabilities':
       return runCapabilitiesCommand(rest, ctx);
     case 'context':

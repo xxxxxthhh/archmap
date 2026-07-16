@@ -30,6 +30,7 @@ import type { ProjectConfig, Snapshot } from './scan/types.js';
 import { StoreFormatError, StorePathError, StorePreconditionError } from './store-errors.js';
 import { parseNodeDocument, parseProjectConfig, parseSnapshot } from './validate/store-contracts.js';
 import { validateManifest } from './validate/validate.js';
+import type { WorkspaceIndex } from './workspace/types.js';
 
 export const ARCHMAP_DIR = '.archmap';
 
@@ -41,6 +42,7 @@ export const paths = {
   rulesDir: (root: string) => join(root, ARCHMAP_DIR, 'rules'),
   cacheDir: (root: string) => join(root, ARCHMAP_DIR, 'cache'),
   index: (root: string) => join(root, ARCHMAP_DIR, 'cache', 'index.json'),
+  workspaceIndex: (root: string) => join(root, ARCHMAP_DIR, 'cache', 'workspace-index.json'),
 };
 
 // --- boundary-safe primitives ------------------------------------------------------------
@@ -569,4 +571,13 @@ export function buildIndex(nodes: Node[]): DerivedIndex {
 export function writeIndex(root: string, index: DerivedIndex): void {
   ensureDir(safeDir(root, [ARCHMAP_DIR, 'cache']));
   writeTextNoFollow(safeFile(root, [ARCHMAP_DIR, 'cache', 'index.json']), toCanonicalJson(index));
+}
+
+/** Persist the disposable, versioned workspace aggregate in the owner project only. */
+export function writeWorkspaceIndex(root: string, index: WorkspaceIndex): void {
+  ensureDir(safeDir(root, [ARCHMAP_DIR, 'cache']));
+  writeTextNoFollow(
+    safeFile(root, [ARCHMAP_DIR, 'cache', 'workspace-index.json']),
+    toCanonicalJson(index),
+  );
 }
