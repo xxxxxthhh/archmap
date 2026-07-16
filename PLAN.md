@@ -1,10 +1,10 @@
 # archmap 实施计划
 
-状态：M0–M6 已完成；M7 规划就绪
+状态：M0–M7 已完成；进入 post-v1 真实仓库试点准备
 
-日期：`2026-07-16`
+日期：`2026-07-17`
 
-当前阶段：M7 前置规划；尚未开始 M7 产品实现
+当前阶段：先冻结真实仓库试点的安全边界与评测协议，再执行一个隔离的本地试点。
 
 ## 1. 产品定义
 
@@ -511,6 +511,9 @@ Exit criteria：
 - workspace 缓存删除后可完全重建；
 - 试点评测达到第 13 节的初始质量门槛。
 
+M6 的交付证据是四个受控 fixture，而非真实外部仓库研究；这避免了在未冻结安全边界、
+样本方法和能力声明时夸大结论。真实仓库验证作为 M7 合并后的 post-v1 阶段单独执行。
+
 ### M7：规则完整性与确定性输出加固
 
 M7 是首版交付后的窄加固里程碑，不增加新的分析器、规则家族或领域适配器。它将 M6
@@ -532,6 +535,27 @@ Exit criteria：
 - M7 仅以已验证的 final head 进入一次 fixed-SHA review，再合并到 stable `main`。
 
 详细执行计划见 docs/m7-plan.md。
+
+### Post-v1：真实仓库试点（验证阶段）
+
+这不是 M8 功能里程碑。它以已合并的 stable `main` 为工具基线，在一个固定提交的本地
+仓库副本中检验现有 CLI 的能力边界和实际任务价值，不新增分析器、规则家族、云服务或
+CI workflow。
+
+首个候选是 AtypicalLifeClub：它包含 Markdown、配置/JSON 数据、Python 校验和静态 JS，
+同时将 Hugo/Go-template 语义、媒体/二进制、部署行为和未初始化 theme submodule 明确
+列为不评测项。试点只能在 `/private/tmp` 中的 non-recursive disposable clone 运行；源
+工作树、Git 元数据、远端分支和原始模型输出一律不改写、不提交。
+
+Exit criteria：
+
+- pilot 前锁定 ArchMap 与目标仓库提交、扫描配置、样本选择和停止条件；
+- source worktree 全程不运行 writer，且前后 Git 状态均保持 clean；
+- 临时副本的初始化、扫描、无变化重扫、status/check stale 路径均有可复核证据；
+- capabilities 如实列出支持与不支持项，人工抽样不把未支持语义计为 deterministic；
+- 两个真实上下文/影响问题有人工效用判断，结论与局限只以脱敏 scorecard 返回本仓库。
+
+详细流程和 scorecard 分别见 `docs/pilot-runbook.md` 与 `docs/pilot-scorecard.md`。
 
 ## 13. 验证与评测
 
@@ -622,17 +646,16 @@ Exit criteria：
 - stable ID 的生成与 rename reconciliation 细节；
 - tracked manifests 的 canonical formatting 策略。
 
-## 18. 下一步：M0 第一切片
+## 18. 下一步：post-v1 真实仓库试点
 
-下一次实施从一个小的可验证闭环开始：
+下一步不是继续扩展分析器，而是先验证已交付版本在一个真实、固定的本地仓库中是否
+能够提供可信且有用的架构证据：
 
-1. 建立 TypeScript package 和标准验证命令；
-2. 定义 Node、Relation、Claim、Evidence 的 v1 schema；
-3. 创建一个最小 fixture repo；
-4. 实现 `archmap validate`；
-5. 验证合法 round-trip、无证据 fact 拒绝和引用完整性；
-6. 建立 CI；
-7. 独立 review M0 diff 后再进入 scanner。
+1. 合并 pilot-readiness 文档切片，冻结工具提交、目标提交、临时目录和数据保留边界；
+2. 从目标仓库创建 non-recursive disposable clone，源工作树保持只读；
+3. 记录 capability、初始化/扫描、无变化重扫和 stale 检测证据；
+4. 用两个具体任务和 10–15 条关系的人工抽样评估上下文与影响结果；
+5. 仅提交脱敏 scorecard，随后依据真实 finding 决定是否需要独立的新能力里程碑。
 
-这一切片不包含真实源码扫描、MCP 或 Viewer，目的是先锁定后续所有模块依赖的数据
-契约和验证边界。
+这个阶段不通过试点结果倒推“所有仓库已支持”，也不把未评测的 Hugo、媒体、部署或
+运行时行为包装为确定性事实。

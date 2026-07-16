@@ -1,8 +1,9 @@
 # M7: 规则完整性与确定性输出加固
 
-状态：执行中（M7-01）
+状态：已完成（PR #58）
 规划基线：main@fdf7874c0df85609d7400428f7534bd0a7d1bc22
 实施基线：main@8cf0edf3774e7a7cbfa317f4eb2540cd4ce20b72
+合并提交：main@52aea572af9a35a756496a80cd1562a6b9c6e82e
 目标：关闭 M6 fixed-SHA review 中确认但不阻塞交付的输入完整性与可复现性债务，同时
 保持首版的 local-first、read-only 和 evidence-first 边界。
 
@@ -128,3 +129,12 @@ finding，则它复用 M7 的最终 fixed-SHA review，而不是单独再审。
 - 对真实外部仓库或性能 SLO 做未经设计的声明。
 - `arch-diff-cli` 在默认无界并行测试配置下的环境性超时：M6 的受控矩阵和精确 CI 已通过；
   若可稳定复现，另开独立 CI 稳定性 issue，不混入 M7 产品契约。
+
+## 交付记录
+
+- M7-01 与 M7-02 已通过同一 final fixed-SHA review；PR #58 在 reviewed head
+  `cbf963944d0699f75df6968ff8c66d3d6d58ca88`、精确 CI run `29510393850` 绿色后合并。
+- stable `main` 为 `52aea572af9a35a756496a80cd1562a6b9c6e82e`；合并后目标 smoke 为
+  4 个文件、40 个测试通过。
+- 两条 advisory（精确名为 `.yaml`/`.yml` 的隐藏条目，以及 duplicate-id 错误未列出
+  源文件名）已记录为后续维护项，不阻塞 post-v1 真实仓库试点。
