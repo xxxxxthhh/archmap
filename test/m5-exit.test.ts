@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { architectureDiff } from '../src/diff/diff.js';
+import type { Scope } from '../src/model/types.js';
 import { neutralizeText } from '../src/render/sanitize.js';
 import { CONTENT_SECURITY_POLICY } from '../src/serve/content-safety.js';
 import { startViewerServer, type RunningViewer } from '../src/serve/index.js';
@@ -64,9 +65,14 @@ function endpoint(viewer: RunningViewer, base: string, head: string): string {
 }
 
 function viewerReport(report: ReturnType<typeof architectureDiff>): ReturnType<typeof architectureDiff> {
+  const scope = (value: Scope): Scope => ({
+    ...(value.files ? { files: value.files.map((file) => neutralizeText(file)) } : {}),
+    ...(value.symbols ? { symbols: value.symbols.map((symbol) => neutralizeText(symbol)) } : {}),
+  });
   const node = (entry: ReturnType<typeof architectureDiff>['nodes']['added'][number]) => ({
     ...entry,
     title: neutralizeText(entry.title),
+    ...(entry.scope ? { scope: scope(entry.scope) } : {}),
   });
   const claim = (entry: ReturnType<typeof architectureDiff>['claims']['added'][number]) => ({
     ...entry,
@@ -123,7 +129,18 @@ describe('M5 viewer diff exit', () => {
       changedNode,
       readFileSync(changedNode, 'utf8').replace(
         'title: After title',
-        'title: "<img src=x onerror=window.__diffTitle=1>"',
+        [
+          'title: "<img src=x onerror=window.__diffTitle=1>"',
+          'scope:',
+          '  files:',
+          '    - "src/app/main.ts"',
+          '    - "<img src=x onerror=window.__diffScopeFile=1>.ts"',
+          '    - "src/render/long-name.ts"',
+          '  symbols:',
+          '    - "Component.render"',
+          '    - "<svg onload=window.__diffScopeSymbol=1>"',
+          '    - "parseInput"',
+        ].join('\n'),
       ),
     );
     git(repository.root, ['add', '-A']);
@@ -131,6 +148,8 @@ describe('M5 viewer diff exit', () => {
     const hostileHead = git(repository.root, ['rev-parse', 'HEAD']);
     const engine = architectureDiff(repository.root, repository.base, hostileHead);
     expect(JSON.stringify(engine)).toContain('<img src=x onerror=window.__diffTitle=1>');
+    expect(JSON.stringify(engine)).toContain('<img src=x onerror=window.__diffScopeFile=1>.ts');
+    expect(JSON.stringify(engine)).toContain('<svg onload=window.__diffScopeSymbol=1>');
     expect(JSON.stringify(engine)).toContain('<script>window.__diffClaim=1</script>');
 
     const viewer = await start(repository.root);
@@ -139,7 +158,25 @@ describe('M5 viewer diff exit', () => {
     const body = (await response.json()) as ReturnType<typeof architectureDiff> & { identical: boolean };
     expect(body).toEqual({ ...viewerReport(engine), identical: false });
     expect(JSON.stringify(body)).not.toContain('<img');
+    expect(JSON.stringify(body)).not.toContain('<svg');
     expect(JSON.stringify(body)).not.toContain('<script');
+    const changedScope = engine.nodes.changed[0]!.after.scope!;
+    expect(changedScope).toEqual({
+      files: ['src/app/main.ts', '<img src=x onerror=window.__diffScopeFile=1>.ts', 'src/render/long-name.ts'],
+      symbols: ['Component.render', '<svg onload=window.__diffScopeSymbol=1>', 'parseInput'],
+    });
+    expect(body.nodes.changed[0]!.after.scope).toEqual({
+      files: [
+        'src/app/main.ts',
+        neutralizeText('<img src=x onerror=window.__diffScopeFile=1>.ts'),
+        'src/render/long-name.ts',
+      ],
+      symbols: [
+        'Component.render',
+        neutralizeText('<svg onload=window.__diffScopeSymbol=1>'),
+        'parseInput',
+      ],
+    });
     expect(body.relations).toEqual(engine.relations);
     expect(body.claims.added[0]).toMatchObject({ id: 'claim_added', type: 'inference', status: 'active' });
     expect(body.claims.stale[0]).toMatchObject({ id: 'claim_stale', type: 'inference', status: 'stale' });
