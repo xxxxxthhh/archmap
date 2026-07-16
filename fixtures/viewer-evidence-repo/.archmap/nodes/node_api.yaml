@@ -1,0 +1,62 @@
+claims:
+  - confidence: 1
+    evidence:
+      - analyzer: typescript
+        analyzer_version: 0.1.0
+        blob_hash: sha256:blob-src-api-ts
+        commit: evidence123
+        extract_hash: sha256:extract-src-api-fact
+        path: src/api.ts
+        repository: viewer-evidence-repo
+        symbol: getUser
+    id: claim_api_fact
+    provenance:
+      actor: analyzer
+      created_at: 2026-07-15T00:00:00Z
+    status: active
+    text: Exposes a deterministic API boundary.
+    type: fact
+  - confidence: 0.62
+    evidence:
+      - analyzer: typescript
+        analyzer_version: 0.1.0
+        blob_hash: sha256:blob-src-api-ts
+        commit: evidence123
+        extract_hash: sha256:extract-src-api-inference
+        path: src/api.ts
+        repository: viewer-evidence-repo
+        symbol: getUser
+    id: claim_api_inference
+    provenance:
+      actor: agent
+      created_at: 2026-07-15T00:00:00Z
+      model: fixture-agent
+    status: stale
+    text: May be the primary request boundary.
+    type: inference
+id: node_api
+kind: component
+relations:
+  - certainty: known
+    evidence:
+      - analyzer: typescript
+        analyzer_version: 0.1.0
+        blob_hash: sha256:blob-src-api-ts
+        commit: evidence123
+        extract_hash: sha256:extract-src-api-relation
+        path: src/api.ts
+        repository: viewer-evidence-repo
+        symbol: loadRecord
+    id: rel_api_reads_db
+    provenance:
+      actor: analyzer
+      created_at: 2026-07-15T00:00:00Z
+    target: node_db
+    type: reads
+  - certainty: partial
+    id: rel_api_calls_external
+    target: node_external
+    type: calls
+schema_version: 1
+slug: api
+title: Evidence API

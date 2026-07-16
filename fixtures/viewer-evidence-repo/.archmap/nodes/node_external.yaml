@@ -1,0 +1,7 @@
+claims: []
+id: node_external
+kind: external
+relations: []
+schema_version: 1
+slug: external
+title: External Boundary

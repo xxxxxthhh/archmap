@@ -3,7 +3,9 @@
 
 import { runCapabilitiesCommand } from './capabilities-command.js';
 import { runContextCommand } from './context-command.js';
+import { runDiffCommand } from './diff-command.js';
 import { runEvidenceCommand } from './evidence-command.js';
+import { runExportCommand } from './export-command.js';
 import { runImpactCommand } from './impact-command.js';
 import { runInit } from './init-command.js';
 import { runMcpCommand } from './mcp-command.js';
@@ -11,6 +13,7 @@ import { runNodeCommand } from './node-command.js';
 import { runProposalDispatch } from './proposal-command.js';
 import { runScanCommand } from './scan-command.js';
 import { runSearchCommand } from './search-command.js';
+import { runServeCommand } from './serve-command.js';
 import { runStatusCommand } from './status-command.js';
 import type { CommandContext, CommandOutput } from './types.js';
 import { runValidate } from './validate-command.js';
@@ -25,6 +28,7 @@ Commands:
   capabilities [--json]                List adapters and repository environment
   context <path...> [--budget <n>] [--json]  Minimal evidence-backed context for files
   impact <path...> [--base <ref>] [--json]    Nodes affected by changing files
+  diff <base> [head] [--json]          Architecture diff of tracked state between two commits
   node <id> [--json]                   Tracked node document for a node id
   evidence <id> [--json]               Evidence bundle for a node/claim/relation id
   work-items [--json]                  Stale-node update work items with bounded evidence
@@ -35,6 +39,9 @@ Commands:
   proposal apply <file> [--approve <conflict-id>]... [--json]
                                        Atomically publish validated node enrichment
   validate <manifest> [--json]         Validate a manifest file (YAML or JSON)
+  export --format mermaid|markdown|svg [--view <id>] [--json]
+                                       Render a deterministic view projection of the model
+  serve [--port <port>]                Serve the read-only architecture map on 127.0.0.1
 `;
 
 function dispatch(command: string | undefined, rest: string[], ctx: CommandContext): CommandOutput | null {
@@ -51,6 +58,8 @@ function dispatch(command: string | undefined, rest: string[], ctx: CommandConte
       return runContextCommand(rest, ctx);
     case 'impact':
       return runImpactCommand(rest, ctx);
+    case 'diff':
+      return runDiffCommand(rest, ctx);
     case 'node':
       return runNodeCommand(rest, ctx);
     case 'evidence':
@@ -63,6 +72,8 @@ function dispatch(command: string | undefined, rest: string[], ctx: CommandConte
       return runProposalDispatch(rest, ctx);
     case 'validate':
       return runValidate(rest);
+    case 'export':
+      return runExportCommand(rest, ctx);
     default:
       return null;
   }
@@ -83,6 +94,14 @@ async function main(argv: string[]): Promise<void> {
   // only when the invocation itself is a usage error.
   if (command === 'mcp') {
     const usage = await runMcpCommand(rest, ctx);
+    if (usage) emit(usage);
+    return;
+  }
+
+  // `serve` is long-running too: on success it keeps the loopback socket open and returns null,
+  // so it emits an output only when the invocation itself is a usage/environment error.
+  if (command === 'serve') {
+    const usage = await runServeCommand(rest, ctx);
     if (usage) emit(usage);
     return;
   }

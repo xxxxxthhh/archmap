@@ -1,0 +1,22 @@
+claims: []
+id: node_cdb4ee2aea69cc6a
+kind: system
+relations:
+  - certainty: known
+    evidence:
+      - analyzer: typescript
+        analyzer_version: 0.1.0
+        blob_hash: sha256:blob-src-api-ts
+        commit: evidence123
+        extract_hash: sha256:extract-src-system-relation
+        path: src/api.ts
+        repository: viewer-evidence-repo
+    id: rel_system_depends_api
+    provenance:
+      actor: analyzer
+      created_at: 2026-07-15T00:00:00Z
+    target: node_api
+    type: depends-on
+schema_version: 1
+slug: repository
+title: Viewer Evidence Repo

@@ -1,0 +1,4 @@
+schema_version: 1
+id: collapsed
+collapse_below: component
+layout: left-to-right

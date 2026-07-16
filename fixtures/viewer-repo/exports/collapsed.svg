@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1094" height="204" viewBox="0 0 1094 204" font-family="sans-serif">
+  <!-- archmap view: collapsed; nodes 5/7, edges 4/7 -->
+  <rect x="0" y="0" width="1094" height="204" fill="#ffffff" />
+  <line x1="407" y1="60" x2="967" y2="60" stroke="#999" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.7" />
+  <text x="687" y="57" font-size="10" fill="#666" text-anchor="middle">calls ~</text>
+  <line x1="407" y1="60" x2="687" y2="60" stroke="#555" stroke-width="1.5" />
+  <text x="547" y="57" font-size="10" fill="#666" text-anchor="middle">reads</text>
+  <line x1="127" y1="60" x2="407" y2="60" stroke="#555" stroke-width="1.5" />
+  <text x="267" y="57" font-size="10" fill="#666" text-anchor="middle">depends-on</text>
+  <line x1="407" y1="144" x2="967" y2="60" stroke="#999" stroke-width="1.5" stroke-dasharray="2 5" opacity="0.5" />
+  <text x="687" y="99" font-size="10" fill="#666" text-anchor="middle">consumes ?</text>
+  <g>
+    <rect x="312" y="32" width="190" height="56" rx="6" fill="#e6f0ea" stroke="#888" stroke-width="1" />
+    <text x="407" y="54" font-size="13" font-weight="600" fill="#222" text-anchor="middle">API Service</text>
+    <text x="407" y="72" font-size="10" fill="#555" text-anchor="middle">component · fact 1 · inf 1</text>
+  </g>
+  <g>
+    <rect x="32" y="32" width="190" height="56" rx="6" fill="#e8eef7" stroke="#888" stroke-width="1" />
+    <text x="127" y="54" font-size="13" font-weight="600" fill="#222" text-anchor="middle">Viewer Repo</text>
+    <text x="127" y="72" font-size="10" fill="#555" text-anchor="middle">system · fact 0 · inf 0</text>
+  </g>
+  <g>
+    <rect x="592" y="32" width="190" height="56" rx="6" fill="#efe8f2" stroke="#888" stroke-width="1" />
+    <text x="687" y="54" font-size="13" font-weight="600" fill="#222" text-anchor="middle">Primary Store</text>
+    <text x="687" y="72" font-size="10" fill="#555" text-anchor="middle">store · fact 1 · inf 0</text>
+  </g>
+  <g>
+    <rect x="872" y="32" width="190" height="56" rx="6" fill="#f5e8e8" stroke="#888" stroke-width="1" />
+    <text x="967" y="54" font-size="13" font-weight="600" fill="#222" text-anchor="middle">Payments API</text>
+    <text x="967" y="72" font-size="10" fill="#555" text-anchor="middle">external · fact 1 · inf 0</text>
+  </g>
+  <g>
+    <rect x="312" y="116" width="190" height="56" rx="6" fill="#e6f0ea" stroke="#b45309" stroke-width="2" stroke-dasharray="5 3" />
+    <text x="407" y="138" font-size="13" font-weight="600" fill="#222" text-anchor="middle">Background Worker</text>
+    <text x="407" y="156" font-size="10" fill="#555" text-anchor="middle">component · fact 0 · inf 1 · stale 1</text>
+  </g>
+</svg>

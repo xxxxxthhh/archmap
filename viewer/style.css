@@ -1,0 +1,145 @@
+/* archmap loopback viewer styles. Local, bundled, no remote fonts or assets. */
+
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #6b7280;
+  --border: #d1d5db;
+  --card: #f9fafb;
+  --accent: #2563eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115;
+    --fg: #e5e7eb;
+    --muted: #9ca3af;
+    --border: #2b2f36;
+    --card: #171a1f;
+    --accent: #60a5fa;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.4;
+}
+
+.app-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+main {
+  padding: 1.5rem;
+  max-width: 60rem;
+  margin: 0 auto;
+}
+
+.status {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.group {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+.group-toggle,
+.node-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0.6rem 0.9rem;
+}
+
+.group-toggle {
+  background: var(--card);
+  font-weight: 600;
+}
+
+.group-name {
+  text-transform: capitalize;
+}
+
+.caret {
+  color: var(--muted);
+  width: 1rem;
+  display: inline-block;
+}
+
+.group-body {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0.5rem 0.5rem;
+}
+
+.node-card {
+  border-top: 1px solid var(--border);
+}
+
+.node-card:first-child {
+  border-top: none;
+}
+
+.node-title {
+  font-weight: 500;
+}
+
+.node-detail {
+  padding: 0 1rem 0.6rem 2rem;
+}
+
+.claims,
+.edges {
+  list-style: none;
+  margin: 0.25rem 0;
+  padding: 0;
+  font-size: 0.85rem;
+}
+
+.claim-tag {
+  color: var(--accent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+}
+
+.edges li {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.empty {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 0.25rem 0;
+}
