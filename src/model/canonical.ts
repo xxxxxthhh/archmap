@@ -14,6 +14,16 @@ import { stringify as stringifyYaml } from 'yaml';
 
 type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 
+/** Compare strings by UTF-16 code units, independent of host locale/ICU configuration. */
+export function compareCodeUnits(left: string, right: string): number {
+  const sharedLength = Math.min(left.length, right.length);
+  for (let index = 0; index < sharedLength; index += 1) {
+    const difference = left.charCodeAt(index) - right.charCodeAt(index);
+    if (difference !== 0) return difference;
+  }
+  return left.length - right.length;
+}
+
 function sortKeys(value: Json): Json {
   if (Array.isArray(value)) {
     return value.map(sortKeys);
@@ -22,7 +32,7 @@ function sortKeys(value: Json): Json {
     // Null-prototype target so a `__proto__` key is stored as an own property (and survives
     // serialization) instead of mutating the prototype or being dropped.
     const out: { [key: string]: Json } = Object.create(null);
-    for (const key of Object.keys(value).sort()) {
+    for (const key of Object.keys(value).sort(compareCodeUnits)) {
       out[key] = sortKeys((value as { [key: string]: Json })[key] as Json);
     }
     return out;

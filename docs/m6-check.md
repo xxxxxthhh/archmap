@@ -17,7 +17,11 @@ produce no partial report.
 
 ## Initial rule contract
 
-Optional rules live in `.archmap/rules/*.yaml`. A v1 rule is a path-scoped prohibition:
+Optional rules live in `.archmap/rules/` as lowercase `.yaml` or `.yml` regular files. A missing
+rules directory means there are no local rules. Once the directory exists, every entry must be one
+of those regular rule documents: unknown extensions, uppercase extensions, directories, symlinks,
+and hidden placeholders (including `.gitkeep` and `.gitignore`) fail closed with exit `2` and no
+partial report. A v1 rule is a path-scoped prohibition:
 
 ```yaml
 schema_version: 1
@@ -43,7 +47,10 @@ gate. A stale tracked model is always a blocking `stale-model` violation.
 
 The report shows rule IDs, node IDs, relation IDs/types/certainty, and matched paths. Markdown
 formats all model-derived strings as inert code spans; JSON keeps the same information in a
-versioned record.
+versioned record. From M7, public check ordering is an explicit UTF-16 code-unit contract: rules,
+matched paths, stale drift paths, and violation records are sorted without locale/ICU behavior.
+This keeps identical inputs byte-stable across supported runtimes without changing the v1 JSON or
+Markdown shapes.
 
 ## Deliberate boundary
 

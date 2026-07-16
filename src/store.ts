@@ -527,17 +527,24 @@ export interface RuleDocument {
 /**
  * Read optional local rule documents without following symlinks. Rules are tracked decisions,
  * not cache data, so `check` always reads them afresh. A missing directory means no rules;
- * a malformed path or non-regular rule file fails closed through the shared store boundary.
+ * once it exists, every entry must be a lowercase .yaml or .yml regular file. A malformed path,
+ * unexpected entry, or non-regular rule file fails closed through the shared store boundary.
  */
 export function readRuleDocuments(root: string): RuleDocument[] {
   const dir = safeDir(root, [ARCHMAP_DIR, 'rules']);
   return safeReaddir(dir)
-    .filter((name) => name.endsWith('.yaml'))
     .sort()
-    .map((name) => ({
-      name,
-      text: readTextNoFollow(safeFile(root, [ARCHMAP_DIR, 'rules', name])),
-    }));
+    .map((name) => {
+      if (!name.endsWith('.yaml') && !name.endsWith('.yml')) {
+        throw new StoreFormatError(
+          `unexpected rule directory entry ${JSON.stringify(name)}; expected a lowercase .yaml or .yml file`,
+        );
+      }
+      return {
+        name,
+        text: readTextNoFollow(safeFile(root, [ARCHMAP_DIR, 'rules', name])),
+      };
+    });
 }
 
 // --- derived index (disposable cache) ----------------------------------------------------

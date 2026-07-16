@@ -1,4 +1,5 @@
 import type { Node } from '../model/types.js';
+import { compareCodeUnits } from '../model/canonical.js';
 import type { StatusResult } from '../scan/status.js';
 import { StoreFormatError } from '../store-errors.js';
 import { matchesPathGlob } from './rules.js';
@@ -11,7 +12,7 @@ import type {
 } from './types.js';
 
 function matchingPaths(node: Node, pattern: string): string[] {
-  return (node.scope?.files ?? []).filter((path) => matchesPathGlob(pattern, path)).sort();
+  return (node.scope?.files ?? []).filter((path) => matchesPathGlob(pattern, path)).sort(compareCodeUnits);
 }
 
 function changedFileCount(status: StatusResult): number {
@@ -41,7 +42,7 @@ function staleViolation(status: StatusResult): StaleModelViolation | null {
     blocking: true,
     stale_node_count: status.stale_nodes.length,
     changed_file_count: changedFileCount(status),
-    drift: [...status.drift].sort(),
+    drift: [...status.drift].sort(compareCodeUnits),
   };
 }
 
@@ -94,7 +95,7 @@ export function evaluateCheck(
     }
   }
 
-  violations.sort((a, b) => violationKey(a).localeCompare(violationKey(b)));
+  violations.sort((a, b) => compareCodeUnits(violationKey(a), violationKey(b)));
   const summary = violations.reduce(
     (result, violation) => {
       if (violation.severity === 'error') result.errors += 1;

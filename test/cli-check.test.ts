@@ -20,6 +20,7 @@ import { formatCheckMarkdown } from '../src/check/format.js';
 import { runInit } from '../src/cli/init-command.js';
 import { runScanCommand } from '../src/cli/scan-command.js';
 import { toCanonicalYaml } from '../src/model/canonical.js';
+import { markdownInlineCode } from '../src/render/inline-code.js';
 import type { Node } from '../src/model/types.js';
 import { paths, readNodes } from '../src/store.js';
 import type { CheckReport } from '../src/check/types.js';
@@ -43,10 +44,16 @@ function write(rel: string, content: string): void {
   writeFileSync(absolute, content);
 }
 
-function rule(name: string, severity: 'warning' | 'error', from: string): void {
+function rule(
+  name: string,
+  severity: 'warning' | 'error',
+  from: string,
+  extension: 'yaml' | 'yml' = 'yaml',
+  id = name,
+): void {
   write(
-    `.archmap/rules/${name}.yaml`,
-    `schema_version: 1\nid: ${name}\nseverity: ${severity}\nfrom:\n  path: ${from}\ndisallow:\n  edge_type: imports\n  target:\n    path: src/db/**\n`,
+    `.archmap/rules/${name}.${extension}`,
+    `schema_version: 1\nid: ${id}\nseverity: ${severity}\nfrom:\n  path: ${from}\ndisallow:\n  edge_type: imports\n  target:\n    path: src/db/**\n`,
   );
 }
 
@@ -206,6 +213,78 @@ describe('archmap check', () => {
     expect(bytes()).toEqual(before);
   });
 
+  it('loads a .yml rule through the same strict rule path as .yaml', () => {
+    rule('ui-must-not-access-db', 'error', 'src/ui/**', 'yml');
+
+    const out = runCheckCommand(['--json'], ctx());
+    expect(out.exitCode).toBe(1);
+    expect(JSON.parse(out.stdout)).toMatchObject({
+      status: 'fail',
+      violations: [expect.objectContaining({ rule_id: 'ui-must-not-access-db' })],
+    });
+  });
+
+  it('fails closed with no partial report for malformed .yml rule input', () => {
+    write('.archmap/rules/broken.yml', 'schema_version: 1\nid: broken\nseverity: fatal\n');
+    const before = bytes();
+
+    const out = runCheckCommand(['--json'], ctx());
+    expect(out.exitCode).toBe(2);
+    expect(out.stdout).toBe('');
+    expect(JSON.parse(out.stderr).error).toContain('broken.yml');
+    expect(bytes()).toEqual(before);
+  });
+
+  it('rejects invalid glob grammar in an accepted .yml rule document', () => {
+    write(
+      '.archmap/rules/invalid-glob.yml',
+      'schema_version: 1\nid: invalid-glob\nseverity: error\nfrom:\n  path: src/**suffix\ndisallow:\n  edge_type: imports\n  target:\n    path: src/db/**\n',
+    );
+    const before = bytes();
+
+    const out = runCheckCommand(['--json'], ctx());
+    expect(out.exitCode).toBe(2);
+    expect(out.stdout).toBe('');
+    expect(JSON.parse(out.stderr).error).toContain('may use ** only as a complete path segment');
+    expect(bytes()).toEqual(before);
+  });
+
+  it('fails closed for every unexpected rules-directory entry without writing', () => {
+    const rulesDir = join(repo, '.archmap', 'rules');
+    const cases: Array<[string, () => void]> = [
+      ['ignored.txt', () => write('.archmap/rules/ignored.txt', 'not a rule\n')],
+      ['upper.YAML', () => write('.archmap/rules/upper.YAML', 'not a rule\n')],
+      ['.gitkeep', () => write('.archmap/rules/.gitkeep', '')],
+      ['.gitignore', () => write('.archmap/rules/.gitignore', '')],
+      ['nested', () => mkdirSync(join(rulesDir, 'nested'), { recursive: true })],
+      ['nested.yaml', () => mkdirSync(join(rulesDir, 'nested.yaml'), { recursive: true })],
+    ];
+
+    for (const [name, create] of cases) {
+      create();
+      const before = bytes();
+      const out = runCheckCommand(['--json'], ctx());
+
+      expect(out.exitCode).toBe(2);
+      expect(out.stdout).toBe('');
+      expect(JSON.parse(out.stderr).error).toContain(name);
+      expect(bytes()).toEqual(before);
+      rmSync(join(rulesDir, name), { recursive: true, force: true });
+    }
+  });
+
+  it('rejects duplicate ids across .yaml and .yml documents', () => {
+    rule('first', 'warning', 'src/ui/**', 'yaml', 'duplicate-rule');
+    rule('second', 'warning', 'src/ui/**', 'yml', 'duplicate-rule');
+    const before = bytes();
+
+    const out = runCheckCommand(['--json'], ctx());
+    expect(out.exitCode).toBe(2);
+    expect(out.stdout).toBe('');
+    expect(JSON.parse(out.stderr).error).toContain('duplicate rule id');
+    expect(bytes()).toEqual(before);
+  });
+
   it('rejects a symlinked rule directory through the shared store boundary', () => {
     const outside = join(repo, 'outside-rules');
     mkdirSync(outside);
@@ -218,7 +297,25 @@ describe('archmap check', () => {
     expect(JSON.parse(out.stderr).error).toContain('refusing to follow symlink');
   });
 
+  it('rejects accepted and unexpected symlinked rule entries without writing', () => {
+    const rulesDir = join(repo, '.archmap', 'rules');
+    mkdirSync(rulesDir, { recursive: true });
+
+    for (const name of ['accepted.yaml', 'accepted.yml', 'unexpected.txt']) {
+      symlinkSync(join(repo, '.archmap', 'project.yaml'), join(rulesDir, name));
+      const before = bytes();
+      const out = runCheckCommand(['--json'], ctx());
+
+      expect(out.exitCode).toBe(2);
+      expect(out.stdout).toBe('');
+      expect(JSON.parse(out.stderr).error).toContain(name);
+      expect(bytes()).toEqual(before);
+      rmSync(join(rulesDir, name), { force: true });
+    }
+  });
+
   it('quotes model-derived Markdown values with a delimiter that keeps embedded backticks inert', () => {
+    const hostile = 'src/ui/``<script>.ts\n\u0001';
     const report: CheckReport = {
       schema_version: 1,
       command: 'check',
@@ -232,7 +329,7 @@ describe('archmap check', () => {
         blocking: true,
         source_node_id: 'node_source',
         target_node_id: 'node_target',
-        source_path: 'src/ui/`<script>.ts',
+        source_path: hostile,
         target_path: 'src/db/connection.ts',
         relation_id: 'rel_source_target',
         relation_type: 'imports',
@@ -240,7 +337,8 @@ describe('archmap check', () => {
       }],
     };
 
-    expect(formatCheckMarkdown(report)).toContain('``"src/ui/`<script>.ts"``');
+    expect(markdownInlineCode(hostile)).toBe('```"src/ui/``<script>.ts\\n\\u0001"```');
+    expect(formatCheckMarkdown(report)).toContain(markdownInlineCode(hostile));
   });
 
   it('keeps unknown flags and positionals as usage errors', () => {
@@ -261,5 +359,19 @@ describe('archmap check', () => {
     });
     expect(out.status, out.stderr).toBe(0);
     expect(JSON.parse(out.stdout)).toMatchObject({ schema_version: 1, command: 'check', status: 'pass' });
+  }, 15_000);
+
+  it('fails closed through the real CLI binary for an unexpected rule file', () => {
+    write('.archmap/rules/ignored.txt', 'not a rule\n');
+    const before = bytes();
+
+    const out = spawnSync(process.execPath, ['--import', TSX_IMPORT, BIN, 'check', '--json'], {
+      cwd: repo,
+      encoding: 'utf8',
+    });
+    expect(out.status, out.stderr).toBe(2);
+    expect(out.stdout).toBe('');
+    expect(JSON.parse(out.stderr).error).toContain('ignored.txt');
+    expect(bytes()).toEqual(before);
   }, 15_000);
 });

@@ -2,7 +2,7 @@
 
 import { lstatSync } from 'node:fs';
 import { join } from 'node:path';
-import { toCanonicalJson } from '../model/canonical.js';
+import { compareCodeUnits, toCanonicalJson } from '../model/canonical.js';
 import type { Node } from '../model/types.js';
 import { readTrackedBaseline } from '../scan/baseline.js';
 import { hashContent } from '../scan/hash.js';
@@ -89,7 +89,7 @@ export function buildWorkspaceIndex(ownerRoot: string, memberPaths: string[]): W
     throw new StoreFormatError(`duplicate workspace member path: ${JSON.stringify(duplicatePath)}`);
   }
 
-  const members = paths.sort().map((path) => loadMember(ownerRoot, path));
+  const members = paths.sort(compareCodeUnits).map((path) => loadMember(ownerRoot, path));
   const ids = new Set<string>();
   for (const member of members) {
     if (ids.has(member.project_id)) {
