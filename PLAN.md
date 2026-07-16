@@ -1,10 +1,10 @@
 # archmap 实施计划
 
-状态：`Draft v0.1`
+状态：M0–M6 已完成；M7 规划就绪
 
-日期：`2026-07-13`
+日期：`2026-07-16`
 
-当前阶段：项目初始化，尚未开始运行时实现
+当前阶段：M7 前置规划；尚未开始 M7 产品实现
 
 ## 1. 产品定义
 
@@ -510,6 +510,28 @@ Exit criteria：
 - CI 可以区分 warning 和 blocking violation；
 - workspace 缓存删除后可完全重建；
 - 试点评测达到第 13 节的初始质量门槛。
+
+### M7：规则完整性与确定性输出加固
+
+M7 是首版交付后的窄加固里程碑，不增加新的分析器、规则家族或领域适配器。它将 M6
+review 留下的真实输入完整性风险和跨运行时排序风险收敛为明确、可执行的契约。
+
+交付：
+
+- 规则目录的严格发现契约：小写 `.yaml` 与 `.yml` 为唯一允许的规则文档；其他目录项
+  失败关闭，不能静默跳过策略；
+- `check` 与 workspace Markdown 输出共用安全的 inline-code formatter；
+- M6 对外可观察排序使用 locale-independent 的比较器，并为 glob 语义建立直接单测；
+- 一份将风险、非目标、切片顺序和最终验证绑定到 GitHub issue 的执行计划。
+
+Exit criteria：
+
+- 非法或未知的规则目录项返回 exit `2`、不产生 partial stdout、且不写入仓库；
+- `.yml` 规则与 `.yaml` 规则具有相同的严格 schema / symlink / duplicate-id 边界；
+- M6 `check` 与 workspace 的公开 JSON/Markdown 顺序不依赖 ICU locale；
+- M7 仅以已验证的 final head 进入一次 fixed-SHA review，再合并到 stable `main`。
+
+详细执行计划见 docs/m7-plan.md。
 
 ## 13. 验证与评测
 

@@ -10,9 +10,10 @@ of the same model rather than independent sources of truth.
 
 ## Status
 
-Early implementation. Done: M0 (schema contract + `archmap validate`), M1 (universal
-scanner), M2 (TypeScript/JavaScript analysis + evidence-backed queries), and the M3 Python
-and Markdown/YAML/JSON docs-and-data slices. No MCP or Viewer yet.
+M0–M6 are delivered: schema and universal scanning, TypeScript/Python/Markdown/data adapters,
+proposal/MCP workflows, the interactive Viewer, and rules/CI/workspace/pilot evidence. M7 is
+planned as a narrow rule-integrity and deterministic-output hardening milestone; implementation
+has not started.
 
 The working plan is in [PLAN.md](./PLAN.md).
 
