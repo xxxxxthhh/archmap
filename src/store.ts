@@ -30,6 +30,7 @@ import type { ProjectConfig, Snapshot } from './scan/types.js';
 import { StoreFormatError, StorePathError, StorePreconditionError } from './store-errors.js';
 import { parseNodeDocument, parseProjectConfig, parseSnapshot } from './validate/store-contracts.js';
 import { validateManifest } from './validate/validate.js';
+import type { WorkspaceIndex } from './workspace/types.js';
 
 export const ARCHMAP_DIR = '.archmap';
 
@@ -38,8 +39,10 @@ export const paths = {
   project: (root: string) => join(root, ARCHMAP_DIR, 'project.yaml'),
   snapshot: (root: string) => join(root, ARCHMAP_DIR, 'snapshot.yaml'),
   nodesDir: (root: string) => join(root, ARCHMAP_DIR, 'nodes'),
+  rulesDir: (root: string) => join(root, ARCHMAP_DIR, 'rules'),
   cacheDir: (root: string) => join(root, ARCHMAP_DIR, 'cache'),
   index: (root: string) => join(root, ARCHMAP_DIR, 'cache', 'index.json'),
+  workspaceIndex: (root: string) => join(root, ARCHMAP_DIR, 'cache', 'workspace-index.json'),
 };
 
 // --- boundary-safe primitives ------------------------------------------------------------
@@ -515,6 +518,28 @@ export function readValidatedNodes(root: string, capabilities: Capability[]): No
   return nodes;
 }
 
+/** A rule document read from the repository-owned rule directory. */
+export interface RuleDocument {
+  name: string;
+  text: string;
+}
+
+/**
+ * Read optional local rule documents without following symlinks. Rules are tracked decisions,
+ * not cache data, so `check` always reads them afresh. A missing directory means no rules;
+ * a malformed path or non-regular rule file fails closed through the shared store boundary.
+ */
+export function readRuleDocuments(root: string): RuleDocument[] {
+  const dir = safeDir(root, [ARCHMAP_DIR, 'rules']);
+  return safeReaddir(dir)
+    .filter((name) => name.endsWith('.yaml'))
+    .sort()
+    .map((name) => ({
+      name,
+      text: readTextNoFollow(safeFile(root, [ARCHMAP_DIR, 'rules', name])),
+    }));
+}
+
 // --- derived index (disposable cache) ----------------------------------------------------
 
 /**
@@ -546,4 +571,13 @@ export function buildIndex(nodes: Node[]): DerivedIndex {
 export function writeIndex(root: string, index: DerivedIndex): void {
   ensureDir(safeDir(root, [ARCHMAP_DIR, 'cache']));
   writeTextNoFollow(safeFile(root, [ARCHMAP_DIR, 'cache', 'index.json']), toCanonicalJson(index));
+}
+
+/** Persist the disposable, versioned workspace aggregate in the owner project only. */
+export function writeWorkspaceIndex(root: string, index: WorkspaceIndex): void {
+  ensureDir(safeDir(root, [ARCHMAP_DIR, 'cache']));
+  writeTextNoFollow(
+    safeFile(root, [ARCHMAP_DIR, 'cache', 'workspace-index.json']),
+    toCanonicalJson(index),
+  );
 }
