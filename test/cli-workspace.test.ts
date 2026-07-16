@@ -146,6 +146,8 @@ describe('archmap workspace index', () => {
     expect(markdown.stdout).toContain('# Archmap workspace index');
     expect(markdown.stdout).toContain(JSON.stringify('services/api'));
     expect(markdown.stdout).toContain(JSON.stringify('sites/docs'));
+    const reversedMarkdown = runWorkspaceCommand(['index', 'sites/docs', 'services/api'], ctx());
+    expect(reversedMarkdown.stdout).toBe(markdown.stdout);
 
     rmSync(cachePath());
     const rebuilt = runWorkspaceCommand(['index', 'services/api', 'sites/docs', '--json'], ctx());
@@ -165,6 +167,33 @@ describe('archmap workspace index', () => {
     const refreshedApi = refreshed.members.find((member) => member.path === 'services/api')!;
     expect(refreshedApi.snapshot_identity).not.toBe(initialApi.snapshot_identity);
     expect(refreshedApi.node_count).toBeGreaterThan(initialApi.node_count);
+  });
+
+  it('uses code-unit order for case and non-ASCII workspace member paths', () => {
+    const members: Array<[string, string]> = [
+      ['members/é-accented', 'accented'],
+      ['members/a-lowercase', 'lowercase'],
+      ['members/A-uppercase', 'uppercase'],
+    ];
+    for (const [path, id] of members) {
+      initializeProject(join(workspace, path), id, 'src/index.ts', `export const ${id} = true;\n`);
+    }
+
+    const reversed = runWorkspaceCommand(
+      ['index', 'members/é-accented', 'members/a-lowercase', 'members/A-uppercase', '--json'],
+      ctx(),
+    );
+    const forward = runWorkspaceCommand(
+      ['index', 'members/A-uppercase', 'members/a-lowercase', 'members/é-accented', '--json'],
+      ctx(),
+    );
+    expect(reversed.exitCode).toBe(0);
+    expect(forward.stdout).toBe(reversed.stdout);
+    expect(JSON.parse(reversed.stdout).members.map((member: { path: string }) => member.path)).toEqual([
+      'members/A-uppercase',
+      'members/a-lowercase',
+      'members/é-accented',
+    ]);
   });
 
   it('rejects unsafe or invalid members before changing an existing aggregate cache', () => {
@@ -193,17 +222,17 @@ describe('archmap workspace index', () => {
     expect(trackedBytes(api)).toEqual(beforeMember);
   });
 
-  it('keeps model-derived Markdown values inert when a project name contains backticks', () => {
+  it('keeps model-derived Markdown values inert when a project name contains hostile text', () => {
     const docs = join(workspace, 'sites', 'docs');
     writeProject(docs, {
       schema_version: 1,
-      project: { id: 'docs', name: 'docs`<script>' },
+      project: { id: 'docs', name: 'docs``<script>\n\u0001' },
       scan: { max_file_bytes: 1_000_000, exclude_dirs: [], secret_globs: [] },
     });
 
     const out = runWorkspaceCommand(['index', 'services/api', 'sites/docs'], ctx());
     expect(out.exitCode).toBe(0);
-    expect(out.stdout).toContain('``"docs`<script>"``');
+    expect(out.stdout).toContain('```"docs``<script>\\n\\u0001"```');
   });
 
   it('dispatches the same JSON aggregate through the real CLI binary', () => {

@@ -1,6 +1,7 @@
 /** `archmap workspace index <member...> [--json]` — aggregate persisted child baselines. */
 
 import { toCanonicalJson } from '../model/canonical.js';
+import { markdownInlineCode } from '../render/inline-code.js';
 import { writeWorkspaceIndex } from '../store.js';
 import { StoreError } from '../store-errors.js';
 import { buildWorkspaceIndex } from '../workspace/index.js';
@@ -8,12 +9,6 @@ import type { WorkspaceIndex } from '../workspace/types.js';
 import { parseOptions, usageError } from './options.js';
 import { loadScannedProject } from './query-support.js';
 import type { CommandContext, CommandOutput } from './types.js';
-
-function code(value: string): string {
-  const quoted = JSON.stringify(value);
-  const longestRun = Math.max(0, ...[...quoted.matchAll(/`+/g)].map((match) => match[0].length));
-  return `${'`'.repeat(longestRun + 1)}${quoted}${'`'.repeat(longestRun + 1)}`;
-}
 
 function formatMarkdown(index: WorkspaceIndex): string {
   const lines = [
@@ -24,7 +19,7 @@ function formatMarkdown(index: WorkspaceIndex): string {
     '## Members',
     '',
     ...index.members.map((member) =>
-      `- ${code(member.path)}: ${code(member.project_id)} / ${code(member.project_name)} (${member.node_count} node(s), ${member.dirty ? 'dirty snapshot' : 'clean snapshot'})`,
+      `- ${markdownInlineCode(member.path)}: ${markdownInlineCode(member.project_id)} / ${markdownInlineCode(member.project_name)} (${member.node_count} node(s), ${member.dirty ? 'dirty snapshot' : 'clean snapshot'})`,
     ),
   ];
   return `${lines.join('\n')}\n`;

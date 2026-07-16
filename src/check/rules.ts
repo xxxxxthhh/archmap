@@ -1,4 +1,5 @@
 import { parse as parseYaml } from 'yaml';
+import { compareCodeUnits } from '../model/canonical.js';
 import type { RelationType } from '../model/types.js';
 import { readRuleDocuments } from '../store.js';
 import { StoreFormatError } from '../store-errors.js';
@@ -113,7 +114,7 @@ export function loadRules(root: string): DisallowRule[] {
     if (seen.has(rule.id)) invalidRule(rule.id, 'duplicate rule id');
     seen.add(rule.id);
   }
-  return rules.sort((a, b) => a.id.localeCompare(b.id));
+  return rules.sort((a, b) => compareCodeUnits(a.id, b.id));
 }
 
 function segmentMatches(pattern: string, value: string): boolean {

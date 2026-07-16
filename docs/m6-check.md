@@ -47,7 +47,10 @@ gate. A stale tracked model is always a blocking `stale-model` violation.
 
 The report shows rule IDs, node IDs, relation IDs/types/certainty, and matched paths. Markdown
 formats all model-derived strings as inert code spans; JSON keeps the same information in a
-versioned record.
+versioned record. From M7, public check ordering is an explicit UTF-16 code-unit contract: rules,
+matched paths, stale drift paths, and violation records are sorted without locale/ICU behavior.
+This keeps identical inputs byte-stable across supported runtimes without changing the v1 JSON or
+Markdown shapes.
 
 ## Deliberate boundary
 

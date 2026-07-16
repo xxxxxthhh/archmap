@@ -20,6 +20,7 @@ import { formatCheckMarkdown } from '../src/check/format.js';
 import { runInit } from '../src/cli/init-command.js';
 import { runScanCommand } from '../src/cli/scan-command.js';
 import { toCanonicalYaml } from '../src/model/canonical.js';
+import { markdownInlineCode } from '../src/render/inline-code.js';
 import type { Node } from '../src/model/types.js';
 import { paths, readNodes } from '../src/store.js';
 import type { CheckReport } from '../src/check/types.js';
@@ -234,6 +235,20 @@ describe('archmap check', () => {
     expect(bytes()).toEqual(before);
   });
 
+  it('rejects invalid glob grammar in an accepted .yml rule document', () => {
+    write(
+      '.archmap/rules/invalid-glob.yml',
+      'schema_version: 1\nid: invalid-glob\nseverity: error\nfrom:\n  path: src/**suffix\ndisallow:\n  edge_type: imports\n  target:\n    path: src/db/**\n',
+    );
+    const before = bytes();
+
+    const out = runCheckCommand(['--json'], ctx());
+    expect(out.exitCode).toBe(2);
+    expect(out.stdout).toBe('');
+    expect(JSON.parse(out.stderr).error).toContain('may use ** only as a complete path segment');
+    expect(bytes()).toEqual(before);
+  });
+
   it('fails closed for every unexpected rules-directory entry without writing', () => {
     const rulesDir = join(repo, '.archmap', 'rules');
     const cases: Array<[string, () => void]> = [
@@ -300,6 +315,7 @@ describe('archmap check', () => {
   });
 
   it('quotes model-derived Markdown values with a delimiter that keeps embedded backticks inert', () => {
+    const hostile = 'src/ui/``<script>.ts\n\u0001';
     const report: CheckReport = {
       schema_version: 1,
       command: 'check',
@@ -313,7 +329,7 @@ describe('archmap check', () => {
         blocking: true,
         source_node_id: 'node_source',
         target_node_id: 'node_target',
-        source_path: 'src/ui/`<script>.ts',
+        source_path: hostile,
         target_path: 'src/db/connection.ts',
         relation_id: 'rel_source_target',
         relation_type: 'imports',
@@ -321,7 +337,8 @@ describe('archmap check', () => {
       }],
     };
 
-    expect(formatCheckMarkdown(report)).toContain('``"src/ui/`<script>.ts"``');
+    expect(markdownInlineCode(hostile)).toBe('```"src/ui/``<script>.ts\\n\\u0001"```');
+    expect(formatCheckMarkdown(report)).toContain(markdownInlineCode(hostile));
   });
 
   it('keeps unknown flags and positionals as usage errors', () => {
