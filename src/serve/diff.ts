@@ -70,8 +70,8 @@ function requestedRefs(ctx: RequestContext): DiffRefs | undefined {
  */
 function viewerDiffReport(report: ArchDiffReport): ArchDiffReport {
   const scope = (value: Scope): Scope => ({
-    ...(value.files ? { files: value.files.map(neutralizeText) } : {}),
-    ...(value.symbols ? { symbols: value.symbols.map(neutralizeText) } : {}),
+    ...(value.files ? { files: value.files.map((file) => neutralizeText(file)) } : {}),
+    ...(value.symbols ? { symbols: value.symbols.map((symbol) => neutralizeText(symbol)) } : {}),
   });
   const node = (entry: ArchDiffReport['nodes']['added'][number]) => ({
     ...entry,

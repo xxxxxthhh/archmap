@@ -66,8 +66,8 @@ function endpoint(viewer: RunningViewer, base: string, head: string): string {
 
 function viewerReport(report: ReturnType<typeof architectureDiff>): ReturnType<typeof architectureDiff> {
   const scope = (value: Scope): Scope => ({
-    ...(value.files ? { files: value.files.map(neutralizeText) } : {}),
-    ...(value.symbols ? { symbols: value.symbols.map(neutralizeText) } : {}),
+    ...(value.files ? { files: value.files.map((file) => neutralizeText(file)) } : {}),
+    ...(value.symbols ? { symbols: value.symbols.map((symbol) => neutralizeText(symbol)) } : {}),
   });
   const node = (entry: ReturnType<typeof architectureDiff>['nodes']['added'][number]) => ({
     ...entry,
@@ -133,9 +133,13 @@ describe('M5 viewer diff exit', () => {
           'title: "<img src=x onerror=window.__diffTitle=1>"',
           'scope:',
           '  files:',
+          '    - "src/app/main.ts"',
           '    - "<img src=x onerror=window.__diffScopeFile=1>.ts"',
+          '    - "src/render/long-name.ts"',
           '  symbols:',
+          '    - "Component.render"',
           '    - "<svg onload=window.__diffScopeSymbol=1>"',
+          '    - "parseInput"',
         ].join('\n'),
       ),
     );
@@ -157,9 +161,21 @@ describe('M5 viewer diff exit', () => {
     expect(JSON.stringify(body)).not.toContain('<svg');
     expect(JSON.stringify(body)).not.toContain('<script');
     const changedScope = engine.nodes.changed[0]!.after.scope!;
+    expect(changedScope).toEqual({
+      files: ['src/app/main.ts', '<img src=x onerror=window.__diffScopeFile=1>.ts', 'src/render/long-name.ts'],
+      symbols: ['Component.render', '<svg onload=window.__diffScopeSymbol=1>', 'parseInput'],
+    });
     expect(body.nodes.changed[0]!.after.scope).toEqual({
-      files: changedScope.files!.map(neutralizeText),
-      symbols: changedScope.symbols!.map(neutralizeText),
+      files: [
+        'src/app/main.ts',
+        neutralizeText('<img src=x onerror=window.__diffScopeFile=1>.ts'),
+        'src/render/long-name.ts',
+      ],
+      symbols: [
+        'Component.render',
+        neutralizeText('<svg onload=window.__diffScopeSymbol=1>'),
+        'parseInput',
+      ],
     });
     expect(body.relations).toEqual(engine.relations);
     expect(body.claims.added[0]).toMatchObject({ id: 'claim_added', type: 'inference', status: 'active' });

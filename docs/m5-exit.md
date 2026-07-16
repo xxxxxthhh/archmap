@@ -23,7 +23,9 @@ values as inert text.  The V6 diff route is an extension of that same boundary:
 it uses V2's architecture-diff partition and applies the existing Viewer
 `neutralizeText` projection to free-form node titles, scope file/symbol values,
 and claim text before browser JSON is emitted.  It does not construct a second
-interpretation of membership, ids, types, certainty, provenance, or status.
+interpretation of membership, ids, types, certainty, provenance, or status;
+optional scope fields retain their presence, and under-limit file/symbol values
+retain their one-for-one order and cardinality.
 
 ## M5 delivery evidence map
 
