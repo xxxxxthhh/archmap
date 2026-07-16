@@ -10,12 +10,15 @@ of the same model rather than independent sources of truth.
 
 ## Status
 
-M0–M6 are delivered: schema and universal scanning, TypeScript/Python/Markdown/data adapters,
-proposal/MCP workflows, the interactive Viewer, and rules/CI/workspace/pilot evidence. M7 is
-planned as a narrow rule-integrity and deterministic-output hardening milestone; implementation
-has not started.
+M0–M7 are delivered: schema and universal scanning, TypeScript/Python/Markdown/data adapters,
+proposal/MCP workflows, the interactive Viewer, rules/CI/workspace fixture evidence, and M7
+rule-integrity/deterministic-output hardening. The next validation step is one bounded,
+real-repository pilot; it is not a claim that every framework or repository shape is supported.
 
 The working plan is in [PLAN.md](./PLAN.md).
+For the pilot safety boundary, command sequence, and evidence template, see
+[docs/pilot-runbook.md](./docs/pilot-runbook.md) and
+[docs/pilot-scorecard.md](./docs/pilot-scorecard.md).
 
 ## Development
 
