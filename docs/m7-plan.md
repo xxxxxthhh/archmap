@@ -1,7 +1,8 @@
 # M7: 规则完整性与确定性输出加固
 
-状态：已规划，等待显式启动
+状态：执行中（M7-01）
 规划基线：main@fdf7874c0df85609d7400428f7534bd0a7d1bc22
+实施基线：main@8cf0edf3774e7a7cbfa317f4eb2540cd4ce20b72
 目标：关闭 M6 fixed-SHA review 中确认但不阻塞交付的输入完整性与可复现性债务，同时
 保持首版的 local-first、read-only 和 evidence-first 边界。
 
@@ -24,7 +25,8 @@ report 契约，拆成两个串行的纵向切片：
 - 规则文档只允许小写 `.yaml` 和 `.yml` 扩展名；两者使用同一份 v1 schema、路径 glob 和
   duplicate-id 规则。
 - 一旦规则目录存在，任意非规则目录项都使 `archmap check` 失败关闭：未知扩展名、目录、
-  symlink、非普通文件、大小写错误扩展名和隐藏占位文件都不能被静默忽略。
+  symlink、非普通文件、大小写错误扩展名和隐藏占位文件（包括 `.gitkeep` / `.gitignore`）都不能
+  被静默忽略。
 - 所有规则条目都经现有的逐段 `lstat` 与 `O_NOFOLLOW` 边界读取。错误返回 exit `2`，stdout
   为空，不写 cache、report 或 tracked artifact。
 - 错误消息的 source 一律是实际目录项名称；跨 `.yaml` / `.yml` 的重复 rule id 仍被拒绝。
@@ -34,7 +36,7 @@ report 契约，拆成两个串行的纵向切片：
 - `src/store.ts`：严格枚举和边界安全读取；
 - `src/check/rules.ts`：统一 rule-source 错误与 deterministic rule 顺序；
 - `test/cli-check.test.ts`；
-- `docs/m6-check.md` 与 M7 文档。
+- `docs/m6-check.md` 与 `docs/m7-plan.md`（仅用于本次规划审阅裁定对齐）。
 
 ### 非目标
 
@@ -124,3 +126,5 @@ finding，则它复用 M7 的最终 fixed-SHA review，而不是单独再审。
 - check 的 baseline 读取次数 / 并发一致性重构；
 - 删除或重命名可能被外部调用的 store exports；
 - 对真实外部仓库或性能 SLO 做未经设计的声明。
+- `arch-diff-cli` 在默认无界并行测试配置下的环境性超时：M6 的受控矩阵和精确 CI 已通过；
+  若可稳定复现，另开独立 CI 稳定性 issue，不混入 M7 产品契约。

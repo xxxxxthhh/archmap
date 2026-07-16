@@ -17,7 +17,11 @@ produce no partial report.
 
 ## Initial rule contract
 
-Optional rules live in `.archmap/rules/*.yaml`. A v1 rule is a path-scoped prohibition:
+Optional rules live in `.archmap/rules/` as lowercase `.yaml` or `.yml` regular files. A missing
+rules directory means there are no local rules. Once the directory exists, every entry must be one
+of those regular rule documents: unknown extensions, uppercase extensions, directories, symlinks,
+and hidden placeholders (including `.gitkeep` and `.gitignore`) fail closed with exit `2` and no
+partial report. A v1 rule is a path-scoped prohibition:
 
 ```yaml
 schema_version: 1
