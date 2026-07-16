@@ -38,6 +38,7 @@ export const paths = {
   project: (root: string) => join(root, ARCHMAP_DIR, 'project.yaml'),
   snapshot: (root: string) => join(root, ARCHMAP_DIR, 'snapshot.yaml'),
   nodesDir: (root: string) => join(root, ARCHMAP_DIR, 'nodes'),
+  rulesDir: (root: string) => join(root, ARCHMAP_DIR, 'rules'),
   cacheDir: (root: string) => join(root, ARCHMAP_DIR, 'cache'),
   index: (root: string) => join(root, ARCHMAP_DIR, 'cache', 'index.json'),
 };
@@ -513,6 +514,28 @@ export function readValidatedNodes(root: string, capabilities: Capability[]): No
     throw new StoreFormatError(`invalid node model: ${detail}`);
   }
   return nodes;
+}
+
+/** A rule document read from the repository-owned rule directory. */
+export interface RuleDocument {
+  name: string;
+  text: string;
+}
+
+/**
+ * Read optional local rule documents without following symlinks. Rules are tracked decisions,
+ * not cache data, so `check` always reads them afresh. A missing directory means no rules;
+ * a malformed path or non-regular rule file fails closed through the shared store boundary.
+ */
+export function readRuleDocuments(root: string): RuleDocument[] {
+  const dir = safeDir(root, [ARCHMAP_DIR, 'rules']);
+  return safeReaddir(dir)
+    .filter((name) => name.endsWith('.yaml'))
+    .sort()
+    .map((name) => ({
+      name,
+      text: readTextNoFollow(safeFile(root, [ARCHMAP_DIR, 'rules', name])),
+    }));
 }
 
 // --- derived index (disposable cache) ----------------------------------------------------
