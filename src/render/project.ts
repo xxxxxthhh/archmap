@@ -88,7 +88,7 @@ export interface DisplayStats {
 export interface DisplayGraph {
   view: {
     id: string;
-    include: { node_kinds: NodeKind[]; edge_types: RelationType[] };
+    include: { node_kinds: NodeKind[]; edge_types: RelationType[]; path_prefixes?: string[] };
     collapse_below?: StructuralKind;
     layout: 'left-to-right' | 'top-to-bottom';
   };
@@ -129,14 +129,19 @@ function projectNode(node: Node): DisplayNode {
 
 /**
  * Project the validated `nodes` through `view`. A node is visible when its kind is allowed by
- * `include.node_kinds` and it is not collapsed by `collapse_below`; an edge is visible when its
- * type is allowed and both endpoints are visible.
+ * `include.node_kinds`, at least one tracked scope file starts with an optional path prefix, and
+ * it is not collapsed by `collapse_below`; an edge is visible when its type is allowed and both
+ * endpoints are visible.
  */
 export function projectModel(nodes: Node[], view: ViewDefinition): DisplayGraph {
   const filters = effectiveFilters(view);
   const collapseDepth = filters.collapseBelow ? STRUCTURAL_DEPTH[filters.collapseBelow] : undefined;
 
   const kindAllowed = (node: Node): boolean => filters.nodeKinds.has(node.kind);
+  const pathPrefixes = filters.pathPrefixes;
+  const pathAllowed = (node: Node): boolean =>
+    pathPrefixes === undefined ||
+    (node.scope?.files ?? []).some((path) => pathPrefixes.some((prefix) => path.startsWith(prefix)));
   const collapsed = (node: Node): boolean => {
     if (collapseDepth === undefined) return false;
     const depth = structuralDepth(node.kind);
@@ -144,10 +149,10 @@ export function projectModel(nodes: Node[], view: ViewDefinition): DisplayGraph 
     return depth !== undefined && depth > collapseDepth;
   };
 
-  const kindFiltered = nodes.filter(kindAllowed);
-  const visibleNodes = kindFiltered.filter((node) => !collapsed(node));
+  const eligibleNodes = nodes.filter((node) => kindAllowed(node) && pathAllowed(node));
+  const visibleNodes = eligibleNodes.filter((node) => !collapsed(node));
   const visibleIds = new Set(visibleNodes.map((n) => n.id));
-  const collapsedCount = kindFiltered.length - visibleNodes.length;
+  const collapsedCount = eligibleNodes.length - visibleNodes.length;
 
   let totalEdges = 0;
   const edges: DisplayEdge[] = [];
@@ -176,6 +181,7 @@ export function projectModel(nodes: Node[], view: ViewDefinition): DisplayGraph 
       include: {
         node_kinds: [...filters.nodeKinds],
         edge_types: [...filters.edgeTypes],
+        ...(pathPrefixes !== undefined ? { path_prefixes: [...pathPrefixes] } : {}),
       },
       ...(filters.collapseBelow ? { collapse_below: filters.collapseBelow } : {}),
       layout: filters.layout,

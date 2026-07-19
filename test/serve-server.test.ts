@@ -86,6 +86,24 @@ describe('read-only JSON API', () => {
     expect(body.projection.nodes.length).toBe(7);
   });
 
+  it('applies a tracked path-prefix view through the graph API', async () => {
+    const viewer = await start();
+    const res = await fetch(`${viewer.url}api/graph?view=api-paths`);
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      view: { include: { path_prefixes?: string[] } };
+      projection: {
+        nodes: Array<{ id: string }>;
+        edges: Array<{ id: string }>;
+        stats: { total_nodes: number; visible_nodes: number; visible_edges: number };
+      };
+    };
+    expect(body.view.include.path_prefixes).toEqual(['api-']);
+    expect(body.projection.nodes.map((node) => node.id)).toEqual(['node_api', 'node_api_handlers']);
+    expect(body.projection.edges.map((edge) => edge.id)).toEqual(['rel_handlers_imports_api']);
+    expect(body.projection.stats).toMatchObject({ total_nodes: 7, visible_nodes: 2, visible_edges: 1 });
+  });
+
   it('refuses every mutating method with 405 (read-only boundary)', async () => {
     const viewer = await start();
     for (const method of ['POST', 'PUT', 'DELETE', 'PATCH']) {

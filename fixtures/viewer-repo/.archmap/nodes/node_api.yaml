@@ -58,5 +58,8 @@ relations:
     target: node_payments
     type: calls
 schema_version: 1
+scope:
+  files:
+    - api-index.ts
 slug: api-service
 title: API Service

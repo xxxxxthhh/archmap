@@ -18,5 +18,9 @@ relations:
     target: node_api
     type: depends-on
 schema_version: 1
+scope:
+  files:
+    - api-handlers.ts
+    - api-index.ts
 slug: repository
 title: Viewer Repo
