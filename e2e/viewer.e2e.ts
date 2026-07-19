@@ -95,6 +95,59 @@ test('initializes separately mountable V4/V5 client slots', async ({ page }) => 
   }
 });
 
+test('selects a lowercase-slug named view through the canonical page URL', async ({ page }) => {
+  const graphRequests: string[] = [];
+  page.on('request', (request) => {
+    if (new URL(request.url()).pathname === '/api/graph') graphRequests.push(request.url());
+  });
+
+  await page.goto(`${baseURL}?keep=yes#architecture`);
+  await expect(page.getByTestId('map')).toBeVisible();
+  await page.getByTestId('view-id').fill('api-paths');
+  await page.getByTestId('view-form').getByRole('button', { name: 'Apply' }).click();
+
+  await expect(page).toHaveURL(`${baseURL}?keep=yes&view=api-paths#architecture`);
+  await expect(page.getByTestId('status')).toContainText('view "api-paths"');
+  await expect(page.locator('[data-node-id]')).toHaveCount(2);
+  await expect(page.getByTestId('node-node_api')).toHaveCount(1);
+  await expect(page.getByTestId('node-node_api_handlers')).toHaveCount(1);
+  await expect(page.getByTestId('node-node_payments')).toHaveCount(0);
+  expect(graphRequests.at(-1)).toBe(`${baseURL}api/graph?view=api-paths`);
+
+  await page.getByTestId('view-default').click();
+  await expect(page).toHaveURL(`${baseURL}?keep=yes#architecture`);
+  await expect(page.getByTestId('status')).toContainText('view "default"');
+  expect(graphRequests.at(-1)).toBe(`${baseURL}api/graph`);
+});
+
+test('uses the default view for a blank selector and rejects invalid client input before graph fetch', async ({ page }) => {
+  const graphRequests: string[] = [];
+  page.on('request', (request) => {
+    if (new URL(request.url()).pathname === '/api/graph') graphRequests.push(request.url());
+  });
+
+  await page.goto(`${baseURL}?view=`);
+  await expect(page.getByTestId('map')).toBeVisible();
+  expect(graphRequests).toEqual([`${baseURL}api/graph`]);
+
+  graphRequests.length = 0;
+  await page.getByTestId('view-id').fill('Not-A-Slug');
+  await page.getByTestId('view-form').getByRole('button', { name: 'Apply' }).click();
+  await expect(page.getByTestId('view-error')).toContainText('lowercase slug');
+  expect(graphRequests).toEqual([]);
+
+  await page.goto(`${baseURL}?view=Not-A-Slug`);
+  await expect(page.getByTestId('view-error')).toContainText('lowercase slug');
+  await expect(page.getByTestId('map')).toBeHidden();
+  expect(graphRequests).toEqual([]);
+});
+
+test('leaves valid but missing named views to the server authority', async ({ page }) => {
+  await page.goto(`${baseURL}?view=does-not-exist`);
+  await expect(page.getByTestId('status')).toHaveText('Could not load map: view: view not found');
+  await expect(page.getByTestId('map')).toBeHidden();
+});
+
 test('renders hostile repository content inert (no script executes)', async ({ page }) => {
   let dialogFired = false;
   page.on('dialog', (d) => {
