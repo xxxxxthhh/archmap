@@ -6,12 +6,14 @@
 // inline handler — so even though the projection is already neutralized server-side, no field can
 // re-enter as active markup on the client. The CSP additionally blocks any remote fetch.
 
-/* global document, fetch */
+/* global document, fetch, URL, window */
 
 import { mountViewerFeatures } from './features.js';
 
 // Kinds in structural-outermost-first order; only kinds present in the graph render a group.
 const KIND_ORDER = ['system', 'component', 'module', 'store', 'external'];
+const VIEW_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const VIEW_ID_ERROR = 'View must be a lowercase slug using letters, digits, and single hyphens.';
 
 function el(tag, opts) {
   const node = document.createElement(tag);
@@ -25,6 +27,69 @@ function setStatus(message) {
   const status = document.getElementById('status');
   status.textContent = message;
   status.hidden = false;
+}
+
+function pageViewSelection() {
+  const url = new URL(window.location.href);
+  const values = url.searchParams.getAll('view');
+  if (values.length === 0 || (values.length === 1 && values[0].trim() === '')) {
+    return { ok: true, id: null };
+  }
+  if (values.length !== 1 || !VIEW_ID_PATTERN.test(values[0])) {
+    return { ok: false, id: null };
+  }
+  return { ok: true, id: values[0] };
+}
+
+function navigateToView(viewId) {
+  const url = new URL(window.location.href);
+  if (viewId === null) url.searchParams.delete('view');
+  else url.searchParams.set('view', viewId);
+  window.location.assign(`${url.pathname}${url.search}${url.hash}`);
+}
+
+function mountViewSelector(selection) {
+  const slot = document.getElementById('view-selector-slot');
+  if (!slot) throw new Error('missing view selector slot');
+
+  const form = el('form', { className: 'view-selector', testid: 'view-form' });
+  form.noValidate = true;
+  const label = el('label', { text: 'View ' });
+  const input = el('input', { testid: 'view-id' });
+  input.type = 'text';
+  input.name = 'view';
+  input.autocomplete = 'off';
+  input.spellcheck = false;
+  input.placeholder = 'example-view';
+  input.value = selection.id ?? '';
+  label.appendChild(input);
+
+  const apply = el('button', { text: 'Apply' });
+  apply.type = 'submit';
+  const useDefault = el('button', { text: 'Default', testid: 'view-default' });
+  useDefault.type = 'button';
+  const error = el('p', { className: 'view-error', testid: 'view-error' });
+  error.setAttribute('aria-live', 'polite');
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const value = input.value.trim();
+    if (value === '') {
+      navigateToView(null);
+      return;
+    }
+    if (!VIEW_ID_PATTERN.test(value)) {
+      error.textContent = VIEW_ID_ERROR;
+      return;
+    }
+    error.textContent = '';
+    navigateToView(value);
+  });
+  useDefault.addEventListener('click', () => navigateToView(null));
+
+  form.append(label, apply, useDefault, error);
+  slot.replaceChildren(form);
+  if (!selection.ok) error.textContent = VIEW_ID_ERROR;
 }
 
 // Build the expandable detail for one node: claims and outgoing edges. Returns a hidden element
@@ -164,9 +229,10 @@ async function render(graph) {
   await mountViewerFeatures({ graph, map, slots: viewerFeatureSlots() });
 }
 
-async function load() {
+async function load(viewId) {
   try {
-    const res = await fetch('/api/graph', { headers: { accept: 'application/json' } });
+    const endpoint = viewId === null ? '/api/graph' : `/api/graph?view=${encodeURIComponent(viewId)}`;
+    const res = await fetch(endpoint, { headers: { accept: 'application/json' } });
     const body = await res.json();
     if (!res.ok) {
       setStatus(`Could not load map: ${body.error || res.status}`);
@@ -178,4 +244,7 @@ async function load() {
   }
 }
 
-void load();
+const selection = pageViewSelection();
+mountViewSelector(selection);
+if (selection.ok) void load(selection.id);
+else setStatus(`Could not load map: ${VIEW_ID_ERROR}`);
