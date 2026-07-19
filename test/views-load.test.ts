@@ -19,7 +19,11 @@ describe('validateViewDocument', () => {
       {
         schema_version: 1,
         id: 'full',
-        include: { node_kinds: ['system', 'component'], edge_types: ['calls', 'reads'] },
+        include: {
+          node_kinds: ['system', 'component'],
+          edge_types: ['calls', 'reads'],
+          path_prefixes: ['src/api/', 'README.md'],
+        },
         collapse_below: 'component',
         layout: 'top-to-bottom',
       },
@@ -49,6 +53,20 @@ describe('validateViewDocument', () => {
   it('rejects an unknown node kind or edge type', () => {
     expect(validateViewDocument({ schema_version: 1, id: 'x', include: { node_kinds: ['db'] } }, 'x').ok).toBe(false);
     expect(validateViewDocument({ schema_version: 1, id: 'x', include: { edge_types: ['owns'] } }, 'x').ok).toBe(false);
+  });
+
+  it('rejects unsafe or non-canonical path prefixes', () => {
+    for (const prefix of ['', '/src', 'C:/src', '.', '..', './src', 'src/./api', 'src/../api', 'src\\api', 'src//api', 'src\0api']) {
+      const r = validateViewDocument(
+        { schema_version: 1, id: 'x', include: { path_prefixes: [prefix] } },
+        'x',
+      );
+      expect(r.ok, JSON.stringify(prefix)).toBe(false);
+    }
+  });
+
+  it('rejects an empty path-prefix list', () => {
+    expect(validateViewDocument({ schema_version: 1, id: 'x', include: { path_prefixes: [] } }, 'x').ok).toBe(false);
   });
 
   it('rejects a collapse_below outside the structural hierarchy', () => {

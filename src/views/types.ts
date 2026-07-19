@@ -22,6 +22,8 @@ export type ViewLayout = 'left-to-right' | 'top-to-bottom';
 export interface ViewInclude {
   node_kinds?: NodeKind[];
   edge_types?: RelationType[];
+  /** Repository-relative prefixes matched byte-for-byte against tracked `scope.files` paths. */
+  path_prefixes?: string[];
 }
 
 /** A validated view definition. */
@@ -49,6 +51,7 @@ export const DEFAULT_VIEW: ViewDefinition = {
 export interface EffectiveFilters {
   nodeKinds: Set<NodeKind>;
   edgeTypes: Set<RelationType>;
+  pathPrefixes?: readonly string[];
   collapseBelow?: StructuralKind;
   layout: ViewLayout;
 }
@@ -69,6 +72,9 @@ export function effectiveFilters(view: ViewDefinition): EffectiveFilters {
   return {
     nodeKinds: new Set(view.include?.node_kinds ?? ALL_NODE_KINDS),
     edgeTypes: new Set(view.include?.edge_types ?? ALL_EDGE_TYPES),
+    ...(view.include?.path_prefixes !== undefined
+      ? { pathPrefixes: view.include.path_prefixes }
+      : {}),
     ...(view.collapse_below ? { collapseBelow: view.collapse_below } : {}),
     layout: view.layout ?? 'left-to-right',
   };

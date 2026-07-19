@@ -44,6 +44,25 @@ npx tsx src/cli/bin.ts validate <manifest>  # validate a manifest (YAML or JSON)
 contract is [schema/manifest.schema.json](./schema/manifest.schema.json), mirrored by
 `src/model/types.ts` for typed consumers. Example manifests live under `fixtures/`.
 
+Tracked named views live at `.archmap/views/<id>.yaml`. A view can narrow the graph to nodes
+whose tracked `scope.files` paths start byte-for-byte with one of its `include.path_prefixes`:
+
+```yaml
+schema_version: 1
+id: api
+include:
+  path_prefixes:
+    - src/api/
+```
+
+Nodes without a tracked scope, and nodes whose paths do not match, are omitted; edges remain
+only when both endpoints are visible. Use a trailing `/` when the prefix is intended to select a
+directory rather than similarly named paths. Export a tracked view with:
+
+```bash
+npx tsx src/cli/bin.ts export --format svg --view api
+```
+
 ## Initial product boundary
 
 - Local-first and repository-owned data
