@@ -36,5 +36,8 @@ relations:
     target: node_api
     type: imports
 schema_version: 1
+scope:
+  files:
+    - api-handlers.ts
 slug: api-handlers
 title: API Handlers

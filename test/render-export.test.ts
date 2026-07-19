@@ -199,6 +199,21 @@ describe('archmap export (compiled-source bin probe)', () => {
     expect(run(['export', '--format', 'mermaid', '--view', 'overall', '--json']).stdout).toBe(res.stdout);
   });
 
+  it('applies a tracked path-prefix view through the export command', () => {
+    const res = run(['export', '--format', 'markdown', '--view', 'api-paths', '--json']);
+    expect(res.status).toBe(0);
+    const parsed = JSON.parse(res.stdout);
+    expect(parsed.view.include.path_prefixes).toEqual(['api-']);
+    expect(parsed.projection.nodes.map((node: { id: string }) => node.id)).toEqual([
+      'node_api',
+      'node_api_handlers',
+    ]);
+    expect(parsed.projection.edges.map((edge: { id: string }) => edge.id)).toEqual([
+      'rel_handlers_imports_api',
+    ]);
+    expect(parsed.projection.stats).toMatchObject({ total_nodes: 7, visible_nodes: 2, visible_edges: 1 });
+  });
+
   it('fails closed (exit 2, empty stdout) on a path-escaping view', () => {
     const res = run(['export', '--format', 'svg', '--view', '../../etc/passwd']);
     expect(res.status).toBe(2);

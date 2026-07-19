@@ -18,6 +18,19 @@ function fixtureNodes(): Node[] {
 
 const view = (v: Partial<ViewDefinition>): ViewDefinition => ({ schema_version: 1, id: 'test', ...v });
 
+function scopedFixtureNodes(nodes: Node[]): Node[] {
+  const paths = new Map([
+    ['node_api', 'src/api/index.ts'],
+    ['node_api_handlers', 'src/api/handlers.ts'],
+    ['node_worker', 'worker/main.ts'],
+    ['node_worker_jobs', 'worker/jobs.ts'],
+  ]);
+  return nodes.map((node) => {
+    const path = paths.get(node.id);
+    return path ? { ...node, scope: { files: [path] } } : node;
+  });
+}
+
 describe('projectModel', () => {
   const nodes = fixtureNodes();
 
@@ -74,6 +87,42 @@ describe('projectModel', () => {
     const g = projectModel(nodes, view({ include: { node_kinds: ['system', 'component'], edge_types: ['reads'] } }));
     expect(g.nodes.every((n) => n.kind === 'system' || n.kind === 'component')).toBe(true);
     expect(g.edges.every((e) => e.type === 'reads')).toBe(true);
+  });
+
+  it('filters to nodes scoped by a matching repository-relative path prefix', () => {
+    const g = projectModel(scopedFixtureNodes(nodes), view({ include: { path_prefixes: ['src/api/'] } }));
+
+    expect(g.view.include.path_prefixes).toEqual(['src/api/']);
+    expect(g.nodes.map((node) => node.id)).toEqual(['node_api', 'node_api_handlers']);
+    expect(g.edges.map((edge) => edge.id)).toEqual(['rel_handlers_imports_api']);
+    expect(g.edges.every((edge) =>
+      g.nodes.some((node) => node.id === edge.source) && g.nodes.some((node) => node.id === edge.target),
+    )).toBe(true);
+  });
+
+  it('excludes unscoped and nonmatching nodes when path_prefixes is present', () => {
+    const unscoped: Node = {
+      id: 'node_unscoped',
+      slug: 'unscoped',
+      kind: 'external',
+      title: 'Unscoped',
+      claims: [],
+      relations: [],
+    };
+    const g = projectModel([...scopedFixtureNodes(nodes), unscoped], view({ include: { path_prefixes: ['worker/'] } }));
+
+    expect(g.nodes.map((node) => node.id)).toEqual(['node_worker', 'node_worker_jobs']);
+    expect(g.nodes.some((node) => node.id === unscoped.id)).toBe(false);
+    expect(g.edges.map((edge) => edge.id)).toEqual(['rel_worker_jobs']);
+  });
+
+  it('preserves the existing projection when path_prefixes is absent', () => {
+    const g = projectModel(nodes, view({}));
+    expect(g.view.include).toEqual({
+      node_kinds: ['system', 'component', 'module', 'external', 'store'],
+      edge_types: ['calls', 'reads', 'writes', 'imports', 'publishes', 'consumes', 'depends-on'],
+    });
+    expect(g.stats).toMatchObject({ visible_nodes: 7, visible_edges: 7 });
   });
 
   it('is deterministic across runs', () => {

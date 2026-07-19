@@ -18,5 +18,13 @@ excluded_counts:
   secret: 0
   symlink: 0
   too-large: 0
-files: []
+files:
+  - blob_hash: sha256:blob-api-handlers-ts
+    category: source
+    path: api-handlers.ts
+    size: 1
+  - blob_hash: sha256:blob-api-index-ts
+    category: source
+    path: api-index.ts
+    size: 1
 schema_version: 1
