@@ -17,8 +17,12 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
-      - run: npm test
+      # One worker bounds Git/CLI subprocess contention on resource-constrained CI runners.
+      # Called directly: `npm test -- --maxWorkers=1` would pass the option twice.
+      - run: npx vitest run --maxWorkers=1
       - run: npm run build
+      # Source-clone quickstart smoke: the flagship demo on the built CLI in a disposable copy.
+      - run: npm run demo
 
   # Isolated browser smoke for the loopback viewer. Kept separate so the unit suite never depends
   # on a downloaded browser binary; only this job installs Chromium.

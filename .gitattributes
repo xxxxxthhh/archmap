@@ -1,0 +1,5 @@
+# The flagship demo commits examples/lending-desk with a fixed identity and date, so its commit
+# SHAs, and the evidence recorded in site/demo-data.js, are reproducible only if these files keep
+# LF endings in every checkout (for example with core.autocrlf=true). Scoped to the demo only.
+examples/lending-desk/** text eol=lf
+site/demo-data.js text eol=lf

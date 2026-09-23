@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'"
+    />
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      name="description"
+      content="ArchMap turns a Git repository into a local, evidence-backed architecture map that knows when it is out of date."
+    />
+    <title>ArchMap — an architecture map that shows its evidence</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="demo-data.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="masthead">
+      <div class="wrap masthead-row">
+        <a class="wordmark" href="#top" aria-label="ArchMap home">ArchMap</a>
+        <nav aria-label="Sections">
+          <ul class="nav">
+            <li><a href="#example">Example</a></li>
+            <li><a href="#how">How it works</a></li>
+            <li><a href="#run">Run it</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero wrap" id="top" aria-labelledby="hero-title">
+        <p class="eyebrow">Local-first repository map for engineers and coding agents</p>
+        <h1 id="hero-title">Know what a change touches, and&nbsp;why.</h1>
+        <p class="lede">
+          ArchMap scans a Git repository into a reviewable architecture model. Relations carry
+          evidence: the source path, a content hash, the analyzer, and the commit it was read at
+          (or <code>working-tree</code> for uncommitted content). Status reports which nodes went stale when their code changed. The CLI, MCP tools, and
+          viewer all read that same model.
+        </p>
+        <div class="actions">
+          <a class="button primary" href="#example" data-focus-target="walkthrough-heading">Try the example</a>
+          <a class="button" href="#run">Run it locally</a>
+        </div>
+
+        <figure class="hero-record" aria-labelledby="hero-record-caption">
+          <div class="term" id="hero-term">
+            <noscript>
+              <p>Enable JavaScript to browse the recorded example output on this page.</p>
+            </noscript>
+          </div>
+          <figcaption id="hero-record-caption">
+            Recorded output from the real CLI on a synthetic sample. This page does not scan
+            anything.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="band" aria-labelledby="value-title">
+        <div class="wrap">
+          <h2 id="value-title" class="section-title">Three questions it answers from source</h2>
+          <ol class="value">
+            <li>
+              <h3>What does this file affect?</h3>
+              <p>
+                <code>archmap impact</code> walks reverse dependencies: the modules that scope the
+                changed files, and every module that imports them directly or transitively, each with
+                the reason it was included.
+              </p>
+            </li>
+            <li>
+              <h3>Why should I believe that?</h3>
+              <p>
+                <code>archmap evidence</code> returns the path, symbol, blob hash, analyzer, and commit
+                (or <code>working-tree</code>) behind a node or relation. Heuristic findings are labelled <em>partial</em>, not
+                presented as fact.
+              </p>
+            </li>
+            <li>
+              <h3>Is the map still current?</h3>
+              <p>
+                <code>archmap status</code> compares the working tree with the last snapshot and names
+                the stale nodes. <code>archmap scan</code> brings them back in line.
+              </p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="example wrap" id="example" aria-labelledby="example-title">
+        <div class="section-head">
+          <h2 id="example-title" class="section-title">Example: a maintenance loop on a small service</h2>
+          <p class="record-label" id="record-label">Recorded run · synthetic sample</p>
+        </div>
+        <p class="section-intro" id="example-intro">
+          <code>lending-desk</code> is an invented TypeScript service for a neighbourhood tool library.
+          The recording below came from running
+          <code>node scripts/flagship-demo.mjs --write-site</code>, which copies the sample into a
+          fresh temporary Git repository and runs the built ArchMap CLI against it.
+        </p>
+
+        <div class="walkthrough">
+          <h3 id="walkthrough-heading" tabindex="-1" class="sub-title">Walkthrough</h3>
+          <div class="steps-layout">
+            <ol class="steps" id="steps" aria-label="Recorded steps"></ol>
+            <div class="step-panel" id="step-panel" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <div class="freshness" aria-labelledby="freshness-title">
+          <h3 id="freshness-title" class="sub-title">Freshness, before and after one edit</h3>
+          <ol class="timeline" id="timeline"></ol>
+        </div>
+
+        <div class="browser" aria-labelledby="browser-title">
+          <div class="browser-head">
+            <h3 id="browser-title" class="sub-title">Browse the sample and its map</h3>
+            <div class="segmented" role="group" aria-label="Map version">
+              <button type="button" class="seg" id="map-before" aria-pressed="true">First scan</button>
+              <button type="button" class="seg" id="map-after" aria-pressed="false">After rescan</button>
+            </div>
+          </div>
+          <div class="browser-layout">
+            <nav class="files" aria-label="Sample files">
+              <ul id="file-list"></ul>
+            </nav>
+            <div class="file-view">
+              <div class="source" id="source" tabindex="0" aria-label="Source"></div>
+              <div class="node-info" id="node-info"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="how" aria-labelledby="how-title">
+        <div class="wrap how">
+          <h2 id="how-title" class="section-title">How it works</h2>
+          <div class="how-grid">
+            <div>
+              <h3>Scan</h3>
+              <p>
+                <code>archmap scan</code> walks the Git working tree, skips excluded directories and
+                secret-looking files, and runs deterministic analyzers: TypeScript and JavaScript via
+                the compiler's syntax parser, Python, Markdown, and data/config files. It writes
+                <code>.archmap/snapshot.yaml</code> and one YAML file per node. Scanning an unchanged
+                tree produces no diff, so the model can be committed and reviewed like code.
+              </p>
+              <h3>Query</h3>
+              <p>
+                <code>context</code>, <code>impact</code>, <code>evidence</code>, <code>search</code>,
+                and <code>work-items</code> read the tracked model. The same queries are exposed to
+                coding agents over MCP (<code>archmap mcp</code>). AI can only add interpretations
+                through validated, evidence-backed proposals; scanner facts and human decisions stay
+                separate.
+              </p>
+              <h3>Stay current</h3>
+              <p>
+                The snapshot records a content hash per file. <code>archmap status</code> diffs the
+                live tree against it and marks the nodes that scope changed files as stale;
+                <code>archmap check</code> can gate CI on it.
+              </p>
+            </div>
+            <div class="limits">
+              <h3>Limits worth knowing</h3>
+              <ul>
+                <li>
+                  The graph is static and syntactic. There is no type resolution and no runtime
+                  tracing. In the sample, <code>src/plugins/load.ts</code> imports modules by a
+                  computed name, so no edge is recorded for them.
+                </li>
+                <li>
+                  Routes, HTTP calls, and CLI commands are detected heuristically and recorded as
+                  <em>partial</em>. Imports that cannot be resolved inside the repository are
+                  <em>partial</em> too.
+                </li>
+                <li>
+                  The built-in viewer lays out at most 60 nodes and 120 edges. Larger repositories
+                  need a named view that narrows the graph by path prefix or node kind.
+                </li>
+                <li>
+                  One real-repository pilot has been completed. That is not a claim that every
+                  framework or repository shape is supported.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="run wrap" id="run" aria-labelledby="run-title">
+        <h2 id="run-title" class="section-title">Run it from source</h2>
+        <p class="section-intro">
+          ArchMap is not published to npm. Clone the repository and build it with Node.js 20 or newer
+          and Git.
+        </p>
+        <div class="run-grid">
+          <div>
+            <h3>Reproduce this example</h3>
+            <pre class="code"><code>git clone https://github.com/xxxxxthhh/archmap.git
+cd archmap
+npm ci
+npm run build
+npm run demo</code></pre>
+            <p>
+              <code>npm run demo</code> copies <code>examples/lending-desk</code> into a new temporary
+              directory, runs the loop shown above, and deletes that directory afterwards. It never
+              touches the checked-in sample or any other path.
+            </p>
+          </div>
+          <div>
+            <h3>Map your own repository</h3>
+            <pre class="code"><code>cd /path/to/your-repo
+node /path/to/archmap/dist/cli/bin.js init
+node /path/to/archmap/dist/cli/bin.js scan
+node /path/to/archmap/dist/cli/bin.js impact src/some/file.ts</code></pre>
+            <p>
+              ArchMap works on the Git repository that contains your <em>current directory</em>, so
+              run it from inside the repository you want to map. <code>init</code> creates
+              <code>.archmap/</code> at that repository's top level.
+            </p>
+          </div>
+        </div>
+        <p class="more">
+          Details: <code>docs/quickstart.md</code> and <code>docs/flagship-demo.md</code> in the
+          repository.
+        </p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap footer-row">
+        <p>ArchMap · MIT License · runs locally, no cloud service.</p>
+        <p>This page is static: no trackers, no remote requests, no uploads.</p>
+      </div>
+    </footer>
+  </body>
+</html>
