@@ -164,3 +164,110 @@ main {
   font-size: 0.8rem;
   margin: 0.25rem 0;
 }
+
+/*
+ * Responsive containment for the feature slots (evidence, filters/impact, diff). Long source
+ * excerpts scroll inside their own box; long ids, hashes, and paths wrap; the page itself never
+ * scrolls horizontally. Content is contained, not clipped: nothing sets overflow hidden on the page.
+ */
+main,
+.map,
+[data-viewer-feature-slot],
+[data-viewer-feature-slot] section {
+  min-width: 0;
+  max-width: 100%;
+}
+
+[data-viewer-feature-slot] p,
+[data-viewer-feature-slot] li,
+[data-viewer-feature-slot] h2,
+[data-viewer-feature-slot] h3,
+.node-title,
+.claims li,
+.edges li {
+  overflow-wrap: anywhere;
+}
+
+[data-viewer-feature-slot] pre {
+  max-width: 100%;
+  overflow: auto;
+  max-height: 24rem;
+  margin: 0.25rem 0 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  background: var(--card);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  white-space: pre;
+}
+
+[data-viewer-feature-slot] ol,
+[data-viewer-feature-slot] ul {
+  padding-left: 1.25rem;
+}
+
+[data-testid='filter-controls'] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin: 0.5rem 0 1rem;
+}
+
+[data-viewer-feature-slot] label {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+  max-width: 100%;
+}
+
+[data-viewer-feature-slot] input,
+[data-viewer-feature-slot] select,
+[data-viewer-feature-slot] button,
+.view-selector input,
+.view-selector button {
+  max-width: 100%;
+  min-width: 0;
+  color: inherit;
+  font: inherit;
+}
+
+[data-viewer-feature-slot] button,
+.view-selector button,
+.group-toggle,
+.node-toggle {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  main {
+    padding: 1rem;
+  }
+
+  .node-detail {
+    padding: 0 0.75rem 0.6rem 1rem;
+  }
+
+  [data-viewer-feature-slot] label,
+  [data-viewer-feature-slot] input[type='text'],
+  [data-viewer-feature-slot] select,
+  .view-selector input {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  [data-viewer-feature-slot] input,
+  [data-viewer-feature-slot] select,
+  [data-viewer-feature-slot] button,
+  .view-selector input,
+  .view-selector button {
+    min-height: 44px;
+  }
+}

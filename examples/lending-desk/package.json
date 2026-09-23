@@ -1,0 +1,10 @@
+{
+  "name": "lending-desk",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Synthetic ArchMap sample: a small tool-library lending service.",
+  "type": "module",
+  "bin": {
+    "lending-desk": "./bin/lending-desk.ts"
+  }
+}

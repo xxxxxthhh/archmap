@@ -19,6 +19,8 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+      # Source-clone quickstart smoke: the flagship demo on the built CLI in a disposable copy.
+      - run: npm run demo
 
   # Isolated browser smoke for the loopback viewer. Kept separate so the unit suite never depends
   # on a downloaded browser binary; only this job installs Chromium.

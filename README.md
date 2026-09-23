@@ -8,6 +8,31 @@ interpretations only through evidence-backed proposals; human decisions remain p
 Interactive diagrams, impact views, MCP tools, CLI output, and CI reports are projections
 of the same model rather than independent sources of truth.
 
+## Quickstart
+
+ArchMap is not published to npm; run it from a source checkout (Node.js 20+ and Git):
+
+```bash
+git clone https://github.com/xxxxxthhh/archmap.git
+cd archmap
+npm ci
+npm run build
+npm run demo       # init -> scan -> impact/evidence -> edit -> stale -> rescan on a synthetic sample
+```
+
+`npm run demo` works on a temporary copy of [examples/lending-desk](./examples/lending-desk) and
+deletes it afterwards. To map your own repository, run the built CLI from inside that repository:
+
+```bash
+cd /path/to/your-repo
+node /path/to/archmap/dist/cli/bin.js init
+node /path/to/archmap/dist/cli/bin.js scan
+```
+
+See [docs/quickstart.md](./docs/quickstart.md) for queries, the viewer and its 60-node limit,
+and named views, and [docs/flagship-demo.md](./docs/flagship-demo.md) for the demo. A static
+homepage that presents a recorded run of the demo is in [site/](./site/index.html).
+
 ## Status
 
 M0–M7 are delivered: schema and universal scanning, TypeScript/Python/Markdown/data adapters,
@@ -25,11 +50,11 @@ For the pilot safety boundary, command sequence, and evidence template, see
 ## Development
 
 ```bash
-npm install
+npm ci
 npm run check      # typecheck + lint + test + build (single verification command)
 ```
 
-Scan a repository and inspect its architecture model:
+From inside the checkout, the source entry point scans the current repository:
 
 ```bash
 npx tsx src/cli/bin.ts init                 # create .archmap/
@@ -81,3 +106,8 @@ npx tsx src/cli/bin.ts export --format svg --view api
   independently reviewable unit.
 - Generated caches are disposable. Repository-tracked manifests are reviewable and
   migratable.
+
+## License
+
+[MIT](./LICENSE). Contributions: [CONTRIBUTING.md](./CONTRIBUTING.md). Security reports:
+[SECURITY.md](./SECURITY.md).
