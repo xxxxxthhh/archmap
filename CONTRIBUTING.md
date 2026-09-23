@@ -16,6 +16,12 @@ Node.js 20 or newer and Git are required. Python 3 is needed for the Python anal
 running them on every core at once can push individual tests past Vitest's default 5-second
 timeout. Two workers keep the suite reliable without raising timeouts or skipping tests.
 
+CI runs `npx vitest run --maxWorkers=1` instead. A single worker bounds subprocess contention on
+resource-constrained CI runners, where two workers can slow the heaviest subprocess tests past
+their timeouts. The command is called directly because `npm test -- --maxWorkers=1` would pass
+the option twice, which Vitest rejects. The tests, timeouts, and assertions are the same in both
+places.
+
 ## Before opening a pull request
 
 - Keep each pull request to one reviewable change, on a short-lived branch from `main`.
